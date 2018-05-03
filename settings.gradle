@@ -1,0 +1,4 @@
+rootProject.name='bell-tm-hunt'
+
+include 'tm-hunt-api'
+include 'tm-hunt-web'
