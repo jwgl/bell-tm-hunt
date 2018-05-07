@@ -1,0 +1,50 @@
+package cn.edu.bnuz.bell.hunt
+
+import cn.edu.bnuz.bell.organization.Teacher
+
+/**
+ * 专家评审
+ */
+class ExpertReview {
+    /**
+     * 所属项目审核
+     */
+    Review review
+
+    /**
+     * 专家
+     */
+    Teacher expert
+
+    /**
+     * 专家意见
+     */
+    String opinion
+
+    /**
+     * 结论
+     */
+    Conclusion conclusion
+
+    /**
+     * 评审日期
+     */
+    Date dateReviewed
+
+    static belongsTo = [review: Review]
+
+    static mapping = {
+        comment                 '专家评审'
+        table                   schema: 'tm_hunt'
+
+        expert                  comment: '专家'
+        opinion                 length: 1500, comment: '专家意见'
+        conclusion              sqlType: 'tm_hunt.conclusion', type: ConclusionUserType, comment: '专家评审结论'
+        review                  comment: '所属项目审核'
+    }
+    static constraints = {
+        opinion         nullable: true
+        conclusion      nullable: true
+        dateReviewed    nullable: true
+    }
+}
