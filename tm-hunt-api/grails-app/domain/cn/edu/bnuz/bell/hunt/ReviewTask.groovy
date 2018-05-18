@@ -50,6 +50,7 @@ class ReviewTask {
     static mapping = {
         comment         '项目审核安排'
         table           schema: 'tm_hunt'
+        id              generator: 'identity', comment: '安排ID'
         title           length: 50, comment: '通知标题'
         content         length: 1500, comment: '通知内容'
         startDate       comment: '开始日期'

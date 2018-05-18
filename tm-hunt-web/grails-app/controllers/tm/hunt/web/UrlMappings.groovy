@@ -3,11 +3,9 @@ package tm.hunt.web
 class UrlMappings {
 
     static mappings = {
-        "/$controller/$action?/$id?(.$format)?"{
-            constraints {
-                // apply constraints here
-            }
-        }
+
+        "/types"(resources: 'type', includes: ['index'])
+        "/tasks"(resources: 'reviewTask', includes: ['index'])
 
         "/"(view:"/index")
         "500"(view:'/error')

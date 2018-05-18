@@ -6,6 +6,7 @@ class Origin {
     static mapping = {
         comment '项目来源'
         table schema: 'tm_hunt'
+        id   generator: 'identity', comment: '来源ID'
         name length: 50, comment: '来源名称'
     }
 }

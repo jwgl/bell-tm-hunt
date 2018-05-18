@@ -4,6 +4,7 @@ import cn.edu.bnuz.bell.organization.Department
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.workflow.State
 import cn.edu.bnuz.bell.workflow.StateUserType
+import cn.edu.bnuz.bell.workflow.WorkflowInstance
 
 import java.time.LocalDate
 
@@ -104,6 +105,11 @@ class Review {
      */
     String other
 
+    /**
+     * 工作流实例
+     */
+    WorkflowInstance workflowInstance
+
     static hasMany = [expertReview: ExpertReview]
 
     static belongsTo = [project: Project]
@@ -143,5 +149,12 @@ class Review {
         further             nullable: true
         other               nullable: true
         conclusion          nullable: true
+        workflowInstance    nullable: true
     }
+
+    String getWorkflowId() {
+        WORKFLOW_ID
+    }
+
+    static final WORKFLOW_ID = 'hunt.review'
 }
