@@ -17,10 +17,19 @@ select new map(
     st.id as id,
     st.name as name,
     st.enabled as enabled,
-    st.level as level,
-    st.period as period,
-    p.name as parentName
+    st.periodOfUniversity as periodOfUniversity,
+    st.periodOfCity as periodOfCity,
+    st.periodOfProvince as periodOfProvince,
+    st.periodOfNation as periodOfNation,
+    p.name as parentName,
+    p.id as parentId
 ) from Subtype st join st.parent p
+'''
+    }
+
+    def getAllSubtypes() {
+        Subtype.executeQuery'''
+select new map(id as id, name as name) from Subtype where enabled = true
 '''
     }
 
@@ -42,10 +51,12 @@ select new map(
         }
         def subtype = new Subtype(
                 parent: type,
-                level: cmd.level as Level,
+                periodOfUniversity: cmd.periodOfUniversity,
+                periodOfCity: cmd.periodOfCity,
+                periodOfProvince: cmd.periodOfProvince,
+                periodOfNation: cmd.periodOfNation,
                 enabled: cmd.enabled,
-                name: cmd.name,
-                period: cmd.period
+                name: cmd.name
         )
         if (!subtype.save()) {
             subtype.errors.each{
@@ -53,5 +64,19 @@ select new map(
             }
         }
         return subtype
+    }
+
+    def update(Long id, SubtypeCommand cmd) {
+        Subtype form = Subtype.load(id)
+        if (form) {
+            form.parent = Type.load(cmd.parentId)
+            form.periodOfUniversity = cmd.periodOfUniversity
+            form.periodOfCity = cmd.periodOfCity
+            form.periodOfProvince = cmd.periodOfProvince
+            form.periodOfNation = cmd.periodOfNation
+            form.enabled = cmd.enabled
+            form.name = cmd.name
+        }
+        form .save()
     }
 }

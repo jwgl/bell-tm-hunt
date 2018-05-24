@@ -22,6 +22,23 @@ order by rt.dateCreated
 '''
     }
 
+    def listForPerson() {
+        ReviewTask.executeQuery'''
+select new map(
+    rt.id as id,
+    rt.title as title,
+    rt.startDate as startDate,
+    rt.endDate as endDate,
+    rt.type as type,
+    rt.content as content,
+    rt.ban as ban
+)
+from ReviewTask rt
+where rt.type = :type
+order by rt.dateCreated desc
+''', [type: ReviewType.APPLICATION]
+    }
+
     def create(ReviewTaskCommand cmd) {
         def form = new ReviewTask(
                 title: cmd.title,
@@ -58,5 +75,20 @@ where rt.id = :id
         if (result) {
             return result[0]
         }
+    }
+
+    def update(Long id, ReviewTaskCommand cmd) {
+        def form = ReviewTask.load(id)
+        if (form) {
+            form.title = cmd.title
+            form.startDate = ReviewTaskCommand.toDate(cmd.startDate)
+            form.endDate = ReviewTaskCommand.toDate(cmd.endDate)
+            form.type = cmd.type as ReviewType
+            form.content = cmd.content
+            form.remind = cmd.remind
+            form.ban = cmd.ban as Level
+            form.save()
+        }
+        return form
     }
 }

@@ -12,6 +12,7 @@ class Project {
     String degree
     String email
     String discipline
+    String major
     String direction
 
     Department department
@@ -25,6 +26,7 @@ class Project {
     String urls
     Status status
     Subtype subtype
+    Level   level
     Origin  origin
     String members
     String content
@@ -47,12 +49,14 @@ class Project {
         degree                  length: 20, comment: '学位'
         email                   length: 50, comment: '邮箱'
         discipline              length: 20, comment: '学科'
+        major                   length: 50, comment: '专业'
         direction               length: 20, comment: '方向'
         department              comment: '部门'
         office                  length: 20, comment: '行政岗位'
         phone                   length: 30, comment: '电话'
         urls                    length: 300, comment: '支撑网址'
         status                  sqlType: 'tm_hunt.status', type: StatusUserType, comment: '建设情况'
+        level                   sqlType: 'tm_hunt.level', type: LevelUserType, comment: '项目等级'
         subtype                 comment: '项目类别'
         origin                  comment: '项目来源'
         members                 length: 50, comment: '参与人'

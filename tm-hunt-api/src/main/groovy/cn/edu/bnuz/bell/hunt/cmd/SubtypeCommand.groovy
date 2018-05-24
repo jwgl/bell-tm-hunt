@@ -4,11 +4,13 @@ class SubtypeCommand {
     Long parentId
     String parentName
     String name
-    String level
-    Integer period
+    Integer periodOfUniversity
+    Integer periodOfCity
+    Integer periodOfProvince
+    Integer periodOfNation
     Boolean enabled
 
     String toString() {
-        return "parentId:${parentId}, parentName:${parentName}, name:${name}, level:${level}, period:${period}, enabled:${enabled}"
+        return "parentId:${parentId}, parentName:${parentName}, name:${name}, periodOfCity:${periodOfCity}, periodOfUniversity:${periodOfUniversity}, periodOfProvince:${periodOfProvince}, enabled:${enabled}"
     }
 }

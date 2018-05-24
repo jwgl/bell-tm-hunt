@@ -1,5 +1,6 @@
 package cn.edu.bnuz.bell.hunt
 
+import cn.edu.bnuz.bell.hunt.cmd.ReviewTaskCommand
 import cn.edu.bnuz.bell.hunt.cmd.SubtypeCommand
 import org.springframework.security.access.prepost.PreAuthorize
 
@@ -17,5 +18,15 @@ class SubtypeController {
         println cmd
         def form = typeService.createSubtype(cmd)
         renderJson([id: form.id])
+    }
+
+    /**
+     * 更新数据
+     */
+    def update(Long id) {
+        def cmd = new SubtypeCommand()
+        bindData(cmd, request.JSON)
+        typeService.update(id, cmd)
+        renderOk()
     }
 }

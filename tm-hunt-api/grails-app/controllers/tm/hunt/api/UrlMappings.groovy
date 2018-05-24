@@ -7,6 +7,10 @@ class UrlMappings {
         "/subtypes"(resources: 'subtype')
         "/tasks"(resources: 'reviewTask')
 
+        "/teachers"(resources: 'teacher', includes: []) {
+            "/projects"(resources: 'Project')
+        }
+
         "500"(view: '/error')
         "404"(view: '/notFound')
     }

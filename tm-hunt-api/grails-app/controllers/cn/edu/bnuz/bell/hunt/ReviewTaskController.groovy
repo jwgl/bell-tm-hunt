@@ -1,17 +1,27 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.hunt.cmd.ReviewTaskCommand
+import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 
 
-@PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
+@PreAuthorize('hasRole("ROLE_IN_SCHOOL_TEACHER")')
 class ReviewTaskController {
     ReviewTaskService reviewTaskService
+    SecurityService securityService
 
     def index() {
-        renderJson reviewTaskService.list()
+        if (securityService.hasRole('ROLE_HUNT_ADMIN')) {
+            renderJson reviewTaskService.list()
+        } else {
+            renderJson reviewTaskService.listForPerson()
+        }
     }
 
+    /**
+     * 保存数据
+     */
+    @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
     def save() {
         def cmd = new ReviewTaskCommand()
         bindData(cmd, request.JSON)
@@ -21,5 +31,24 @@ class ReviewTaskController {
 
     def show(Long id) {
         renderJson reviewTaskService.getFormForShow(id)
+    }
+
+    /**
+     * 编辑数据
+     */
+    @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
+    def edit(Long id) {
+        renderJson reviewTaskService.getFormForShow(id)
+    }
+
+    /**
+     * 更新数据
+     */
+    @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
+    def update(Long id) {
+        def cmd = new ReviewTaskCommand()
+        bindData(cmd, request.JSON)
+        reviewTaskService.update(id, cmd)
+        renderOk()
     }
 }
