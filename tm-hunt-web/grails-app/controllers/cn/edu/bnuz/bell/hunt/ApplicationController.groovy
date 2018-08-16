@@ -1,6 +1,6 @@
 package cn.edu.bnuz.bell.hunt
 
-class ProjectController {
+class ApplicationController {
 
     def index() { }
 }

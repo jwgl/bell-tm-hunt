@@ -28,7 +28,7 @@ class Application {
     String urls
     String members
 
-    static belongsTo = [project: Project]
+//    static belongsTo = [application: Project]
 
     static mapping = {
         comment                 '立项申请'
@@ -46,7 +46,7 @@ class Application {
         phone                   length: 30, comment: '电话'
         urls                    length: 300, comment: '支撑网址'
         members                 length: 50, comment: '参与人'
-        project                 comment: '所属项目'
+//        application                 comment: '所属项目'
     }
     static constraints = {
         direction   nullable: true

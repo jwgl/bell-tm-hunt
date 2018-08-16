@@ -22,7 +22,7 @@ order by rt.dateCreated
 '''
     }
 
-    def listForPerson() {
+    def listForPerson(String reviewType) {
         ReviewTask.executeQuery'''
 select new map(
     rt.id as id,
@@ -36,7 +36,7 @@ select new map(
 from ReviewTask rt
 where rt.type = :type
 order by rt.dateCreated desc
-''', [type: ReviewType.APPLICATION]
+''', [type: reviewType as ReviewType]
     }
 
     def create(ReviewTaskCommand cmd) {

@@ -7,7 +7,7 @@ class UrlMappings {
         "/types"(resources: 'type', includes: ['index'])
         "/tasks"(resources: 'reviewTask', includes: ['index'])
         "/teachers"(resources: 'teacher', includes: []) {
-            "/projects"(resources: 'project', includes: ['index'])
+            "/applications"(resources: 'application', includes: ['index'])
         }
 
         "/"(view:"/index")

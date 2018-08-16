@@ -1,9 +1,9 @@
 package cn.edu.bnuz.bell.hunt
 
-import grails.testing.web.controllers.ControllerUnitTest
+import grails.testing.gorm.DomainUnitTest
 import spock.lang.Specification
 
-class ProjectControllerSpec extends Specification implements ControllerUnitTest<ProjectController> {
+class CheckerSpec extends Specification implements DomainUnitTest<Checker> {
 
     def setup() {
     }

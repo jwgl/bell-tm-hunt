@@ -8,10 +8,9 @@ class UrlMappings {
         "/tasks"(resources: 'reviewTask')
 
         "/teachers"(resources: 'teacher', includes: []) {
-            "/projects"(resources: 'Project')
+            "/applications"(resources: 'application') {
+                "/checkers"(controller: 'application', action: 'checkers', method: 'GET')
+            }
         }
-
-        "500"(view: '/error')
-        "404"(view: '/notFound')
     }
 }

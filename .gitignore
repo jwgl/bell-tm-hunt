@@ -7,6 +7,6 @@ classes/
 *.iml
 *.ipr
 *.iws
-.project
+.application
 .settings
 .classpath

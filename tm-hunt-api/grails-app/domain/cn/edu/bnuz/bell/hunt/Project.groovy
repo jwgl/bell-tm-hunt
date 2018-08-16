@@ -29,13 +29,8 @@ class Project {
     Level   level
     Origin  origin
     String members
-    String content
-    String achievements
 
-    static hasOne = [
-            application: Application,
-            contract: Contract
-    ]
+    static hasOne = [contract: Contract]
 
     static hasMany = [review: Review]
 
@@ -60,16 +55,12 @@ class Project {
         subtype                 comment: '项目类别'
         origin                  comment: '项目来源'
         members                 length: 50, comment: '参与人'
-        application             comment: '立项申请'
-        content                 length: 1500, comment: '主要内容'
-        achievements            length: 1500, comment: '预期成果'
     }
     static constraints = {
         direction       nullable: true
         office          nullable: true
         urls            nullable: true
-        application     nullable: true
-        content         nullable: true
-        achievements    nullable: true
+        members         nullable: true
+        contract        nullable: true
     }
 }

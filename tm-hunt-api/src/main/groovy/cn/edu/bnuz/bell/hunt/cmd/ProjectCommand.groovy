@@ -1,6 +1,7 @@
 package cn.edu.bnuz.bell.hunt.cmd
 
 class ProjectCommand {
+    Long reviewTaskId
     String principalId
     String title
     String degree
@@ -16,9 +17,31 @@ class ProjectCommand {
     String name
     String urls
     Long subtypeId
-    Long   originId
+    Long originId
     String members
     String content
     String achievements
     String level
+
+    String toString() {
+        return  "reviewTaskId: ${reviewTaskId}; " +
+                "principalId: ${principalId}; " +
+                "title: ${title}; " +
+                "degree: ${degree}; " +
+                "email: ${email}" +
+                "discipline: ${discipline}; " +
+                "major: ${major}; " +
+                "direction: ${direction}; " +
+                "departmentId: ${departmentId}; " +
+                "office: ${office}; " +
+                "phone: ${phone}; " +
+                "name: ${name}; " +
+                "urls: ${urls}; " +
+                "subtypeId: ${subtypeId}; " +
+                "originId: ${originId}; " +
+                "members: ${members}; " +
+                "content: ${content}; " +
+                "achievements: ${achievements}; " +
+                "level: ${level}"
+    }
 }

@@ -3,12 +3,13 @@ package cn.edu.bnuz.bell.hunt
 import cn.edu.bnuz.bell.organization.Department
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.workflow.State
+import cn.edu.bnuz.bell.workflow.StateObject
 import cn.edu.bnuz.bell.workflow.StateUserType
 import cn.edu.bnuz.bell.workflow.WorkflowInstance
 
 import java.time.LocalDate
 
-class Review {
+class Review  implements StateObject{
 
     /**
      * 审核安排
@@ -86,9 +87,9 @@ class Review {
     Conclusion conclusion
 
     /**
-     * 检查类型
+     * 报告类型，1：立项，2：年度，3：中检，4：结项
      */
-    ReviewType reviewType
+    Integer reportType
 
     /**
      * 主要内容或特色、进展正文等
@@ -118,6 +119,7 @@ class Review {
         comment                 '项目审核'
         table                   schema: 'tm_hunt'
 
+        id                      generator: 'identity', comment: '审核ID'
         reviewTask              comment: '审核安排'
         project                 comment: '项目'
         department              comment: '审核部门'
@@ -132,7 +134,7 @@ class Review {
         status                  sqlType: 'tm.state', type: StateUserType, comment: '审批进度、状态'
         conclusion              sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '结论'
         expertOpinion           length: 1500, comment: '专家意见'
-        reviewType              sqlType: 'tm_hunt.review_type', type: ReviewTypeUserType, comment: '检查类型'
+        reportType              comment: '报告类型'
         content                 length: 1500, comment: '主要内容或特色、进展正文'
         further                 length: 1500, comment: '预期成果、未完成原因、主要成果等'
         other                   length: 1500, comment: '其他说明、成果应用情况'
@@ -146,10 +148,14 @@ class Review {
         departmentOpinion   nullable: true
         dateSubmitted       nullable: true
         dateModified        nullable: true
+        content             nullable: true
         further             nullable: true
         other               nullable: true
-        conclusion          nullable: true
         workflowInstance    nullable: true
+        checker             nullable: true
+        dateChecked         nullable: true
+        approver            nullable: true
+        dateApproved        nullable: true
     }
 
     String getWorkflowId() {

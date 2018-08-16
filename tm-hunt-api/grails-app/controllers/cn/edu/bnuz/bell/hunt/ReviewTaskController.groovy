@@ -10,11 +10,11 @@ class ReviewTaskController {
     ReviewTaskService reviewTaskService
     SecurityService securityService
 
-    def index() {
+    def index(String type) {
         if (securityService.hasRole('ROLE_HUNT_ADMIN')) {
             renderJson reviewTaskService.list()
         } else {
-            renderJson reviewTaskService.listForPerson()
+            renderJson reviewTaskService.listForPerson(type?.toUpperCase())
         }
     }
 

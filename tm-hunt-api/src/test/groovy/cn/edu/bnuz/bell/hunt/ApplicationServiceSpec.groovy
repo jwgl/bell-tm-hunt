@@ -3,7 +3,7 @@ package cn.edu.bnuz.bell.hunt
 import grails.testing.services.ServiceUnitTest
 import spock.lang.Specification
 
-class ProjectServiceSpec extends Specification implements ServiceUnitTest<ProjectService>{
+class ApplicationServiceSpec extends Specification implements ServiceUnitTest<ApplicationService>{
 
     def setup() {
     }
