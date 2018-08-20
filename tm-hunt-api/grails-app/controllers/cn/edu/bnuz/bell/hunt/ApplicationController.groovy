@@ -10,6 +10,7 @@ class ApplicationController {
     ApplicationService applicationService
 
     def index(String teacherId) {
+        println 'hh'
         renderJson applicationService.list(teacherId)
     }
 
@@ -28,17 +29,21 @@ class ApplicationController {
         renderJson applicationService.getFormInfo(id)
     }
 
+    def edit(String teacherId, Long id) {
+        renderJson applicationService.getFormForEdit(id)
+    }
+
     /**
      * 创建
      */
-    def create() {
+    def create(String teacherId) {
         renderJson applicationService.getFormForCreate()
     }
 
     /**
      * 获取审核人
      */
-    def checkers() {
+    def checkers(String teacherId) {
         renderJson applicationService.checkers
     }
 

@@ -41,7 +41,48 @@ where project.principal.id = :userId and application.reportType = 1
 ''', [userId: userId]
     }
 
-    def getFormInfo(Long id) {
+    def getFormForEdit(Long id) {
+        def result = Review.executeQuery'''
+select new map(
+    application.id as id,
+    project.title as title,
+    project.degree as degree,
+    project.email as email,
+    project.discipline as discipline,
+    project.major as major,
+    project.direction as direction,
+    project.department.id as departmentId,
+    project.office as office,
+    project.phone as phone,
+    project.name as name,
+    project.level as level,
+    application.status as status,
+    project.urls as urls,
+    subtype.id as subtypeId,
+    origin.id as originId,
+    project.members as members,
+    application.content as content,
+    application.further as achievements
+)
+from Review application
+join application.project project
+join project.subtype subtype
+join project.origin origin
+where application.id = :id
+''', [id: id]
+        if (result) {
+            return [
+                    form: result[0],
+                    departments: departmentService.allDepartments,
+                    subtypes: typeService.allSubtypes,
+                    origins: Origin.findAll()
+            ]
+        } else {
+            throw new BadRequestException()
+        }
+    }
+
+    Map getFormInfo(Long id) {
         def result = Review.executeQuery'''
 select new map(
     application.id as id,
@@ -64,7 +105,6 @@ select new map(
     project.members as members,
     application.content as content,
     application.further as achievements,
-    project.urls as urls,
     application.workflowInstance.id as workflowInstanceId
 )
 from Review application
