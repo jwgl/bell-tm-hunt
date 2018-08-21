@@ -19,7 +19,7 @@ import grails.gorm.transactions.Transactional
 import javax.annotation.Resource
 
 @Transactional
-class ApplicationCheckService {
+class ApplicationApprovalService {
     ApplicationService applicationService
     @Resource(name='projectReviewStateMachine')
     DomainStateMachineHandler domainStateMachineHandler
@@ -29,16 +29,10 @@ class ApplicationCheckService {
         def todo = dataAccessService.getInteger '''
 select count(*)
 from Review application
-join application.department department
-where department = (
-  select checker.department
-  from Checker checker
-  join checker.teacher teacher
-  where teacher.id = :userId
-) and application.status = :status
-''', [userId: userId, status: State.SUBMITTED]
+where application.status = :status
+''', [status: State.CHECKED]
 
-        def done = Review.countByCheckerAndReportType(Teacher.load(userId), 1)
+        def done = Review.countByApproverAndReportType(Teacher.load(userId), 1)
 
         [
                 (ListType.TODO): todo,
@@ -72,20 +66,16 @@ select new map(
     project.major as major,
     project.office as office,
     project.phone as phone,
+    department.name as departmentName,
     application.status as status
 )
 from Review application join application.project project
 join project.subtype subtype
 join project.origin origin
 join application.department department
-where department = (
-  select checker.department
-  from Checker checker
-  join checker.teacher teacher
-  where teacher.id = :userId
-)  and application.status = :status
-order by application.dateSubmitted
-''', [userId: userId, status: State.SUBMITTED], args
+where application.status = :status
+order by application.dateChecked
+''', [status: State.CHECKED], args
 
         [
                 forms : applications,
@@ -102,21 +92,22 @@ select new map(
     project.level as level,
     subtype.name as subtype,
     origin.name as origin,
-    application.dateChecked as date,
+    application.dateApproved as date,
     project.title as title,
     project.degree as degree,
     project.major as major,
     project.office as office,
     project.phone as phone,
+    department.name as departmentName,
     application.status as status
 )
 from Review application join application.project project
 join project.subtype subtype
 join project.origin origin
-join application.checker checker
-where checker.id = :userId and application.reportType = 1
-order by application.dateChecked desc
-''', [userId: userId], args
+join application.department department
+where application.approver is not null and application.reportType = 1
+order by application.dateApproved desc
+''', args
 
         [
                 forms : applications,
@@ -126,17 +117,17 @@ order by application.dateChecked desc
 
     void accept(String userId, AcceptCommand cmd, UUID workitemId) {
         Review application = Review.get(cmd.id)
-        domainStateMachineHandler.accept(application, userId, Activities.CHECK, cmd.comment, workitemId, cmd.to)
-        application.checker = Teacher.load(userId)
-        application.dateChecked = new Date()
+        domainStateMachineHandler.accept(application, userId, Activities.APPROVE, cmd.comment, workitemId)
+        application.approver = Teacher.load(userId)
+        application.dateApproved = new Date()
         application.save()
     }
 
     void reject(String userId, RejectCommand cmd, UUID workitemId) {
         Review application = Review.get(cmd.id)
-        domainStateMachineHandler.reject(application, userId, Activities.CHECK, cmd.comment, workitemId)
-        application.checker = Teacher.load(userId)
-        application.dateChecked = new Date()
+        domainStateMachineHandler.reject(application, userId, Activities.APPROVE, cmd.comment, workitemId)
+        application.approver = Teacher.load(userId)
+        application.dateApproved = new Date()
         application.save()
     }
 
@@ -157,13 +148,15 @@ order by application.dateChecked desc
 
     def getFormForReview(String userId, Long id, ListType type) {
         def form = applicationService.getFormInfo(id)
-
+        if (!form) {
+            throw new BadRequestException()
+        }
         def workitem = Workitem.findByInstanceAndActivityAndToAndDateProcessedIsNull(
                 WorkflowInstance.load(form.workflowInstanceId),
-                WorkflowActivity.load("${Review.WORKFLOW_ID}.${Activities.CHECK}"),
+                WorkflowActivity.load("${Review.WORKFLOW_ID}.${Activities.APPROVE}"),
                 User.load(userId),
         )
-        domainStateMachineHandler.checkReviewer(id, userId, Activities.CHECK)
+        domainStateMachineHandler.checkReviewer(id, userId, Activities.APPROVE)
         return [
                 form: form,
                 counts: getCounts(userId),
@@ -180,33 +173,19 @@ order by application.dateChecked desc
 select form.id
 from Review form 
 join form.reviewTask task
-join form.department department
 where current_date between task.startDate and task.endDate
 and form.status = :status
-and department = (
-  select checker.department
-  from Checker checker
-  join checker.teacher teacher
-  where teacher.id = :userId
-) 
-and form.dateSubmitted < (select dateSubmitted from Review where id = :id)
-order by form.dateSubmitted desc
-''', [userId: userId, id: id, status: State.SUBMITTED])
+and form.dateChecked < (select dateChecked from Review where id = :id)
+order by form.dateChecked desc
+''', [id: id, status: State.CHECKED])
             case ListType.DONE:
                 return dataAccessService.getLong('''
 select form.id
 from Review form
-join form.department department
-where department = (
-  select checker.department
-  from Checker checker
-  join checker.teacher teacher
-  where teacher.id = :userId
-) 
-and form.dateChecked is not null
-and form.dateChecked > (select dateChecked from Review where id = :id)
-order by form.dateChecked asc
-''', [userId: userId, id: id])
+where form.dateApproved is not null
+and form.dateApproved > (select dateApproved from Review where id = :id)
+order by form.dateApproved asc
+''', [id: id])
         }
     }
 
@@ -217,33 +196,19 @@ order by form.dateChecked asc
 select form.id
 from Review form 
 join form.reviewTask task
-join form.department department
 where current_date between task.startDate and task.endDate
 and form.status = :status
-and department = (
-  select checker.department
-  from Checker checker
-  join checker.teacher teacher
-  where teacher.id = :userId
-) 
-and form.dateSubmitted > (select dateSubmitted from Review where id = :id)
-order by form.dateSubmitted asc
-''', [userId: userId, id: id, status: State.SUBMITTED])
+and form.dateChecked > (select dateChecked from Review where id = :id)
+order by form.dateChecked asc
+''', [id: id, status: State.CHECKED])
             case ListType.DONE:
                 return dataAccessService.getLong('''
 select form.id
 from Review form
-join form.department department
-where department = (
-  select checker.department
-  from Checker checker
-  join checker.teacher teacher
-  where teacher.id = :userId
-) 
-and form.dateChecked is not null
-and form.dateChecked < (select dateChecked from Review where id = :id)
-order by form.dateChecked desc
-''', [userId: userId, id: id])
+where form.dateApproved is not null
+and form.dateApproved < (select dateApproved from Review where id = :id)
+order by form.dateApproved desc
+''', [id: id])
         }
     }
 }

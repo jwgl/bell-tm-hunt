@@ -14,6 +14,10 @@ class UrlMappings {
             "/applications"(resources: 'applicationCheck', includes: ['index'])
         }
 
+        "/approvers"(resources: 'approver', includes: []) {
+            "/applications"(resources: 'applicationApproval', includes: ['index'])
+        }
+
         "/"(view:"/index")
         "500"(view:'/error')
         "404"(view:'/notFound')

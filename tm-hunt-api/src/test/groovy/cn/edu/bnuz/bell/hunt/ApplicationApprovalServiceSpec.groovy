@@ -1,9 +1,9 @@
 package cn.edu.bnuz.bell.hunt
 
-import grails.testing.gorm.DomainUnitTest
+import grails.testing.services.ServiceUnitTest
 import spock.lang.Specification
 
-class ContractSpec extends Specification implements DomainUnitTest<Contract> {
+class ApplicationApprovalServiceSpec extends Specification implements ServiceUnitTest<ApplicationApprovalService>{
 
     def setup() {
     }

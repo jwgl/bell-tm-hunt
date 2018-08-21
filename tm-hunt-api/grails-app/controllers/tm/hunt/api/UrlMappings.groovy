@@ -19,5 +19,11 @@ class UrlMappings {
                 "/approvers"(controller: 'applicationCheck', action: 'approvers', method: 'GET')
             }
         }
+
+        "/approvers"(resources: 'approver', includes: []) {
+            "/applications"(resources: 'applicationApproval', includes: ['index']) {
+                "/workitems"(resources: 'applicationApproval', includes: ['show', 'patch'])
+            }
+        }
     }
 }
