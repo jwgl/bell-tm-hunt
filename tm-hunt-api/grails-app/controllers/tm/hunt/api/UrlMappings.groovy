@@ -3,9 +3,15 @@ package tm.hunt.api
 class UrlMappings {
 
     static mappings = {
-        "/types"(resources: 'type')
-        "/subtypes"(resources: 'subtype')
-        "/tasks"(resources: 'reviewTask')
+
+        group "/settings", {
+            "/types"(resources: 'type')
+            "/subtypes"(resources: 'subtype')
+            "/tasks"(resources: 'reviewTask')
+            "/experts"(resources: 'expert')
+            "/teams"(resources: 'team')
+            "/checkers"(resources: 'checker')
+        }
 
         "/teachers"(resources: 'teacher', includes: []) {
             "/applications"(resources: 'application') {

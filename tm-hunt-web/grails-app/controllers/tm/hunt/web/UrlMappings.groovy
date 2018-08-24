@@ -4,8 +4,14 @@ class UrlMappings {
 
     static mappings = {
 
-        "/types"(resources: 'type', includes: ['index'])
-        "/tasks"(resources: 'reviewTask', includes: ['index'])
+        group "/settings", {
+            "/types"(resources: 'type', includes: ['index'])
+            "/subtypes"(resources: 'subtype', includes: ['index'])
+            "/tasks"(resources: 'reviewTask', includes: ['index'])
+            "/experts"(resources: 'expert', includes: ['index'])
+            "/checkers"(resources: 'checker', includes: ['index'])
+        }
+
         "/teachers"(resources: 'teacher', includes: []) {
             "/applications"(resources: 'application', includes: ['index'])
         }

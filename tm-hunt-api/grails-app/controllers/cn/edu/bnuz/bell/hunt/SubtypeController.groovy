@@ -1,6 +1,5 @@
 package cn.edu.bnuz.bell.hunt
 
-import cn.edu.bnuz.bell.hunt.cmd.ReviewTaskCommand
 import cn.edu.bnuz.bell.hunt.cmd.SubtypeCommand
 import org.springframework.security.access.prepost.PreAuthorize
 
