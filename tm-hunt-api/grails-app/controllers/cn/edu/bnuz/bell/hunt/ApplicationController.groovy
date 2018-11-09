@@ -10,7 +10,6 @@ class ApplicationController {
     ApplicationService applicationService
 
     def index(String teacherId) {
-        println 'hh'
         renderJson applicationService.list(teacherId)
     }
 

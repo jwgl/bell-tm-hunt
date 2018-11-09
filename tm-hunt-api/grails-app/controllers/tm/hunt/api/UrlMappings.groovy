@@ -17,6 +17,7 @@ class UrlMappings {
             "/applications"(resources: 'application') {
                 "/checkers"(controller: 'application', action: 'checkers', method: 'GET')
             }
+            "/tasks"(resources: 'taskPublic', includes: ['index'])
         }
 
         "/checkers"(resources: 'checker', includes: []) {
@@ -24,6 +25,7 @@ class UrlMappings {
                 "/workitems"(resources: 'applicationCheck', includes: ['show', 'patch'])
                 "/approvers"(controller: 'applicationCheck', action: 'approvers', method: 'GET')
             }
+            "/tasks"(resources: 'taskChecker', includes: ['index'])
         }
 
         "/approvers"(resources: 'approver', includes: []) {
@@ -31,5 +33,8 @@ class UrlMappings {
                 "/workitems"(resources: 'applicationApproval', includes: ['show', 'patch'])
             }
         }
+
+        "500"(view: '/error')
+        "404"(view: '/notFound')
     }
 }

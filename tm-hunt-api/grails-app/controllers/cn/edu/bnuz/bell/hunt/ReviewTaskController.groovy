@@ -8,14 +8,9 @@ import org.springframework.security.access.prepost.PreAuthorize
 @PreAuthorize('hasRole("ROLE_IN_SCHOOL_TEACHER")')
 class ReviewTaskController {
     ReviewTaskService reviewTaskService
-    SecurityService securityService
 
-    def index(String type) {
-        if (securityService.hasRole('ROLE_HUNT_ADMIN')) {
-            renderJson reviewTaskService.list()
-        } else {
-            renderJson reviewTaskService.listForPerson(type?.toUpperCase())
-        }
+    def index() {
+        renderJson reviewTaskService.list()
     }
 
     /**
@@ -51,4 +46,5 @@ class ReviewTaskController {
         reviewTaskService.update(id, cmd)
         renderOk()
     }
+
 }

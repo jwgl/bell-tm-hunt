@@ -82,7 +82,12 @@ class Review  implements StateObject{
     String expertOpinion
 
     /**
-     * 评审结果
+     * 部门审核结论
+     */
+    Conclusion departmentConclusion
+
+    /**
+     * 学校评审结论
      */
     Conclusion conclusion
 
@@ -107,6 +112,11 @@ class Review  implements StateObject{
     String other
 
     /**
+     * 锁定
+     */
+    Boolean locked
+
+    /**
      * 工作流实例
      */
     WorkflowInstance workflowInstance
@@ -126,36 +136,40 @@ class Review  implements StateObject{
         dateCreated             comment: '创建日期'
         dateModified            comment: '修改日期'
         checker                 comment: '部门审核人'
+        departmentConclusion    sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '部门结论'
         departmentOpinion       length: 500, comment: '部门意见'
         dateChecked             comment: '部门审核日期'
         approver                comment: '审批人'
+        conclusion              sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '学校结论'
         finalOpinion            length: 500, comment: '学校意见'
         dateApproved            comment: '审批日期'
         status                  sqlType: 'tm.state', type: StateUserType, comment: '审批进度、状态'
-        conclusion              sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '结论'
         expertOpinion           length: 1500, comment: '专家意见'
         reportType              comment: '报告类型'
         content                 length: 1500, comment: '主要内容或特色、进展正文'
         further                 length: 1500, comment: '预期成果、未完成原因、主要成果等'
         other                   length: 1500, comment: '其他说明、成果应用情况'
+        locked                  comment: '锁定'
     }
 
     static constraints = {
-        conclusion          nullable: true
-        expertOpinion       nullable: true
-        dateApproved        nullable: true
-        finalOpinion        nullable: true
-        departmentOpinion   nullable: true
-        dateSubmitted       nullable: true
-        dateModified        nullable: true
-        content             nullable: true
-        further             nullable: true
-        other               nullable: true
-        workflowInstance    nullable: true
-        checker             nullable: true
-        dateChecked         nullable: true
-        approver            nullable: true
-        dateApproved        nullable: true
+        conclusion              nullable: true
+        expertOpinion           nullable: true
+        dateApproved            nullable: true
+        finalOpinion            nullable: true
+        departmentOpinion       nullable: true
+        dateSubmitted           nullable: true
+        dateModified            nullable: true
+        content                 nullable: true
+        further                 nullable: true
+        other                   nullable: true
+        workflowInstance        nullable: true
+        checker                 nullable: true
+        dateChecked             nullable: true
+        approver                nullable: true
+        dateApproved            nullable: true
+        locked                  nullable: true
+        departmentConclusion    nullable: true
     }
 
     String getWorkflowId() {

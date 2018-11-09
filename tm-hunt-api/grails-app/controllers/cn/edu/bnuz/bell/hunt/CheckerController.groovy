@@ -30,7 +30,7 @@ class CheckerController {
      */
     def create() {
         renderJson([
-                departments: departmentService.teachingDepartments
+                departments: departmentService.allDepartments
         ])
     }
 }

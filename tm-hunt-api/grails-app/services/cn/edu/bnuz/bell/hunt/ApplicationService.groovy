@@ -34,7 +34,7 @@ select new map(
     application.dateSubmitted as dateSubmitted,
     application.status as status
 )
-from Review application join application.project project
+from Review application right join application.project project
 join project.subtype subtype
 join project.origin origin
 where project.principal.id = :userId and application.reportType = 1
@@ -157,7 +157,7 @@ where application.id = :id
             }
         }
         domainStateMachineHandler.create(review, securityService.userId)
-        return form
+        return review
     }
 
     def submit(String userId, SubmitCommand cmd) {
