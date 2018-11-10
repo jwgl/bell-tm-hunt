@@ -14,13 +14,13 @@ class ApplicationCheckController {
     ApplicationCheckService applicationCheckService
     ProjectReviewerService projectReviewerService
 
-    def index(String checkerId, ListCommand cmd) {
-        renderJson applicationCheckService.list(checkerId, cmd)
+    def index(String checkerId, Long taskId, String type) {
+        ListType listType= ListType.valueOf(type)
+        renderJson applicationCheckService.list(checkerId, taskId, listType)
     }
 
     def show(String checkerId, Long applicationCheckId, String id, String type) {
         ListType listType= ListType.valueOf(type)
-        println applicationCheckId
         if (id == 'undefined') {
             renderJson applicationCheckService.getFormForReview(checkerId, applicationCheckId, listType)
         } else {

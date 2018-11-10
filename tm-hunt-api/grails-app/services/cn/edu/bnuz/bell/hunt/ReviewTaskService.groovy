@@ -87,7 +87,8 @@ select new map(
     rt.title as title,
     rt.endDate as endDate,
     rt.type as type,
-    sum (case when r.department.id = :departmentId then 1 else 0 end) as countProject,
+    sum (case when r.status != 'CREATED' and r.department.id = :departmentId then 1 else 0 end) as countProject,
+    sum (case when r.status = 'SUBMITTED' and r.department.id = :departmentId then 1 else 0 end) as countUncheck,
     sum (case when r.status in (:passStates) and r.department.id = :departmentId then 1 else 0 end) as countPass,
     sum (case when r.status in (:failStates) and r.department.id = :departmentId  then 1 else 0 end) as countFail
 )
@@ -95,7 +96,9 @@ from Review r
 right join r.reviewTask rt
 group by rt.id, rt.title, rt.endDate, rt.type
 order by rt.dateCreated desc
-''', [departmentId: securityService.departmentId, passStates: [State.APPROVED, State.CHECKED], failStates: [State.REJECTED, State.CLOSED]]
+''', [departmentId: securityService.departmentId,
+      passStates: [State.APPROVED, State.CHECKED],
+      failStates: [State.REJECTED, State.CLOSED]]
     }
 
     def listForTeacher() {

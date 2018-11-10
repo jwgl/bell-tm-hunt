@@ -25,40 +25,53 @@ class ApplicationCheckService {
     DomainStateMachineHandler domainStateMachineHandler
     DataAccessService dataAccessService
 
-    protected getCounts(String userId) {
-        def todo = dataAccessService.getInteger '''
-select count(*)
-from Review application
+    def list(String userId, Long taskId, ListType type) {
+        switch (type) {
+            case ListType.TODO:
+                return findTodoList(userId, taskId)
+            case ListType.DONE:
+                return findDoneList(userId, taskId)
+            case ListType.EXPR:
+                return findFailList(userId, taskId)
+            default:
+                return allTypeList(userId, taskId)
+        }
+    }
+
+    def allTypeList(String userId, Long taskId) {
+        Review.executeQuery'''
+select new map(
+    application.id as id,
+    project.name as name,
+    project.principal.name as principalName,
+    project.level as level,
+    subtype.name as subtype,
+    origin.name as origin,
+    application.dateSubmitted as date,
+    project.title as title,
+    project.degree as degree,
+    project.major as major,
+    project.office as office,
+    project.phone as phone,
+    application.status as status
+)
+from Review application join application.project project
+join project.subtype subtype
+join project.origin origin
 join application.department department
 where department = (
   select checker.department
   from Checker checker
   join checker.teacher teacher
   where teacher.id = :userId
-) and application.status = :status
-''', [userId: userId, status: State.SUBMITTED]
-
-        def done = Review.countByCheckerAndReportType(Teacher.load(userId), 1)
-
-        [
-                (ListType.TODO): todo,
-                (ListType.DONE): done,
-        ]
+) and application.status != 'CREATED'
+and application.reviewTask.id = :taskId
+order by application.dateSubmitted
+''', [userId: userId, taskId: taskId]
     }
 
-    def list(String userId, ListCommand cmd) {
-        switch (cmd.type) {
-            case ListType.TODO:
-                return findTodoList(userId, cmd.args)
-            case ListType.DONE:
-                return findDoneList(userId, cmd.args)
-            default:
-                throw new BadRequestException()
-        }
-    }
-
-    def findTodoList(String userId, Map args) {
-        def applications = Review.executeQuery'''
+    def findTodoList(String userId, Long taskId) {
+        Review.executeQuery'''
 select new map(
     application.id as id,
     project.name as name,
@@ -84,17 +97,13 @@ where department = (
   join checker.teacher teacher
   where teacher.id = :userId
 )  and application.status = :status
+and application.reviewTask.id = :taskId
 order by application.dateSubmitted
-''', [userId: userId, status: State.SUBMITTED], args
-
-        [
-                forms : applications,
-                counts: getCounts(userId)
-        ]
+''', [userId: userId, status: State.SUBMITTED, taskId: taskId]
     }
 
-    def findDoneList(String userId, Map args) {
-        def applications = Review.executeQuery'''
+    def findDoneList(String userId, Long taskId) {
+        Review.executeQuery'''
 select new map(
     application.id as id,
     project.name as name,
@@ -114,14 +123,39 @@ from Review application join application.project project
 join project.subtype subtype
 join project.origin origin
 join application.checker checker
-where checker.id = :userId and application.reportType = 1
+where checker.id = :userId
+and application.status in (:status)
+and application.reviewTask.id = :taskId
 order by application.dateChecked desc
-''', [userId: userId], args
+''', [userId: userId, status: [State.CHECKED, State.APPROVED], taskId: taskId]
+    }
 
-        [
-                forms : applications,
-                counts: getCounts(userId)
-        ]
+    def findFailList(String userId, Long taskId) {
+        Review.executeQuery'''
+select new map(
+    application.id as id,
+    project.name as name,
+    project.principal.name as principalName,
+    project.level as level,
+    subtype.name as subtype,
+    origin.name as origin,
+    application.dateChecked as date,
+    project.title as title,
+    project.degree as degree,
+    project.major as major,
+    project.office as office,
+    project.phone as phone,
+    application.status as status
+)
+from Review application join application.project project
+join project.subtype subtype
+join project.origin origin
+join application.checker checker
+where checker.id = :userId
+and application.status in (:status)
+and application.reviewTask.id = :taskId
+order by application.dateChecked desc
+''', [userId: userId, status: [State.REJECTED, State.CLOSED], taskId: taskId]
     }
 
     void accept(String userId, AcceptCommand cmd, UUID workitemId) {
@@ -148,7 +182,6 @@ order by application.dateChecked desc
 
         return [
                 form: form,
-                counts: getCounts(userId),
                 workitemId: workitemId,
                 prevId: getPrevReviewId(userId, id, type),
                 nextId: getNextReviewId(userId, id, type),
@@ -166,7 +199,6 @@ order by application.dateChecked desc
         domainStateMachineHandler.checkReviewer(id, userId, Activities.CHECK)
         return [
                 form: form,
-                counts: getCounts(userId),
                 workitemId: workitem ? workitem.id : null,
                 prevId: getPrevReviewId(userId, id, type),
                 nextId: getNextReviewId(userId, id, type)
@@ -204,9 +236,10 @@ where department = (
   where teacher.id = :userId
 ) 
 and form.dateChecked is not null
+and application.status in (:status)
 and form.dateChecked > (select dateChecked from Review where id = :id)
 order by form.dateChecked asc
-''', [userId: userId, id: id])
+''', [userId: userId, status: [State.REJECTED, State.CLOSED], id: id])
         }
     }
 
@@ -241,9 +274,10 @@ where department = (
   where teacher.id = :userId
 ) 
 and form.dateChecked is not null
+and application.status in (:status)
 and form.dateChecked < (select dateChecked from Review where id = :id)
 order by form.dateChecked desc
-''', [userId: userId, id: id])
+''', [userId: userId, status: [State.REJECTED, State.CLOSED], id: id])
         }
     }
 }
