@@ -80,6 +80,25 @@ where rt.id = :id
         return form
     }
 
+    def listForApproval() {
+        ReviewTask.executeQuery'''
+select new map(
+    rt.id as id,
+    rt.title as title,
+    rt.endDate as endDate,
+    rt.type as type,
+    sum (case when r.status != 'CREATED' then 1 else 0 end) as countProject,
+    sum (case when r.status = 'CHECKED' then 1 else 0 end) as countUncheck,
+    sum (case when r.status = 'APPROVED' and r.conclusion = 'OK' then 1 else 0 end) as countPass,
+    sum (case when r.status = 'APPROVED' and r.conclusion = 'VETO' then 1 else 0 end) as countFail
+)
+from Review r
+right join r.reviewTask rt
+group by rt.id, rt.title, rt.endDate, rt.type
+order by rt.dateCreated desc
+'''
+    }
+
     def listForDepartment() {
         ReviewTask.executeQuery'''
 select new map(

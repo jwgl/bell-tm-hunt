@@ -1,6 +1,7 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
+import cn.edu.bnuz.bell.hunt.cmd.LockCommand
 import cn.edu.bnuz.bell.workflow.Event
 import cn.edu.bnuz.bell.workflow.ListCommand
 import cn.edu.bnuz.bell.workflow.ListType
@@ -12,8 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize
 class ApplicationApprovalController {
     ApplicationApprovalService applicationApprovalService
 
-    def index(String approverId, ListCommand cmd) {
-        renderJson applicationApprovalService.list(approverId, cmd)
+    def index(String approverId, Long taskId, String type) {
+        ListType listType= ListType.valueOf(type)
+        renderJson applicationApprovalService.list(approverId, taskId, listType)
     }
 
     def show(String approverId, Long applicationApprovalId, String id, String type) {
@@ -23,6 +25,13 @@ class ApplicationApprovalController {
         } else {
             renderJson applicationApprovalService.getFormForReview(approverId, applicationApprovalId, listType, UUID.fromString(id))
         }
+    }
+
+    def save(String approverId) {
+        LockCommand cmd = new LockCommand()
+        bindData(cmd, request.JSON)
+        applicationApprovalService.lock(approverId, cmd)
+        renderOk()
     }
 
     def patch(String approverId, Long applicationApprovalId, String id, String op) {

@@ -20,6 +20,7 @@ class ApplicationCheckController {
     }
 
     def show(String checkerId, Long applicationCheckId, String id, String type) {
+        println id
         ListType listType= ListType.valueOf(type)
         if (id == 'undefined') {
             renderJson applicationCheckService.getFormForReview(checkerId, applicationCheckId, listType)

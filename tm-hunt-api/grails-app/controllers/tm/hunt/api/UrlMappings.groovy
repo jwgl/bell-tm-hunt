@@ -29,9 +29,10 @@ class UrlMappings {
         }
 
         "/approvers"(resources: 'approver', includes: []) {
-            "/applications"(resources: 'applicationApproval', includes: ['index']) {
+            "/applications"(resources: 'applicationApproval', excludes: ['show', 'patch']) {
                 "/workitems"(resources: 'applicationApproval', includes: ['show', 'patch'])
             }
+            "/tasks"(resources: 'taskApproval', includes: ['index'])
         }
 
         "500"(view: '/error')

@@ -1,6 +1,7 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
+import cn.edu.bnuz.bell.hunt.cmd.LockCommand
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.User
 import cn.edu.bnuz.bell.service.DataAccessService
@@ -25,34 +26,48 @@ class ApplicationApprovalService {
     DomainStateMachineHandler domainStateMachineHandler
     DataAccessService dataAccessService
 
-    protected getCounts(String userId) {
-        def todo = dataAccessService.getInteger '''
-select count(*)
-from Review application
-where application.status = :status
-''', [status: State.CHECKED]
-
-        def done = Review.countByApproverAndReportType(Teacher.load(userId), 1)
-
-        [
-                (ListType.TODO): todo,
-                (ListType.DONE): done,
-        ]
-    }
-
-    def list(String userId, ListCommand cmd) {
-        switch (cmd.type) {
+    def list(String userId, Long taskId, ListType type) {
+        switch (type) {
             case ListType.TODO:
-                return findTodoList(userId, cmd.args)
+                return findTodoList(userId, taskId)
             case ListType.DONE:
-                return findDoneList(userId, cmd.args)
+                return findDoneList(userId, taskId)
+            case ListType.EXPR:
+                return findFailList(userId, taskId)
             default:
-                throw new BadRequestException()
+                return allTypeList(userId, taskId)
         }
     }
 
-    def findTodoList(String userId, Map args) {
-        def applications = Review.executeQuery'''
+    def allTypeList(String userId, Long taskId) {
+        Review.executeQuery'''
+select new map(
+    application.id as id,
+    project.name as name,
+    project.principal.name as principalName,
+    project.level as level,
+    subtype.name as subtype,
+    origin.name as origin,
+    application.dateSubmitted as date,
+    project.title as title,
+    project.degree as degree,
+    project.major as major,
+    project.office as office,
+    project.phone as phone,
+    application.status as status
+)
+from Review application join application.project project
+join project.subtype subtype
+join project.origin origin
+join application.department department
+where application.status in (:status)'
+and application.reviewTask.id = :taskId
+order by application.dateChecked
+''', [userId: userId, status: [State.CHECKED, State.APPROVED], taskId: taskId]
+    }
+
+    def findTodoList(String userId, Long taskId) {
+        Review.executeQuery'''
 select new map(
     application.id as id,
     project.name as name,
@@ -67,6 +82,7 @@ select new map(
     project.office as office,
     project.phone as phone,
     department.name as departmentName,
+    application.locked as locked,
     application.status as status
 )
 from Review application join application.project project
@@ -74,17 +90,13 @@ join project.subtype subtype
 join project.origin origin
 join application.department department
 where application.status = :status
+and application.reviewTask.id = :taskId
 order by application.dateChecked
-''', [status: State.CHECKED], args
-
-        [
-                forms : applications,
-                counts: getCounts(userId)
-        ]
+''', [status: State.CHECKED, taskId: taskId]
     }
 
-    def findDoneList(String userId, Map args) {
-        def applications = Review.executeQuery'''
+    def findDoneList(String userId, Long taskId) {
+        Review.executeQuery'''
 select new map(
     application.id as id,
     project.name as name,
@@ -105,14 +117,38 @@ from Review application join application.project project
 join project.subtype subtype
 join project.origin origin
 join application.department department
-where application.approver is not null and application.reportType = 1
+where application.status = 'APPROVED' and application.conclusion = 'OK'
+and application.reviewTask.id = :taskId
 order by application.dateApproved desc
-''', args
+''', [taskId: taskId]
+    }
 
-        [
-                forms : applications,
-                counts: getCounts(userId)
-        ]
+    def findFailList(String userId, Long taskId) {
+        Review.executeQuery'''
+select new map(
+    application.id as id,
+    project.name as name,
+    project.principal.name as principalName,
+    project.level as level,
+    subtype.name as subtype,
+    origin.name as origin,
+    application.dateApproved as date,
+    project.title as title,
+    project.degree as degree,
+    project.major as major,
+    project.office as office,
+    project.phone as phone,
+    department.name as departmentName,
+    application.status as status
+)
+from Review application join application.project project
+join project.subtype subtype
+join project.origin origin
+join application.department department
+where application.status = 'APPROVED' and application.conclusion = 'VETO'
+and application.reviewTask.id = :taskId
+order by application.dateApproved desc
+''', [taskId: taskId]
     }
 
     void accept(String userId, AcceptCommand cmd, UUID workitemId) {
@@ -120,14 +156,16 @@ order by application.dateApproved desc
         domainStateMachineHandler.accept(application, userId, Activities.APPROVE, cmd.comment, workitemId)
         application.approver = Teacher.load(userId)
         application.dateApproved = new Date()
+        application.setFinalOpinion(cmd.comment)
         application.save()
     }
 
     void reject(String userId, RejectCommand cmd, UUID workitemId) {
         Review application = Review.get(cmd.id)
-        domainStateMachineHandler.reject(application, userId, Activities.APPROVE, cmd.comment, workitemId)
+        domainStateMachineHandler.reject(application, userId, cmd.comment, workitemId, application.checker.id)
         application.approver = Teacher.load(userId)
         application.dateApproved = new Date()
+        application.setFinalOpinion(cmd.comment)
         application.save()
     }
 
@@ -139,7 +177,6 @@ order by application.dateApproved desc
 
         return [
                 form: form,
-                counts: getCounts(userId),
                 workitemId: workitemId,
                 prevId: getPrevReviewId(userId, id, type),
                 nextId: getNextReviewId(userId, id, type),
@@ -159,11 +196,20 @@ order by application.dateApproved desc
         domainStateMachineHandler.checkReviewer(id, userId, Activities.APPROVE)
         return [
                 form: form,
-                counts: getCounts(userId),
                 workitemId: workitem ? workitem.id : null,
                 prevId: getPrevReviewId(userId, id, type),
                 nextId: getNextReviewId(userId, id, type)
         ]
+    }
+
+    def lock(String userId, LockCommand cmd) {
+        cmd.ids.each { id ->
+            def form = Review.load(id)
+            if (form) {
+                form.locked = cmd.checked
+                form.save()
+            }
+        }
     }
 
     private Long getPrevReviewId(String userId, Long id, ListType type) {

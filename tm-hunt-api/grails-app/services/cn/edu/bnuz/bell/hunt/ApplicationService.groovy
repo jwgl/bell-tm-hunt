@@ -105,12 +105,18 @@ select new map(
     project.members as members,
     application.content as content,
     application.further as achievements,
+    application.departmentConclusion as departmentConclusion,
+    application.departmentOpinion as departmentOpinion,
+    application.conclusion as conclusion,
+    application.finalOpinion as finalOpinion,
+    case when current_date between task.startDate and task.endDate then true else false end as isValidDate,
     application.workflowInstance.id as workflowInstanceId
 )
 from Review application
 join application.project project
 join project.subtype subtype
 join project.origin origin
+join application.reviewTask task
 where application.id = :id
 ''', [id: id]
         if (result) {

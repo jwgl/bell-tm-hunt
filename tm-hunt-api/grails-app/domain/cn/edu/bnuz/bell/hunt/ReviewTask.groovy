@@ -64,4 +64,9 @@ class ReviewTask {
         ban     nullable: true
         remind  nullable: true
     }
+
+    Boolean isValidDate() {
+        def now = LocalDate.now()
+        return now.isAfter(startDate) && now.isBefore(endDate)
+    }
 }

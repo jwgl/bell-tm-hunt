@@ -19,7 +19,7 @@ import org.springframework.statemachine.persist.StateMachinePersister
 class WorkflowConfiguration {
     @Bean('projectReviewStateMachine')
     DomainStateMachineHandler ProjectReviewStateMachine(
-            @Qualifier('defaultStateMachine')
+            @Qualifier('HuntStateMachine')
             StateMachine<State, Event> stateMachine,
             StateMachinePersister<State, Event, StateObject> persister,
             ProjectReviewerService projectReviewerService) {

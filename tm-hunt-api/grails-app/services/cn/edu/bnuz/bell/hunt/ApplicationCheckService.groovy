@@ -163,6 +163,7 @@ order by application.dateChecked desc
         domainStateMachineHandler.accept(application, userId, Activities.CHECK, cmd.comment, workitemId, cmd.to)
         application.checker = Teacher.load(userId)
         application.dateChecked = new Date()
+        application.departmentOpinion = cmd.comment
         application.save()
     }
 
@@ -171,12 +172,12 @@ order by application.dateChecked desc
         domainStateMachineHandler.reject(application, userId, Activities.CHECK, cmd.comment, workitemId)
         application.checker = Teacher.load(userId)
         application.dateChecked = new Date()
+        application.departmentOpinion = cmd.comment
         application.save()
     }
 
     def getFormForReview(String userId, Long id, ListType type, UUID workitemId) {
         def form = applicationService.getFormInfo(id)
-
         def activity = Workitem.get(workitemId).activitySuffix
         domainStateMachineHandler.checkReviewer(id, userId, activity)
 
@@ -236,7 +237,7 @@ where department = (
   where teacher.id = :userId
 ) 
 and form.dateChecked is not null
-and application.status in (:status)
+and form.status in (:status)
 and form.dateChecked > (select dateChecked from Review where id = :id)
 order by form.dateChecked asc
 ''', [userId: userId, status: [State.REJECTED, State.CLOSED], id: id])
@@ -274,7 +275,7 @@ where department = (
   where teacher.id = :userId
 ) 
 and form.dateChecked is not null
-and application.status in (:status)
+and form.status in (:status)
 and form.dateChecked < (select dateChecked from Review where id = :id)
 order by form.dateChecked desc
 ''', [userId: userId, status: [State.REJECTED, State.CLOSED], id: id])

@@ -3,7 +3,7 @@ package cn.edu.bnuz.bell.hunt
 import grails.testing.web.controllers.ControllerUnitTest
 import spock.lang.Specification
 
-class CheckerControllerSpec extends Specification implements ControllerUnitTest<CheckerController> {
+class TaskApprovalControllerSpec extends Specification implements ControllerUnitTest<TaskApprovalController> {
 
     def setup() {
     }
@@ -13,6 +13,6 @@ class CheckerControllerSpec extends Specification implements ControllerUnitTest<
 
     void "test something"() {
         expect:"fix me"
-            true == false
+        true == false
     }
 }
