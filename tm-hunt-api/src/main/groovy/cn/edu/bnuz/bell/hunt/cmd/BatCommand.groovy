@@ -1,6 +1,8 @@
 package cn.edu.bnuz.bell.hunt.cmd
 
-class LockCommand {
+class BatCommand {
     List<Integer> ids
     Boolean checked
+    String type
+    Integer teamNum
 }

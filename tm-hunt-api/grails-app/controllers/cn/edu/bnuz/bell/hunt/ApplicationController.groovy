@@ -24,6 +24,13 @@ class ApplicationController {
         renderJson([id: form.id])
     }
 
+    def update(String teacherId, Long id) {
+        def cmd = new ProjectCommand()
+        bindData(cmd, request.JSON)
+        applicationService.update(id, cmd)
+        renderOk()
+    }
+
     def show(String teacherId, Long id) {
         renderJson applicationService.getFormInfo(id)
     }

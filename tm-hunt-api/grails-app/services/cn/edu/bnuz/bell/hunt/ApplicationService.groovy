@@ -107,8 +107,8 @@ select new map(
     application.further as achievements,
     application.departmentConclusion as departmentConclusion,
     application.departmentOpinion as departmentOpinion,
-    application.conclusion as conclusion,
-    application.finalOpinion as finalOpinion,
+    application.conclusionOfUniversity as conclusionOfUniversity,
+    application.opinionOfUniversity as opinionOfUniversity,
     case when current_date between task.startDate and task.endDate then true else false end as isValidDate,
     application.workflowInstance.id as workflowInstanceId
 )
@@ -120,7 +120,11 @@ join application.reviewTask task
 where application.id = :id
 ''', [id: id]
         if (result) {
-            return result[0]
+            Map review = result[0]
+            if (securityService.hasRole("ROLE_HUNT_ADMIN")) {
+                review['expertReview'] = getExpertReview(review.id)
+            }
+            return review
         } else {
             return null
         }
@@ -166,6 +170,36 @@ where application.id = :id
         return review
     }
 
+    def update(Long id, ProjectCommand cmd) {
+        def review = Review.load(id)
+        if (!review) {
+            throw new BadRequestException()
+        }
+
+        def form = review.project
+        form.setTitle(cmd.title)
+        form.setDegree(cmd.degree)
+        form.setEmail(cmd.email)
+        form.setDiscipline(cmd.discipline)
+        form.setMajor(cmd.major)
+        form.setDirection(cmd.direction)
+        form.setDepartment(Department.load(cmd.departmentId))
+        form.setOffice(cmd.office)
+        form.setPhone(cmd.phone)
+        form.setName(cmd.name)
+        form.setLevel(cmd.level as Level)
+        form.setStatus(Status.CREATED)
+        form.setUrls(cmd.urls)
+        form.setSubtype(Subtype.load(cmd.subtypeId))
+        form.setOrigin(Origin.load(cmd.originId))
+        form.setMembers(cmd.members)
+
+        review.setContent(cmd.content)
+        review.setFurther(cmd.achievements)
+        form.save()
+
+    }
+
     def submit(String userId, SubmitCommand cmd) {
         Review form = Review.get(cmd.id)
 
@@ -206,5 +240,21 @@ join c.department d
 join c.teacher t
 where d.id = :id
 ''', [id: securityService.departmentId]
+    }
+
+    private getExpertReview(Long reviewId) {
+        ExpertReview.executeQuery'''
+select new map(
+    t.id as teacherId,
+    t.name as teacherName,
+    e.opinion as opinion,
+    e.conclusion as conclusion,
+    e.dateReviewed as dateReviewed
+)
+from ExpertReview e
+join e.review r
+join e.expert t
+where r.id = :id
+''', [id: reviewId]
     }
 }

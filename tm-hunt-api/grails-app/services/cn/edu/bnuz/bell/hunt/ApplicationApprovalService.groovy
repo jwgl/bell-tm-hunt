@@ -1,13 +1,14 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
-import cn.edu.bnuz.bell.hunt.cmd.LockCommand
+import cn.edu.bnuz.bell.http.NotFoundException
+import cn.edu.bnuz.bell.hunt.cmd.BatCommand
+import cn.edu.bnuz.bell.hunt.cmd.FinishCommand
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.User
 import cn.edu.bnuz.bell.service.DataAccessService
 import cn.edu.bnuz.bell.workflow.Activities
 import cn.edu.bnuz.bell.workflow.DomainStateMachineHandler
-import cn.edu.bnuz.bell.workflow.ListCommand
 import cn.edu.bnuz.bell.workflow.ListType
 import cn.edu.bnuz.bell.workflow.State
 import cn.edu.bnuz.bell.workflow.WorkflowActivity
@@ -54,6 +55,7 @@ select new map(
     project.major as major,
     project.office as office,
     project.phone as phone,
+    (select count(*) from ExpertReview where review = application) as countExpert, 
     application.status as status
 )
 from Review application join application.project project
@@ -83,6 +85,8 @@ select new map(
     project.phone as phone,
     department.name as departmentName,
     application.locked as locked,
+    application.conclusionOfUniversity as conclusionOfUniversity,
+    (select count(*) from ExpertReview where review = application) as countExpert, 
     application.status as status
 )
 from Review application join application.project project
@@ -111,13 +115,16 @@ select new map(
     project.office as office,
     project.phone as phone,
     department.name as departmentName,
+    application.locked as locked,
+    application.conclusionOfUniversity as conclusionOfUniversity,
+    (select count(*) from ExpertReview where review = application) as countExpert, 
     application.status as status
 )
 from Review application join application.project project
 join project.subtype subtype
 join project.origin origin
 join application.department department
-where application.status = 'APPROVED' and application.conclusion = 'OK'
+where application.status = 'FINISHED' and application.conclusionOfUniversity = 'OK'
 and application.reviewTask.id = :taskId
 order by application.dateApproved desc
 ''', [taskId: taskId]
@@ -139,24 +146,32 @@ select new map(
     project.office as office,
     project.phone as phone,
     department.name as departmentName,
+    application.locked as locked,
+    application.conclusionOfUniversity as conclusionOfUniversity,
     application.status as status
 )
 from Review application join application.project project
 join project.subtype subtype
 join project.origin origin
 join application.department department
-where application.status = 'APPROVED' and application.conclusion = 'VETO'
+where application.status = 'APPROVED' and application.conclusionOfUniversity = 'VETO'
 and application.reviewTask.id = :taskId
 order by application.dateApproved desc
 ''', [taskId: taskId]
     }
 
-    void accept(String userId, AcceptCommand cmd, UUID workitemId) {
+    void finish(String userId, FinishCommand cmd, UUID workitemId) {
+        println 'herer'
         Review application = Review.get(cmd.id)
-        domainStateMachineHandler.accept(application, userId, Activities.APPROVE, cmd.comment, workitemId)
+        if (!application) {
+            throw new NotFoundException()
+        }
+        if (!domainStateMachineHandler.canFinish(application)) {
+            throw new BadRequestException()
+        }
+        domainStateMachineHandler.finish(application, userId, workitemId)
         application.approver = Teacher.load(userId)
         application.dateApproved = new Date()
-        application.setFinalOpinion(cmd.comment)
         application.save()
     }
 
@@ -165,7 +180,6 @@ order by application.dateApproved desc
         domainStateMachineHandler.reject(application, userId, cmd.comment, workitemId, application.checker.id)
         application.approver = Teacher.load(userId)
         application.dateApproved = new Date()
-        application.setFinalOpinion(cmd.comment)
         application.save()
     }
 
@@ -200,16 +214,6 @@ order by application.dateApproved desc
                 prevId: getPrevReviewId(userId, id, type),
                 nextId: getNextReviewId(userId, id, type)
         ]
-    }
-
-    def lock(String userId, LockCommand cmd) {
-        cmd.ids.each { id ->
-            def form = Review.load(id)
-            if (form) {
-                form.locked = cmd.checked
-                form.save()
-            }
-        }
     }
 
     private Long getPrevReviewId(String userId, Long id, ListType type) {

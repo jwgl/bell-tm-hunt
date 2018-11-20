@@ -1,8 +1,13 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
+import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.organization.Teacher
+import cn.edu.bnuz.bell.security.SecurityService
 import cn.edu.bnuz.bell.security.User
+import cn.edu.bnuz.bell.security.UserLog
+import cn.edu.bnuz.bell.security.UserLogService
 import cn.edu.bnuz.bell.service.DataAccessService
 import cn.edu.bnuz.bell.workflow.Activities
 import cn.edu.bnuz.bell.workflow.DomainStateMachineHandler
@@ -14,6 +19,7 @@ import cn.edu.bnuz.bell.workflow.WorkflowInstance
 import cn.edu.bnuz.bell.workflow.Workitem
 import cn.edu.bnuz.bell.workflow.commands.AcceptCommand
 import cn.edu.bnuz.bell.workflow.commands.RejectCommand
+import cn.edu.bnuz.bell.workflow.commands.RevokeCommand
 import grails.gorm.transactions.Transactional
 
 import javax.annotation.Resource
@@ -24,6 +30,8 @@ class ApplicationCheckService {
     @Resource(name='projectReviewStateMachine')
     DomainStateMachineHandler domainStateMachineHandler
     DataAccessService dataAccessService
+    UserLogService userLogService
+    SecurityService securityService
 
     def list(String userId, Long taskId, ListType type) {
         switch (type) {
@@ -176,6 +184,44 @@ order by application.dateChecked desc
         application.save()
     }
 
+    void rollback(String userId, RevokeCommand cmd) {
+        Review application = Review.get(cmd.id)
+        if (!application) {
+            throw new NotFoundException()
+        }
+        if (application.locked || !domainStateMachineHandler.canRollback(application)) {
+            throw new ForbiddenException()
+        }
+        // 找到未审批的workitem
+        def workitem = Workitem.findByInstanceAndActivityAndFromAndDateProcessedIsNull(
+                WorkflowInstance.load(application.workflowInstanceId),
+                WorkflowActivity.load("${Review.WORKFLOW_ID}.${Activities.APPROVE}"),
+                User.load(userId))
+        if (!workitem) {
+            throw new BadRequestException()
+        }
+        workitem.delete()
+        domainStateMachineHandler.rollback(application, userId, cmd.comment, workitem.id)
+        if (cmd.comment) {
+            userLogService.log(securityService.userId,securityService.ipAddress, 'ROLLBACK', application, "撤回理由：${cmd.comment}")
+        }
+
+        List<Workitem> result = Workitem.executeQuery'''
+from Workitem where instance = :instance and activity = :activity and to = :to order by dateCreated desc
+''', [instance: WorkflowInstance.load(application.workflowInstanceId), activity: WorkflowActivity.load('hunt.review.check'),
+      to: User.load(userId)], [max: 1]
+        if (!result) {
+            throw new BadRequestException()
+        }
+        def revokeItem = result[0]
+        revokeItem.setDateProcessed(null)
+        revokeItem.setDateReceived(null)
+        revokeItem.setNote(null)
+        revokeItem.save()
+        application.dateChecked = null
+        application.save()
+    }
+
     def getFormForReview(String userId, Long id, ListType type, UUID workitemId) {
         def form = applicationService.getFormInfo(id)
         def activity = Workitem.get(workitemId).activitySuffix
@@ -198,11 +244,14 @@ order by application.dateChecked desc
                 User.load(userId),
         )
         domainStateMachineHandler.checkReviewer(id, userId, Activities.CHECK)
+        def review = Review.load(id)
+
         return [
                 form: form,
                 workitemId: workitem ? workitem.id : null,
                 prevId: getPrevReviewId(userId, id, type),
-                nextId: getNextReviewId(userId, id, type)
+                nextId: getNextReviewId(userId, id, type),
+                rollbackAble: review.status == State.CHECKED && !review.locked
         ]
     }
 

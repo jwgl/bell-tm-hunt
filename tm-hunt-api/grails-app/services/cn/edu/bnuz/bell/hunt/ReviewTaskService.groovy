@@ -89,8 +89,8 @@ select new map(
     rt.type as type,
     sum (case when r.status != 'CREATED' then 1 else 0 end) as countProject,
     sum (case when r.status = 'CHECKED' then 1 else 0 end) as countUncheck,
-    sum (case when r.status = 'APPROVED' and r.conclusion = 'OK' then 1 else 0 end) as countPass,
-    sum (case when r.status = 'APPROVED' and r.conclusion = 'VETO' then 1 else 0 end) as countFail
+    sum (case when r.status = 'FINISHED' and r.conclusionOfUniversity = 'OK' then 1 else 0 end) as countPass,
+    sum (case when r.status = 'FINISHED' and r.conclusionOfUniversity = 'VETO' then 1 else 0 end) as countFail
 )
 from Review r
 right join r.reviewTask rt

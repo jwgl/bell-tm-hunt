@@ -24,7 +24,7 @@ class ExpertReview {
     /**
      * 结论
      */
-    Conclusion conclusion
+    String conclusion
 
     /**
      * 评审日期
@@ -37,9 +37,10 @@ class ExpertReview {
         comment                 '专家评审'
         table                   schema: 'tm_hunt'
 
+        id                      generator: 'identity', comment: '无意义ID'
         expert                  comment: '专家'
         opinion                 length: 1500, comment: '专家意见'
-        conclusion              sqlType: 'tm_hunt.conclusion', type: ConclusionUserType, comment: '专家评审结论'
+        conclusion              length: 5, comment: '专家评审结论'
         review                  comment: '所属项目审核'
     }
     static constraints = {

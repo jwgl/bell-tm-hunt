@@ -35,6 +35,10 @@ class UrlMappings {
             "/tasks"(resources: 'taskApproval', includes: ['index'])
         }
 
+        "/experts"(resources: 'expert', includes: []) {
+            "/reviews"(resources: 'expertReview')
+        }
+
         "500"(view: '/error')
         "404"(view: '/notFound')
     }

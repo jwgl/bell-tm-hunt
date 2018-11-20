@@ -64,7 +64,7 @@ class Review  implements StateObject{
     /**
      * 学校意见
      */
-    String finalOpinion
+    String opinionOfUniversity
 
     /**
      * 审批时间
@@ -77,11 +77,6 @@ class Review  implements StateObject{
     State status
 
     /**
-     * 专家意见
-     */
-    String expertOpinion
-
-    /**
      * 部门审核结论
      */
     Conclusion departmentConclusion
@@ -89,7 +84,17 @@ class Review  implements StateObject{
     /**
      * 学校评审结论
      */
-    Conclusion conclusion
+    Conclusion conclusionOfUniversity
+
+    /**
+     * 省厅评审结论
+     */
+    Conclusion conclusionOfProvince
+
+    /**
+     * 省厅意见
+     */
+    String opinionOfProvince
 
     /**
      * 报告类型，1：立项，2：年度，3：中检，4：结项
@@ -140,23 +145,22 @@ class Review  implements StateObject{
         departmentOpinion       length: 500, comment: '部门意见'
         dateChecked             comment: '部门审核日期'
         approver                comment: '审批人'
-        conclusion              sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '学校结论'
-        finalOpinion            length: 500, comment: '学校意见'
+        conclusionOfUniversity  sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '学校结论'
+        opinionOfUniversity     length: 500, comment: '学校意见'
+        opinionOfProvince       length: 500, comment: '省厅意见'
         dateApproved            comment: '审批日期'
         status                  sqlType: 'tm.state', type: StateUserType, comment: '审批进度、状态'
-        expertOpinion           length: 1500, comment: '专家意见'
         reportType              comment: '报告类型'
         content                 length: 1500, comment: '主要内容或特色、进展正文'
         further                 length: 1500, comment: '预期成果、未完成原因、主要成果等'
         other                   length: 1500, comment: '其他说明、成果应用情况'
         locked                  comment: '锁定'
+        conclusionOfProvince    sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '省厅结论'
     }
 
     static constraints = {
-        conclusion              nullable: true
-        expertOpinion           nullable: true
         dateApproved            nullable: true
-        finalOpinion            nullable: true
+        opinionOfUniversity     nullable: true
         departmentOpinion       nullable: true
         dateSubmitted           nullable: true
         dateModified            nullable: true
@@ -170,6 +174,9 @@ class Review  implements StateObject{
         dateApproved            nullable: true
         locked                  nullable: true
         departmentConclusion    nullable: true
+        conclusionOfProvince    nullable: true
+        conclusionOfUniversity  nullable: true
+        opinionOfProvince       nullable: true
     }
 
     String getWorkflowId() {

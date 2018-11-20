@@ -38,7 +38,7 @@ class HuntStateMachineConfiguration extends EnumStateMachineConfigurerAdapter<St
                 .state(State.CLOSED,    [actions.logEntryAction(), actions.closedEntryAction()], null)
                 .state(State.CHECKED,   [actions.logEntryAction(), actions.checkedEntryAction()],    [actions.workitemProcessedAction()])
                 .state(State.REJECTED,  [actions.logEntryAction(), actions.rejectedEntryAction()],   [actions.workitemProcessedAction()])
-                .state(State.APPROVED,  [actions.logEntryAction(), actions.notifySubmitterAction()], null)
+                .state(State.FINISHED,  [actions.logEntryAction(), actions.notifySubmitterAction()], null)
     }
 
     @Override
@@ -71,8 +71,8 @@ class HuntStateMachineConfiguration extends EnumStateMachineConfigurerAdapter<St
                 .and()
             .withExternal()
                 .source(State.CHECKED)
-                .event(Event.ACCEPT)
-                .target(State.APPROVED)
+                .event(Event.FINISH)
+                .target(State.FINISHED)
                 .and()
             .withExternal()
                 .source(State.CHECKED)
@@ -92,6 +92,11 @@ class HuntStateMachineConfiguration extends EnumStateMachineConfigurerAdapter<St
             .withExternal()
                 .source(State.REJECTED)
                 .event(Event.SUBMIT)
+                .target(State.SUBMITTED)
+                .and()
+            .withExternal()
+                .source(State.CHECKED)
+                .event(Event.ROLLBACK)
                 .target(State.SUBMITTED)
     }
 

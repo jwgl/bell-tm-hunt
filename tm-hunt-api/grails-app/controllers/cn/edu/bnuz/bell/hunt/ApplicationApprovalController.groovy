@@ -1,17 +1,18 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
-import cn.edu.bnuz.bell.hunt.cmd.LockCommand
+import cn.edu.bnuz.bell.hunt.cmd.ApprovalOperationCommand
+import cn.edu.bnuz.bell.hunt.cmd.BatCommand
+import cn.edu.bnuz.bell.hunt.cmd.FinishCommand
 import cn.edu.bnuz.bell.workflow.Event
-import cn.edu.bnuz.bell.workflow.ListCommand
 import cn.edu.bnuz.bell.workflow.ListType
-import cn.edu.bnuz.bell.workflow.commands.AcceptCommand
 import cn.edu.bnuz.bell.workflow.commands.RejectCommand
 import org.springframework.security.access.prepost.PreAuthorize
 
 @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
 class ApplicationApprovalController {
     ApplicationApprovalService applicationApprovalService
+    ApplicationAdministrationService applicationAdministrationService
 
     def index(String approverId, Long taskId, String type) {
         ListType listType= ListType.valueOf(type)
@@ -28,20 +29,30 @@ class ApplicationApprovalController {
     }
 
     def save(String approverId) {
-        LockCommand cmd = new LockCommand()
+        BatCommand cmd = new BatCommand()
         bindData(cmd, request.JSON)
-        applicationApprovalService.lock(approverId, cmd)
+        switch (cmd.type) {
+            case 'lock':
+                applicationAdministrationService.lock(cmd)
+                break
+            case 'team':
+                applicationAdministrationService.createExpertReview(cmd)
+                break
+            default:
+                throw new BadRequestException()
+        }
+
         renderOk()
     }
 
     def patch(String approverId, Long applicationApprovalId, String id, String op) {
         def operation = Event.valueOf(op)
         switch (operation) {
-            case Event.ACCEPT:
-                def cmd = new AcceptCommand()
+            case Event.FINISH:
+                def cmd = new FinishCommand()
                 bindData(cmd, request.JSON)
                 cmd.id = applicationApprovalId
-                applicationApprovalService.accept(approverId, cmd, UUID.fromString(id))
+                applicationApprovalService.finish(approverId, cmd, UUID.fromString(id))
                 break
             case Event.REJECT:
                 def cmd = new RejectCommand()
@@ -54,6 +65,19 @@ class ApplicationApprovalController {
         }
 
         show(approverId, applicationApprovalId, id, 'todo')
+    }
+
+    def update(String approverId, Long id) {
+        ApprovalOperationCommand cmd = new ApprovalOperationCommand()
+        bindData(cmd, request.JSON)
+        if (cmd.removeExperts) {
+            applicationAdministrationService.removeExpert(id) ? renderOk() : renderBadRequest()
+        } else if (cmd.conclusionOfUniversity || cmd.conclusionOfProvince || cmd.opinionOfProvince || cmd.opinionOfUniversity) {
+            applicationAdministrationService.updateConclusion(id, cmd)
+            renderOk()
+        } else {
+            renderBadRequest()
+        }
     }
 
 }
