@@ -126,6 +126,21 @@ class Review  implements StateObject{
      */
     WorkflowInstance workflowInstance
 
+    /**
+     * 立项日期
+     */
+    LocalDate dateStart
+
+    /**
+     * 预期中期年份
+     */
+    Integer middleYear
+
+    /**
+     * 预期结项年份
+     */
+    Integer endYear
+
     static hasMany = [expertReview: ExpertReview]
 
     static belongsTo = [project: Project]
