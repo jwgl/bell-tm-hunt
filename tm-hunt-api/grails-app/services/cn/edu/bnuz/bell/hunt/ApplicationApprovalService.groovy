@@ -19,6 +19,7 @@ import cn.edu.bnuz.bell.workflow.commands.RejectCommand
 import grails.gorm.transactions.Transactional
 
 import javax.annotation.Resource
+import java.time.LocalDate
 
 @Transactional
 class ApplicationApprovalService {
@@ -161,7 +162,6 @@ order by application.dateApproved desc
     }
 
     void finish(String userId, FinishCommand cmd, UUID workitemId) {
-        println 'herer'
         Review application = Review.get(cmd.id)
         if (!application) {
             throw new NotFoundException()
@@ -173,6 +173,12 @@ order by application.dateApproved desc
         application.approver = Teacher.load(userId)
         application.dateApproved = new Date()
         application.save()
+
+        // 正式立项，创建任务书信息
+        def project = application.project
+        project.setDateStart(LocalDate.now())
+        //
+        project.setMiddleYear(1)
     }
 
     void reject(String userId, RejectCommand cmd, UUID workitemId) {

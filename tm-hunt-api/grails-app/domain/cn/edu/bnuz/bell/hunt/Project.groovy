@@ -3,6 +3,8 @@ package cn.edu.bnuz.bell.hunt
 import cn.edu.bnuz.bell.organization.Department
 import cn.edu.bnuz.bell.organization.Teacher
 
+import java.time.LocalDate
+
 class Project {
     /**
      * 负责人信息
@@ -26,9 +28,34 @@ class Project {
     String urls
     Status status
     Subtype subtype
-    Level   level
+    Level level
     Origin  origin
     String members
+
+    /**
+     * 立项日期
+     */
+    LocalDate dateStart
+
+    /**
+     * 预期中期年份
+     */
+    Integer middleYear
+
+    /**
+     * 预期结项年份
+     */
+    Integer knotYear
+
+    /**
+     * 主要内容
+     */
+    String content
+
+    /**
+     * 预期成果
+     */
+    String achievements
 
     static hasOne = [contract: Contract]
 
@@ -55,6 +82,11 @@ class Project {
         subtype                 comment: '项目类别'
         origin                  comment: '项目来源'
         members                 length: 50, comment: '参与人'
+        dateStart               comment: '立项日期'
+        middleYear              comment: '预期中期年份'
+        knotYear                comment: '预期结项年份'
+        content                 length: 1500, comment: '主要内容'
+        achievements            length: 1500, comment: '预期成果'
     }
     static constraints = {
         direction       nullable: true
@@ -62,5 +94,10 @@ class Project {
         urls            nullable: true
         members         nullable: true
         contract        nullable: true
+        dateStart       nullable: true
+        middleYear      nullable: true
+        knotYear        nullable: true
+        content         nullable: true
+        achievements    nullable: true
     }
 }

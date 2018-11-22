@@ -142,7 +142,7 @@ bell:
             prefixes:
                 - dv
                 - et
-    student:
-        filesPath: 'D:\temp\tm'
+    teacher:
+        filesPath: 'D:\temp\tm\qem'
     report:
         service: tm-report

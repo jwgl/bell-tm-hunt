@@ -16,6 +16,9 @@ class UrlMappings {
         "/teachers"(resources: 'teacher', includes: []) {
             "/applications"(resources: 'application') {
                 "/checkers"(controller: 'application', action: 'checkers', method: 'GET')
+                collection {
+                    "/upload"(controller: 'application', action: 'upload', method: 'POST')
+                }
             }
             "/tasks"(resources: 'taskPublic', includes: ['index'])
         }

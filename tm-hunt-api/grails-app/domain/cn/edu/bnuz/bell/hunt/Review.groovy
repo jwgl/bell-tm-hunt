@@ -122,24 +122,24 @@ class Review  implements StateObject{
     Boolean locked
 
     /**
+     * 申报书、中期验收登记表、结项验收登记表
+     */
+    String mainInfoTable
+
+    /**
+     * 主要佐证材料
+     */
+    String proofFile
+
+    /**
+     * 总结报告
+     */
+    String summaryReport
+
+    /**
      * 工作流实例
      */
     WorkflowInstance workflowInstance
-
-    /**
-     * 立项日期
-     */
-    LocalDate dateStart
-
-    /**
-     * 预期中期年份
-     */
-    Integer middleYear
-
-    /**
-     * 预期结项年份
-     */
-    Integer endYear
 
     static hasMany = [expertReview: ExpertReview]
 
@@ -171,6 +171,9 @@ class Review  implements StateObject{
         other                   length: 1500, comment: '其他说明、成果应用情况'
         locked                  comment: '锁定'
         conclusionOfProvince    sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '省厅结论'
+        mainInfoTable           length: 50, comment: '申报书、中期验收登记表、结项验收登记表'
+        proofFile               length: 50, comment: '主要佐证材料'
+        summaryReport           length: 50, comment: '总结报告'
     }
 
     static constraints = {
@@ -192,6 +195,9 @@ class Review  implements StateObject{
         conclusionOfProvince    nullable: true
         conclusionOfUniversity  nullable: true
         opinionOfProvince       nullable: true
+        mainInfoTable           nullable: true
+        proofFile               nullable: true
+        summaryReport           nullable: true
     }
 
     String getWorkflowId() {
