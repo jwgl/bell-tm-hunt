@@ -8,7 +8,9 @@ import cn.edu.bnuz.bell.organization.Department
 import cn.edu.bnuz.bell.organization.DepartmentService
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
+import cn.edu.bnuz.bell.service.DataAccessService
 import cn.edu.bnuz.bell.workflow.DomainStateMachineHandler
+import cn.edu.bnuz.bell.workflow.State
 import cn.edu.bnuz.bell.workflow.commands.SubmitCommand
 import grails.gorm.transactions.Transactional
 
@@ -22,6 +24,7 @@ class ApplicationService {
     SecurityService securityService
     @Resource(name='projectReviewStateMachine')
     DomainStateMachineHandler domainStateMachineHandler
+    DataAccessService dataAccessService
 
     def list(String userId) {
         Review.executeQuery'''
@@ -45,6 +48,7 @@ where project.principal.id = :userId and application.reportType = 1
         def result = Review.executeQuery'''
 select new map(
     application.id as id,
+    application.reviewTask.id as taskId,
     project.title as title,
     project.degree as degree,
     project.email as email,
@@ -62,7 +66,10 @@ select new map(
     origin.id as originId,
     project.members as members,
     application.content as content,
-    application.further as achievements
+    application.further as achievements,
+    application.mainInfoForm as mainInfoForm,
+    application.proofFile as proofFile,
+    application.summaryReport as summaryReport
 )
 from Review application
 join application.project project
@@ -86,6 +93,7 @@ where application.id = :id
         def result = Review.executeQuery'''
 select new map(
     application.id as id,
+    task.id as taskId,
     project.principal.name as principalName,
     project.title as title,
     project.degree as degree,
@@ -100,6 +108,11 @@ select new map(
     project.level as level,
     application.status as status,
     project.urls as urls,
+    project.status as projectStatus,
+    project.code as code,
+    project.dateStart as dateStarted,
+    project.middleYear as middleYear,
+    project.knotYear as knotYear,
     subtype.name as subtype,
     origin.name as origin,
     project.members as members,
@@ -109,6 +122,11 @@ select new map(
     application.departmentOpinion as departmentOpinion,
     application.conclusionOfUniversity as conclusionOfUniversity,
     application.opinionOfUniversity as opinionOfUniversity,
+    application.reportType as reportType,
+    application.mainInfoForm as mainInfoForm,
+    application.proofFile as proofFile,
+    application.summaryReport as summaryReport,
+    application.locked as locked,
     case when current_date between task.startDate and task.endDate then true else false end as isValidDate,
     application.workflowInstance.id as workflowInstanceId
 )
@@ -123,6 +141,13 @@ where application.id = :id
             Map review = result[0]
             if (securityService.hasRole("ROLE_HUNT_ADMIN")) {
                 review['expertReview'] = getExpertReview(review.id)
+                review['period'] = getPeriod(review.id)
+            } else {
+                if (review.status != State.FINISHED.name()) {
+                    // 审批结束前不让其他人看学校意见和结论
+                    review.conclusionOfUniversity = null
+                    review.opinionOfUniversity = null
+                }
             }
             return review
         } else {
@@ -158,7 +183,9 @@ where application.id = :id
                 dateCreated: LocalDate.now(),
                 status: domainStateMachineHandler.initialState,
                 content: cmd.content,
-                further: cmd.achievements
+                further: cmd.achievements,
+                mainInfoForm: cmd.mainInfoForm,
+                proofFile: cmd.proofFile
         )
         form.addToReview(review)
         if (!form.save()) {
@@ -196,6 +223,8 @@ where application.id = :id
 
         review.setContent(cmd.content)
         review.setFurther(cmd.achievements)
+        review.setMainInfoForm(cmd.mainInfoForm)
+        review.setProofFile(cmd.proofFile)
         form.save()
 
     }
@@ -242,7 +271,7 @@ where d.id = :id
 ''', [id: securityService.departmentId]
     }
 
-    private getExpertReview(Long reviewId) {
+    private static getExpertReview(Long reviewId) {
         ExpertReview.executeQuery'''
 select new map(
     t.id as teacherId,
@@ -255,6 +284,20 @@ from ExpertReview e
 join e.review r
 join e.expert t
 where r.id = :id
+''', [id: reviewId]
+    }
+
+    private getPeriod(Long reviewId) {
+        dataAccessService.getInteger'''
+select case when project.level = 'UNIVERSITY' then subtype.periodOfUniversity
+  when project.level = 'CITY' then subtype.periodOfCity
+  when project.level = 'PROVINCE' then subtype.periodOfProvince
+  when project.level = 'NATION' then subtype.periodOfNation 
+  else 0 end 
+from Review application
+join application.project project
+join project.subtype subtype
+where application.id = :id
 ''', [id: reviewId]
     }
 }

@@ -14,7 +14,6 @@ class SubtypeController {
     def save() {
         SubtypeCommand cmd = new SubtypeCommand()
         bindData(cmd, request.JSON)
-        println cmd
         def form = typeService.createSubtype(cmd)
         renderJson([id: form.id])
     }

@@ -124,7 +124,7 @@ class Review  implements StateObject{
     /**
      * 申报书、中期验收登记表、结项验收登记表
      */
-    String mainInfoTable
+    String mainInfoForm
 
     /**
      * 主要佐证材料
@@ -171,7 +171,7 @@ class Review  implements StateObject{
         other                   length: 1500, comment: '其他说明、成果应用情况'
         locked                  comment: '锁定'
         conclusionOfProvince    sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '省厅结论'
-        mainInfoTable           length: 50, comment: '申报书、中期验收登记表、结项验收登记表'
+        mainInfoForm           length: 50, comment: '申报书、中期验收登记表、结项验收登记表'
         proofFile               length: 50, comment: '主要佐证材料'
         summaryReport           length: 50, comment: '总结报告'
     }
@@ -195,7 +195,7 @@ class Review  implements StateObject{
         conclusionOfProvince    nullable: true
         conclusionOfUniversity  nullable: true
         opinionOfProvince       nullable: true
-        mainInfoTable           nullable: true
+        mainInfoForm           nullable: true
         proofFile               nullable: true
         summaryReport           nullable: true
     }

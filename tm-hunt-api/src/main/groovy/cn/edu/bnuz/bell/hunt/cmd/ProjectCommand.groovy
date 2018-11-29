@@ -22,6 +22,9 @@ class ProjectCommand {
     String content
     String achievements
     String level
+    String mainInfoForm
+    String proofFile
+    String summaryReport
 
     String toString() {
         return  "reviewTaskId: ${reviewTaskId}; " +
@@ -42,6 +45,9 @@ class ProjectCommand {
                 "members: ${members}; " +
                 "content: ${content}; " +
                 "achievements: ${achievements}; " +
-                "level: ${level}"
+                "level: ${level}" +
+                "mainInfoForm: ${mainInfoForm}" +
+                "proofFile: ${proofFile}" +
+                "summaryReport: ${summaryReport}"
     }
 }

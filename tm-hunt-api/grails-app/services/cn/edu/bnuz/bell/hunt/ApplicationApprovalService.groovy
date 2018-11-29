@@ -172,6 +172,11 @@ order by application.dateApproved desc
         domainStateMachineHandler.finish(application, userId, workitemId)
         application.approver = Teacher.load(userId)
         application.dateApproved = new Date()
+        if ((application.project.level == Level.PROVINCE && application.conclusionOfProvince == Conclusion.OK) ||
+            (application.project.level == Level.UNIVERSITY && application.conclusionOfUniversity == Conclusion.OK)) {
+            application.project.setStatus(Status.CUTOUT)
+            application.project.save()
+        }
         application.save()
 
         // 正式立项，创建任务书信息

@@ -3,7 +3,6 @@ package cn.edu.bnuz.bell.hunt
 import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.hunt.cmd.ApprovalOperationCommand
 import cn.edu.bnuz.bell.hunt.cmd.BatCommand
-import cn.edu.bnuz.bell.hunt.cmd.ExpertReviewCommand
 import cn.edu.bnuz.bell.workflow.State
 import grails.gorm.transactions.Transactional
 
@@ -60,10 +59,25 @@ class ApplicationAdministrationService {
         if (!form || form.status != State.CHECKED) {
             throw new BadRequestException()
         }
+        println cmd.opinionOfUniversity
         form.setConclusionOfUniversity(cmd.conclusionOfUniversity ? (cmd.conclusionOfUniversity as Conclusion) : null)
         form.setConclusionOfProvince(cmd.conclusionOfProvince ? (cmd.conclusionOfProvince as Conclusion) : null)
         form.setOpinionOfUniversity(cmd.opinionOfUniversity)
         form.setOpinionOfProvince(cmd.opinionOfProvince)
+        if ((form.project.level == Level.PROVINCE && form.conclusionOfProvince == Conclusion.OK) ||
+            (form.project.level == Level.UNIVERSITY && form.conclusionOfUniversity == Conclusion.OK))   {
+
+            form.project.setCode(cmd.code)
+            form.project.setDateStart(ApprovalOperationCommand.toDate(cmd.dateStarted))
+            form.project.setMiddleYear(cmd.middleYear)
+            form.project.setKnotYear(cmd.knotYear)
+        } else {
+            form.project.setCode(null)
+            form.project.setDateStart(null)
+            form.project.setMiddleYear(null)
+            form.project.setKnotYear(null)
+        }
+        form.project.save()
         form.save()
     }
 }

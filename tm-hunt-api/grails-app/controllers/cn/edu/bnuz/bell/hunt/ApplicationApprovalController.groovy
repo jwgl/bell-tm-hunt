@@ -1,18 +1,25 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
+import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.hunt.cmd.ApprovalOperationCommand
 import cn.edu.bnuz.bell.hunt.cmd.BatCommand
 import cn.edu.bnuz.bell.hunt.cmd.FinishCommand
+import cn.edu.bnuz.bell.hunt.utils.ZipTools
+import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.workflow.Event
 import cn.edu.bnuz.bell.workflow.ListType
 import cn.edu.bnuz.bell.workflow.commands.RejectCommand
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 
 @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
 class ApplicationApprovalController {
     ApplicationApprovalService applicationApprovalService
     ApplicationAdministrationService applicationAdministrationService
+    @Value('${bell.teacher.filesPath}')
+    String filesPath
 
     def index(String approverId, Long taskId, String type) {
         ListType listType= ListType.valueOf(type)
@@ -78,6 +85,28 @@ class ApplicationApprovalController {
         } else {
             renderBadRequest()
         }
+    }
+
+    /**
+     * 下载附件
+     * @param checkerId 审核员ID
+     * @param applicationCheckId 申请ID
+     * @return
+     */
+    def attachments(String approverId, Long applicationApprovalId) {
+        def review = Review.load(applicationApprovalId)
+        if (!review) {
+            throw new NotFoundException()
+        }
+        if (review.department != Teacher.load(approverId).department) {
+            throw new ForbiddenException()
+        }
+        def basePath = "${filesPath}/${review.reviewTask.id}/${review.project.principal.id}"
+        response.setHeader("Content-disposition",
+                "attachment; filename=\"" + URLEncoder.encode("${review.project.name}-${review.project.subtype.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
+        response.contentType = "application/zip"
+        response.outputStream << ZipTools.zip(review, basePath)
+        response.outputStream.flush()
     }
 
 }

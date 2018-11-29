@@ -16,6 +16,7 @@ class UrlMappings {
         "/teachers"(resources: 'teacher', includes: []) {
             "/applications"(resources: 'application') {
                 "/checkers"(controller: 'application', action: 'checkers', method: 'GET')
+                "/attachments"(controller: 'application', action: 'attachments', method: 'GET')
                 collection {
                     "/upload"(controller: 'application', action: 'upload', method: 'POST')
                 }
@@ -27,6 +28,7 @@ class UrlMappings {
             "/applications"(resources: 'applicationCheck', includes: ['index']) {
                 "/workitems"(resources: 'applicationCheck', includes: ['show', 'patch'])
                 "/approvers"(controller: 'applicationCheck', action: 'approvers', method: 'GET')
+                "/attachments"(controller: 'applicationCheck', action: 'attachments', method: 'GET')
             }
             "/tasks"(resources: 'taskChecker', includes: ['index'])
         }
@@ -34,6 +36,7 @@ class UrlMappings {
         "/approvers"(resources: 'approver', includes: []) {
             "/applications"(resources: 'applicationApproval', excludes: ['show', 'patch']) {
                 "/workitems"(resources: 'applicationApproval', includes: ['show', 'patch'])
+                "/attachments"(controller: 'applicationApproval', action: 'attachments', method: 'GET')
             }
             "/tasks"(resources: 'taskApproval', includes: ['index'])
         }

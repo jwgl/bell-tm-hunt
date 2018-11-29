@@ -29,13 +29,18 @@ class Project {
     Status status
     Subtype subtype
     Level level
-    Origin  origin
+    Origin origin
     String members
 
     /**
      * 立项日期
      */
     LocalDate dateStart
+
+    /**
+     * 项目编号
+     */
+    String code
 
     /**
      * 预期中期年份
@@ -83,6 +88,7 @@ class Project {
         origin                  comment: '项目来源'
         members                 length: 50, comment: '参与人'
         dateStart               comment: '立项日期'
+        code                    length: 20, comment: '项目编号'
         middleYear              comment: '预期中期年份'
         knotYear                comment: '预期结项年份'
         content                 length: 1500, comment: '主要内容'
@@ -99,5 +105,6 @@ class Project {
         knotYear        nullable: true
         content         nullable: true
         achievements    nullable: true
+        code            nullable: true
     }
 }

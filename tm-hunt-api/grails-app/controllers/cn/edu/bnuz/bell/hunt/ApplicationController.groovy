@@ -1,7 +1,10 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
+import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.hunt.cmd.ProjectCommand
+import cn.edu.bnuz.bell.hunt.utils.ZipTools
 import cn.edu.bnuz.bell.workflow.Event
 import cn.edu.bnuz.bell.workflow.commands.SubmitCommand
 import org.springframework.beans.factory.annotation.Value
@@ -78,20 +81,42 @@ class ApplicationController {
         def prefix = params.prefix
         MultipartFile uploadFile = request.getFile('file')
         if (prefix && !uploadFile.empty) {
-            def ext = uploadFile.originalFilename.substring(uploadFile.originalFilename.lastIndexOf('.') + 1).toLowerCase()
             def filePath = "${filesPath}/${taskId}/${teacherId}"
-            def filename = "${filePath}/${prefix}_${UUID.randomUUID()}.${ext}"
+            def ext = uploadFile.originalFilename.substring(uploadFile.originalFilename.lastIndexOf('.') + 1).toLowerCase()
+            def filename = "${prefix}_${UUID.randomUUID()}.${ext}"
             File dir= new File(filePath)
             if (!dir.exists() || dir.isFile()) {
                 dir.mkdirs()
             } else {
-                uploadFile.transferTo( new File(filename) )
+                uploadFile.transferTo( new File(filePath, filename) )
             }
             renderJson([file: filename])
         } else {
             throw new BadRequestException('Empty file.')
         }
 
+    }
+
+    /**
+     * 下载附件
+     * @param teacherId 负责人ID
+     * @param applicationId 申请ID
+     * @return
+     */
+    def attachments(String teacherId, Long applicationId) {
+        def review = Review.load(applicationId)
+        if (!review) {
+            throw new NotFoundException()
+        }
+        if (review.project.principal.id != teacherId) {
+            throw new ForbiddenException()
+        }
+        def basePath = "${filesPath}/${review.reviewTask.id}/${teacherId}"
+        response.setHeader("Content-disposition",
+                "attachment; filename=\"" + URLEncoder.encode("${review.project.name}-${review.project.subtype.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
+        response.contentType = "application/zip"
+        response.outputStream << ZipTools.zip(review, basePath)
+        response.outputStream.flush()
     }
 
 }
