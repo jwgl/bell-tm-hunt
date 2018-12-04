@@ -21,7 +21,7 @@ class UrlMappings {
                     "/upload"(controller: 'application', action: 'upload', method: 'POST')
                 }
             }
-            "/tasks"(resources: 'taskPublic', includes: ['index'])
+            "/tasks"(resources: 'taskPublic', includes: ['index', 'show'])
         }
 
         "/checkers"(resources: 'checker', includes: []) {
@@ -30,7 +30,7 @@ class UrlMappings {
                 "/approvers"(controller: 'applicationCheck', action: 'approvers', method: 'GET')
                 "/attachments"(controller: 'applicationCheck', action: 'attachments', method: 'GET')
             }
-            "/tasks"(resources: 'taskChecker', includes: ['index'])
+            "/tasks"(resources: 'taskChecker', includes: ['index', 'show'])
         }
 
         "/approvers"(resources: 'approver', includes: []) {
@@ -38,7 +38,7 @@ class UrlMappings {
                 "/workitems"(resources: 'applicationApproval', includes: ['show', 'patch'])
                 "/attachments"(controller: 'applicationApproval', action: 'attachments', method: 'GET')
             }
-            "/tasks"(resources: 'taskApproval', includes: ['index'])
+            "/tasks"(resources: 'taskApproval', includes: ['index', 'show'])
         }
 
         "/experts"(resources: 'expert', includes: []) {

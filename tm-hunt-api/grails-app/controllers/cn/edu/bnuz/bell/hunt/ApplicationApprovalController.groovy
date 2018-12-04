@@ -103,7 +103,7 @@ class ApplicationApprovalController {
         }
         def basePath = "${filesPath}/${review.reviewTask.id}/${review.project.principal.id}"
         response.setHeader("Content-disposition",
-                "attachment; filename=\"" + URLEncoder.encode("${review.project.name}-${review.project.subtype.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
+                "attachment; filename=\"" + URLEncoder.encode("${review.project.subtype.name}-${review.project.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
         response.contentType = "application/zip"
         response.outputStream << ZipTools.zip(review, basePath)
         response.outputStream.flush()

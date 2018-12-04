@@ -17,8 +17,8 @@ class ApplicationController {
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
-    def index(String teacherId) {
-        renderJson applicationService.list(teacherId)
+    def index(String teacherId, Long taskId) {
+        renderJson applicationService.list(teacherId, taskId)
     }
 
     /**
@@ -75,6 +75,14 @@ class ApplicationController {
     }
 
     /**
+    * 删除
+    */
+    def delete(Long id) {
+        applicationService.delete(id)
+        renderOk()
+    }
+
+    /**
      * 上传文件
      */
     def upload(String teacherId, Long taskId) {
@@ -113,7 +121,7 @@ class ApplicationController {
         }
         def basePath = "${filesPath}/${review.reviewTask.id}/${teacherId}"
         response.setHeader("Content-disposition",
-                "attachment; filename=\"" + URLEncoder.encode("${review.project.name}-${review.project.subtype.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
+                "attachment; filename=\"" + URLEncoder.encode("${review.project.subtype.name}-${review.project.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
         response.contentType = "application/zip"
         response.outputStream << ZipTools.zip(review, basePath)
         response.outputStream.flush()

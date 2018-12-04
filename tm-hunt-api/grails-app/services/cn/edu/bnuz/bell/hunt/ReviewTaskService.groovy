@@ -109,10 +109,12 @@ select new map(
     sum (case when r.status != 'CREATED' and r.department.id = :departmentId then 1 else 0 end) as countProject,
     sum (case when r.status = 'SUBMITTED' and r.department.id = :departmentId then 1 else 0 end) as countUncheck,
     sum (case when r.status in (:passStates) and r.department.id = :departmentId then 1 else 0 end) as countPass,
-    sum (case when r.status in (:failStates) and r.department.id = :departmentId  then 1 else 0 end) as countFail
+    sum (case when r.status in (:failStates) and r.department.id = :departmentId  then 1 else 0 end) as countFail,
+    sum (case when r.status = 'FINISHED' and r.department.id = :departmentId then 1 else 0 end) as countFinal
 )
 from Review r
 right join r.reviewTask rt
+where (current_date between rt.startDate and rt.endDate) or r.id is not null
 group by rt.id, rt.title, rt.endDate, rt.type
 order by rt.dateCreated desc
 ''', [departmentId: securityService.departmentId,
@@ -120,6 +122,9 @@ order by rt.dateCreated desc
       failStates: [State.REJECTED, State.CLOSED]]
     }
 
+    /**
+     * @return 已申请过的任务和申请项目数、正在开放的任务
+     */
     def listForTeacher() {
         ReviewTask.executeQuery'''
 select new map(
@@ -133,6 +138,7 @@ select new map(
 from Review r
 right join r.reviewTask rt
 left join r.project p
+where (current_date between rt.startDate and rt.endDate) or r.id is not null
 group by rt.id, rt.title, rt.endDate, rt.type
 order by rt.dateCreated desc
 ''', [teacher: Teacher.load(securityService.userId)]

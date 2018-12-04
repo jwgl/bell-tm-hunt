@@ -23,8 +23,12 @@ class ApplicationCheckController {
     String filesPath
 
     def index(String checkerId, Long taskId, String type) {
-        ListType listType= ListType.valueOf(type)
-        renderJson applicationCheckService.list(checkerId, taskId, listType)
+        if (type && type != 'null') {
+            ListType listType= ListType.valueOf(type)
+            renderJson applicationCheckService.list(checkerId, taskId, listType)
+        } else {
+            renderJson applicationCheckService.allTypeList(checkerId, taskId)
+        }
     }
 
     def show(String checkerId, Long applicationCheckId, String id, String type) {
@@ -61,7 +65,7 @@ class ApplicationCheckController {
                 throw new BadRequestException()
         }
 
-        show(checkerId, applicationCheckId, id, 'done')
+        show(checkerId, applicationCheckId, id, 'next')
     }
 
     def approvers(String checkerId, Long applicationCheckId) {
@@ -84,7 +88,7 @@ class ApplicationCheckController {
         }
         def basePath = "${filesPath}/${review.reviewTask.id}/${review.project.principal.id}"
         response.setHeader("Content-disposition",
-                "attachment; filename=\"" + URLEncoder.encode("${review.project.name}-${review.project.subtype.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
+                "attachment; filename=\"" + URLEncoder.encode("${review.project.subtype.name}-${review.project.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
         response.contentType = "application/zip"
         response.outputStream << ZipTools.zip(review, basePath)
         response.outputStream.flush()

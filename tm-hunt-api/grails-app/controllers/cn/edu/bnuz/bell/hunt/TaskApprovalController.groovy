@@ -10,4 +10,8 @@ class TaskApprovalController {
     def index() {
         renderJson reviewTaskService.listForApproval()
     }
+
+    def show(Long id) {
+        renderJson reviewTaskService.getFormForShow(id)
+    }
 }

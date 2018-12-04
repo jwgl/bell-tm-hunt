@@ -26,7 +26,7 @@ class ApplicationService {
     DomainStateMachineHandler domainStateMachineHandler
     DataAccessService dataAccessService
 
-    def list(String userId) {
+    def list(String userId, Long taskId) {
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -40,8 +40,8 @@ select new map(
 from Review application right join application.project project
 join project.subtype subtype
 join project.origin origin
-where project.principal.id = :userId and application.reportType = 1
-''', [userId: userId]
+where project.principal.id = :userId and application.reportType = 1 and application.reviewTask.id = :taskId
+''', [userId: userId, taskId: taskId]
     }
 
     def getFormForEdit(Long id) {
@@ -299,5 +299,18 @@ join application.project project
 join project.subtype subtype
 where application.id = :id
 ''', [id: reviewId]
+    }
+
+    /**
+     * 删除
+     * @param id
+     * @return
+     */
+    def delete(Long id) {
+        def form = Review.get(id)
+        if (form) {
+            form.project.delete()
+            form.delete()
+        }
     }
 }

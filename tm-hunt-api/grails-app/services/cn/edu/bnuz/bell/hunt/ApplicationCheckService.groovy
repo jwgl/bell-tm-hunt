@@ -37,10 +37,12 @@ class ApplicationCheckService {
         switch (type) {
             case ListType.TODO:
                 return findTodoList(userId, taskId)
-            case ListType.DONE:
-                return findDoneList(userId, taskId)
+            case ListType.NEXT:
+                return findNextList(userId, taskId)
             case ListType.EXPR:
                 return findFailList(userId, taskId)
+            case ListType.DONE:
+                return findDoneList(userId, taskId)
             default:
                 return allTypeList(userId, taskId)
         }
@@ -110,7 +112,7 @@ order by application.dateSubmitted
 ''', [userId: userId, status: State.SUBMITTED, taskId: taskId]
     }
 
-    def findDoneList(String userId, Long taskId) {
+    def findNextList(String userId, Long taskId) {
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -135,7 +137,37 @@ where checker.id = :userId
 and application.status in (:status)
 and application.reviewTask.id = :taskId
 order by application.dateChecked desc
-''', [userId: userId, status: [State.CHECKED, State.APPROVED], taskId: taskId]
+''', [userId: userId, status: [State.CHECKED, State.FINISHED], taskId: taskId]
+    }
+
+    def findDoneList(String userId, Long taskId) {
+        Review.executeQuery'''
+select new map(
+    application.id as id,
+    project.name as name,
+    project.principal.name as principalName,
+    project.level as level,
+    subtype.name as subtype,
+    origin.name as origin,
+    application.dateChecked as date,
+    project.title as title,
+    project.degree as degree,
+    project.major as major,
+    project.office as office,
+    project.phone as phone,
+    application.conclusionOfUniversity as conclusionOfUniversity,
+    application.conclusionOfProvince as conclusionOfProvince,
+    application.status as status
+)
+from Review application join application.project project
+join project.subtype subtype
+join project.origin origin
+join application.checker checker
+where checker.id = :userId
+and application.status = :status
+and application.reviewTask.id = :taskId
+order by application.dateChecked desc
+''', [userId: userId, status: State.FINISHED, taskId: taskId]
     }
 
     def findFailList(String userId, Long taskId) {
