@@ -53,6 +53,11 @@ class Project {
     Integer knotYear
 
     /**
+     * 延期次数
+     */
+    Integer delayTimes
+
+    /**
      * 主要内容
      */
     String content
@@ -91,8 +96,9 @@ class Project {
         code                    length: 20, comment: '项目编号'
         middleYear              comment: '预期中期年份'
         knotYear                comment: '预期结项年份'
-        content                 length: 1500, comment: '主要内容'
-        achievements            length: 1500, comment: '预期成果'
+        content                 length: 2000, comment: '主要内容'
+        achievements            length: 2000, comment: '预期成果'
+        delayTimes              defaultValue: 0, comment: '延期次数'
     }
     static constraints = {
         direction       nullable: true
@@ -106,5 +112,8 @@ class Project {
         content         nullable: true
         achievements    nullable: true
         code            nullable: true
+        discipline      nullable: true
+        major           nullable: true
+        direction       nullable: true
     }
 }

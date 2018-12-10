@@ -7,10 +7,12 @@ class UrlMappings {
         group "/settings", {
             "/types"(resources: 'type')
             "/subtypes"(resources: 'subtype')
-            "/tasks"(resources: 'reviewTask')
             "/experts"(resources: 'expert')
             "/teams"(resources: 'team')
             "/checkers"(resources: 'checker')
+            "/tasks"(resources: 'reviewTask') {
+                "/projects"(resources: 'projectSelect')
+            }
         }
 
         "/teachers"(resources: 'teacher', includes: []) {

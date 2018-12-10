@@ -88,7 +88,7 @@ class ApplicationController {
     def upload(String teacherId, Long taskId) {
         def prefix = params.prefix
         MultipartFile uploadFile = request.getFile('file')
-        if (prefix && !uploadFile.empty) {
+        if (taskId && prefix && !uploadFile.empty) {
             def filePath = "${filesPath}/${taskId}/${teacherId}"
             def ext = uploadFile.originalFilename.substring(uploadFile.originalFilename.lastIndexOf('.') + 1).toLowerCase()
             def filename = "${prefix}_${UUID.randomUUID()}.${ext}"

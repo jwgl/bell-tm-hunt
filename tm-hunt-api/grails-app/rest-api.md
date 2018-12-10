@@ -28,10 +28,12 @@
 /settings  设置
     /types 大类
     /subtypes 子类
-    /tasks 任务
     /experts 专家
     /teams 专家组
     /checkers 学院审核员
+    /tasks 任务
+        /${taskId}
+            /projects 选择可检查项目
 
 
 ```
