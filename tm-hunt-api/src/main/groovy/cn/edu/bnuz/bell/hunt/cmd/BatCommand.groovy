@@ -5,4 +5,5 @@ class BatCommand {
     Boolean checked
     String type
     Integer teamNum
+    Integer reportType
 }

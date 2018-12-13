@@ -33,6 +33,9 @@ class ProjectOptionCommand implements Validateable {
         if (code) {
             arg += [code: code]
         }
+        if (reportType) {
+            arg += [reportType: reportType]
+        }
         return arg
     }
 
@@ -56,6 +59,22 @@ class ProjectOptionCommand implements Validateable {
         }
         if (code) {
             criterion += "${criterion.isEmpty() ? "" : " and "}project.code = :code"
+        }
+        if (reportType) {
+            def notExistStr = '''
+not exists(
+select r.id
+from Review r
+where r.project.id = project.id
+and r.reportType = :reportType 
+and ((
+    r.status = 'FINISHED'
+    and r.project.level = 'UNIVERSITY' and r.conclusionOfUniversity = 'OK'
+    ) or (r.status = 'FINISHED'
+    and r.project.level = 'PROVINCE' and r.conclusionOfProvince = 'OK'
+) or (r.status <> 'FINISHED')))
+'''
+            criterion += "${criterion.isEmpty() ? "" : " and "} ${notExistStr} "
         }
         return criterion
     }

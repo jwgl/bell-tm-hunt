@@ -89,7 +89,7 @@ class ApplicationApprovalController {
 
     /**
      * 下载附件
-     * @param checkerId 审核员ID
+     * @param approverId 审核员ID
      * @param applicationCheckId 申请ID
      * @return
      */

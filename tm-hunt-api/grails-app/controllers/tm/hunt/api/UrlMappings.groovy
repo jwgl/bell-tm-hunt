@@ -12,6 +12,9 @@ class UrlMappings {
             "/checkers"(resources: 'checker')
             "/tasks"(resources: 'reviewTask') {
                 "/projects"(resources: 'projectSelect')
+                "/applications"(resources: 'applicationAdministration') {
+                    "/attachments"(controller: 'applicationAdministration', action: 'attachments', method: 'GET')
+                }
             }
         }
 

@@ -5,7 +5,7 @@ import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 
 
-@PreAuthorize('hasRole("ROLE_IN_SCHOOL_TEACHER")')
+@PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
 class ReviewTaskController {
     ReviewTaskService reviewTaskService
 
@@ -16,7 +16,6 @@ class ReviewTaskController {
     /**
      * 保存数据
      */
-    @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
     def save() {
         def cmd = new ReviewTaskCommand()
         bindData(cmd, request.JSON)
@@ -31,7 +30,6 @@ class ReviewTaskController {
     /**
      * 编辑数据
      */
-    @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
     def edit(Long id) {
         renderJson reviewTaskService.getFormForShow(id)
     }
@@ -39,7 +37,6 @@ class ReviewTaskController {
     /**
      * 更新数据
      */
-    @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
     def update(Long id) {
         def cmd = new ReviewTaskCommand()
         bindData(cmd, request.JSON)
