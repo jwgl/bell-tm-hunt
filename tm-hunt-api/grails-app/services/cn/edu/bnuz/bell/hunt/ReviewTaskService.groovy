@@ -87,7 +87,7 @@ select new map(
     rt.title as title,
     rt.endDate as endDate,
     rt.type as type,
-    sum (case when r.status != 'CREATED' then 1 else 0 end) as countProject,
+    sum (case when r.reportType != 1 or r.status != 'CREATED' then 1 else 0 end) as countProject,
     sum (case when r.status = 'CHECKED' then 1 else 0 end) as countUncheck,
     sum (case when r.status = 'FINISHED' and r.conclusionOfUniversity = 'OK' then 1 else 0 end) as countPass,
     sum (case when r.status = 'FINISHED' and r.conclusionOfUniversity = 'VETO' then 1 else 0 end) as countFail

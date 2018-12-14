@@ -11,9 +11,8 @@ class UrlMappings {
             "/teams"(resources: 'team')
             "/checkers"(resources: 'checker')
             "/tasks"(resources: 'reviewTask') {
-                "/projects"(resources: 'projectSelect')
-                "/applications"(resources: 'applicationAdministration') {
-                    "/attachments"(controller: 'applicationAdministration', action: 'attachments', method: 'GET')
+                "/projects"(resources: 'projectSelect'){
+                    "/attachments"(controller: 'projectSelect', action: 'attachments', method: 'GET')
                 }
             }
         }
@@ -43,7 +42,11 @@ class UrlMappings {
                 "/workitems"(resources: 'applicationApproval', includes: ['show', 'patch'])
                 "/attachments"(controller: 'applicationApproval', action: 'attachments', method: 'GET')
             }
-            "/tasks"(resources: 'taskApproval', includes: ['index', 'show'])
+            "/tasks"(resources: 'taskApproval', includes: ['index', 'show']) {
+                "/projects"(resources: 'applicationAdministration') {
+                    "/attachments"(controller: 'applicationAdministration', action: 'attachments', method: 'GET')
+                }
+            }
         }
 
         "/experts"(resources: 'expert', includes: []) {

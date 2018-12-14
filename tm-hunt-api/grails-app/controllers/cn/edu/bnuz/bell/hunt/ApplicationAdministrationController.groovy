@@ -2,6 +2,7 @@ package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.http.NotFoundException
+import cn.edu.bnuz.bell.hunt.cmd.ProjectOptionCommand
 import cn.edu.bnuz.bell.hunt.utils.ZipTools
 import cn.edu.bnuz.bell.organization.Teacher
 import org.springframework.beans.factory.annotation.Value
@@ -10,12 +11,29 @@ import org.springframework.security.access.prepost.PreAuthorize
 @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
 class ApplicationAdministrationController {
     ApplicationService applicationService
+    ProjectSelectService projectSelectService
     @Value('${bell.teacher.filesPath}')
     String filesPath
-    def index() { }
 
-    def show(Long reviewTaskId, Long id) {
+    def index(Long taskApprovalId, ProjectOptionCommand cmd) {
+        renderJson ([
+                list: projectSelectService.listForAdministration(taskApprovalId, cmd.reportType),
+                counts: projectSelectService.count(taskApprovalId),
+                isCheckTime: ReviewTask.get(taskApprovalId)?.type == ReviewType.CHECK,
+                existExpertReview: projectSelectService.existExpertReview(taskApprovalId, cmd.reportType)
+        ])
+    }
+
+    def show(Long taskApprovalId, Long id) {
         renderJson applicationService.getFormInfo(id)
+    }
+
+    /**
+     * 删除
+     */
+    def delete(Long id) {
+        projectSelectService.unCheck(id)
+        renderOk()
     }
 
     /**
