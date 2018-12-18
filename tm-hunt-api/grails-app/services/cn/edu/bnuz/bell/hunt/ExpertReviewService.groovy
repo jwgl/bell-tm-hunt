@@ -116,6 +116,7 @@ and e.dateReviewed is not null
         }
         expertReview.setConclusion(cmd.conclusion)
         expertReview.setOpinion(cmd.opinion)
+        expertReview.setValue(cmd.value)
         expertReview.save()
     }
 

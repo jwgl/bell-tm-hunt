@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile
 @PreAuthorize('hasAuthority("PERM_HUNT_WRITE")')
 class ApplicationController {
     ApplicationService applicationService
+    InspectFormService inspectFormService
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
@@ -35,7 +36,12 @@ class ApplicationController {
     def update(String teacherId, Long id) {
         def cmd = new ProjectCommand()
         bindData(cmd, request.JSON)
-        applicationService.update(id, cmd)
+        def review = Review.load(id)
+        if ( review.reportType == 1) {
+            applicationService.update(id, cmd)
+        } else {
+            inspectFormService.update(id, cmd)
+        }
         renderOk()
     }
 
@@ -44,7 +50,12 @@ class ApplicationController {
     }
 
     def edit(String teacherId, Long id) {
-        renderJson applicationService.getFormForEdit(id)
+        def review = Review.load(id)
+        if ( review.reportType == 1) {
+            renderJson applicationService.getFormForEdit(id)
+        } else {
+            renderJson inspectFormService.getFormForEdit(id)
+        }
     }
 
     /**

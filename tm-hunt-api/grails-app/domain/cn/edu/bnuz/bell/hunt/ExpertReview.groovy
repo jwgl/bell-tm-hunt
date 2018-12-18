@@ -27,6 +27,11 @@ class ExpertReview {
     String conclusion
 
     /**
+     * 评分
+     */
+    Integer value
+
+    /**
      * 评审日期
      */
     Date dateReviewed
@@ -42,6 +47,7 @@ class ExpertReview {
         opinion                 length: 1500, comment: '专家意见'
         conclusion              length: 5, comment: '专家评审结论'
         review                  comment: '所属项目审核'
+        value                   defaultValue: 0, comment: '评分'
     }
     static constraints = {
         opinion         nullable: true

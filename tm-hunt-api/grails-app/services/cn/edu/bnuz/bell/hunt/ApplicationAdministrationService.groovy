@@ -31,6 +31,7 @@ class ApplicationAdministrationService {
                     experts.each { expert ->
                         def expertReview = new ExpertReview(
                                 review: form,
+                                value: 0,
                                 expert: expert.teacher
                         )
                         if (!expertReview.save()) {

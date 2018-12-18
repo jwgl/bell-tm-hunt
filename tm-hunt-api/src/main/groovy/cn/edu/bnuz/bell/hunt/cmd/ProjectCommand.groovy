@@ -21,6 +21,7 @@ class ProjectCommand {
     String members
     String content
     String achievements
+    String other
     String level
     String mainInfoForm
     String proofFile

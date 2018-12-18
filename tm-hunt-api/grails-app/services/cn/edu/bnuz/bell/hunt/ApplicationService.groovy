@@ -40,7 +40,7 @@ select new map(
 from Review application right join application.project project
 join project.subtype subtype
 join project.origin origin
-where project.principal.id = :userId and application.reportType = 1 and application.reviewTask.id = :taskId
+where project.principal.id = :userId and application.reviewTask.id = :taskId
 ''', [userId: userId, taskId: taskId]
     }
 

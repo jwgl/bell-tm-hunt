@@ -84,10 +84,11 @@ select new map(
     principal.name as principalName,
     department.name as departmentName,
     application.status as status,
+    round (sum (case when expertReview.conclusion != '弃权' then expertReview.value end) / sum (case when expertReview.conclusion != '弃权' then 1 else 0 end)),
     sum (case when expertReview.conclusion = '同意' then 1 else 0 end) as countOk,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '不同意' then 1 else 0 end) as countVeto,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '弃权' then 1 else 0 end) as countWaiver,
-    sum (case when expertReview.conclusion is null then 1 else 0 end) as countNull
+    sum (case when expertReview.expert is not null and expertReview.conclusion is null then 1 else 0 end) as countNull
 )
 from Review application join application.project project
 join project.subtype subtype
