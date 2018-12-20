@@ -81,4 +81,16 @@ class ApplicationAdministrationService {
         form.project.save()
         form.save()
     }
+
+    def expertReviews(Long reviewId) {
+        ExpertReview.executeQuery'''
+select new map(
+    expert.name as name,
+    expertReview.opinion as opinion
+)
+from ExpertReview expertReview
+join expertReview.expert expert
+where expertReview.review.id = :id
+''', [id: reviewId]
+    }
 }

@@ -83,6 +83,7 @@ select new map(
     project.code as code,
     principal.name as principalName,
     department.name as departmentName,
+    application.departmentOpinion as departmentOpinion,
     application.status as status,
     round (sum (case when expertReview.conclusion != '弃权' then expertReview.value end) / sum (case when expertReview.conclusion != '弃权' then 1 else 0 end)),
     sum (case when expertReview.conclusion = '同意' then 1 else 0 end) as countOk,

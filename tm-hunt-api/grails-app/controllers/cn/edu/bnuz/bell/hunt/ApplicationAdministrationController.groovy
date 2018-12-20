@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 class ApplicationAdministrationController {
     ApplicationService applicationService
     ProjectSelectService projectSelectService
+    ApplicationAdministrationService applicationAdministrationService
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
@@ -39,7 +40,7 @@ class ApplicationAdministrationController {
     /**
      * 下载附件
      * @param approverId 审核员ID
-     * @param applicationCheckId 申请ID
+     * @param applicationAdministrationId 申请ID
      * @return
      */
     def attachments(String approverId, Long applicationAdministrationId) {
@@ -56,5 +57,15 @@ class ApplicationAdministrationController {
         response.contentType = "application/zip"
         response.outputStream << ZipTools.zip(review, basePath)
         response.outputStream.flush()
+    }
+
+    /**
+     * 专家评审
+     * @param approverId 审核员ID
+     * @param applicationAdministrationId 申请ID
+     * @return
+     */
+    def expertReviews(String approverId, Long applicationAdministrationId) {
+        renderJson applicationAdministrationService.expertReviews(applicationAdministrationId)
     }
 }

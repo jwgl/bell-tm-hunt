@@ -45,6 +45,7 @@ class UrlMappings {
             "/tasks"(resources: 'taskApproval', includes: ['index', 'show']) {
                 "/projects"(resources: 'applicationAdministration') {
                     "/attachments"(controller: 'applicationAdministration', action: 'attachments', method: 'GET')
+                    "/expertReviews"(controller: 'applicationAdministration', action: 'expertReviews', method: 'GET')
                 }
             }
         }
