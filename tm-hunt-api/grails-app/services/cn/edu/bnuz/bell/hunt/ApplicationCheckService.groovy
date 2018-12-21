@@ -33,16 +33,16 @@ class ApplicationCheckService {
     UserLogService userLogService
     SecurityService securityService
 
-    def list(String userId, Long taskId, ListType type) {
+    def list(String userId, Long taskId, ListType type, Integer reviewType) {
         switch (type) {
             case ListType.TODO:
-                return findTodoList(userId, taskId)
+                return findTodoList(userId, taskId, reviewType)
             case ListType.NEXT:
-                return findNextList(userId, taskId)
+                return findNextList(userId, taskId, reviewType)
             case ListType.EXPR:
-                return findFailList(userId, taskId)
+                return findFailList(userId, taskId, reviewType)
             case ListType.DONE:
-                return findDoneList(userId, taskId)
+                return findDoneList(userId, taskId ,reviewType)
             default:
                 return allTypeList(userId, taskId)
         }
@@ -80,7 +80,7 @@ order by application.dateSubmitted
 ''', [userId: userId, taskId: taskId]
     }
 
-    def findTodoList(String userId, Long taskId) {
+    def findTodoList(String userId, Long taskId, Integer reviewType) {
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -108,11 +108,12 @@ where department = (
   where teacher.id = :userId
 )  and application.status = :status
 and application.reviewTask.id = :taskId
+and application.reportType in (:reportTypes)
 order by application.dateSubmitted
-''', [userId: userId, status: State.SUBMITTED, taskId: taskId]
+''', [userId: userId, status: State.SUBMITTED, taskId: taskId, reportTypes: reportTypes(taskId, reviewType)]
     }
 
-    def findNextList(String userId, Long taskId) {
+    def findNextList(String userId, Long taskId, Integer reviewType) {
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -136,11 +137,12 @@ join application.checker checker
 where checker.id = :userId
 and application.status in (:status)
 and application.reviewTask.id = :taskId
+and application.reportType in (:reportTypes)
 order by application.dateChecked desc
-''', [userId: userId, status: [State.CHECKED, State.FINISHED], taskId: taskId]
+''', [userId: userId, status: [State.CHECKED, State.FINISHED], taskId: taskId, reportTypes: reportTypes(taskId, reviewType)]
     }
 
-    def findDoneList(String userId, Long taskId) {
+    def findDoneList(String userId, Long taskId, Integer reviewType) {
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -166,11 +168,12 @@ join application.checker checker
 where checker.id = :userId
 and application.status = :status
 and application.reviewTask.id = :taskId
+and application.reportType in (:reportTypes)
 order by application.dateChecked desc
-''', [userId: userId, status: State.FINISHED, taskId: taskId]
+''', [userId: userId, status: State.FINISHED, taskId: taskId, reportTypes: reportTypes(taskId, reviewType)]
     }
 
-    def findFailList(String userId, Long taskId) {
+    def findFailList(String userId, Long taskId, Integer reviewType) {
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -194,8 +197,9 @@ join application.checker checker
 where checker.id = :userId
 and application.status in (:status)
 and application.reviewTask.id = :taskId
+and application.reportType in (:reportTypes)
 order by application.dateChecked desc
-''', [userId: userId, status: [State.REJECTED, State.CLOSED], taskId: taskId]
+''', [userId: userId, status: [State.REJECTED, State.CLOSED], taskId: taskId, reportTypes: reportTypes(taskId, reviewType)]
     }
 
     void accept(String userId, AcceptCommand cmd, UUID workitemId) {
@@ -361,5 +365,42 @@ and form.dateChecked < (select dateChecked from Review where id = :id)
 order by form.dateChecked desc
 ''', [userId: userId, status: [State.REJECTED, State.CLOSED], id: id])
         }
+    }
+
+    private static reportTypes (Long taskId, Integer reviewType) {
+        def task = ReviewTask.load(taskId)
+        if (task.type == ReviewType.APPLICATION) {
+            return [1]
+        }
+        switch (reviewType) {
+            case 0: return [2, 3]
+            case 1: return [4]
+        }
+        return [0]
+    }
+
+    def counts(String userId, Long taskId, Integer reviewType) {
+        def result = Review.executeQuery'''
+select new map(
+    sum (case when r.status = 'SUBMITTED' then 1 else 0 end) as countUncheck,
+    sum (case when r.status in (:passStates) then 1 else 0 end) as countPass,
+    sum (case when r.status in (:failStates) then 1 else 0 end) as countFail,
+    sum (case when r.status = 'FINISHED' then 1 else 0 end) as countFinal
+)
+from Review r
+join r.department department
+where department = (
+  select checker.department
+  from Checker checker
+  join checker.teacher teacher
+  where teacher.id = :userId)
+and r.reviewTask.id = :taskId
+and r.reportType in (:reportTypes)
+''', [userId: userId,
+      taskId: taskId,
+      reportTypes: reportTypes(taskId, reviewType),
+      passStates: [State.APPROVED, State.CHECKED],
+      failStates: [State.REJECTED, State.CLOSED]]
+        return result ? result[0] : [:]
     }
 }

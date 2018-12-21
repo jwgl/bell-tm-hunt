@@ -122,6 +122,20 @@ order by rt.dateCreated desc
       failStates: [State.REJECTED, State.CLOSED]]
     }
 
+    def countForDepartment(Long taskId) {
+        def result = Review.executeQuery '''
+select new map(
+    sum (case when r.status = 'SUBMITTED' and r.reportType in (2, 3) then 1 else 0 end) as countForCheck,
+    sum (case when r.status = 'SUBMITTED' and r.reportType = 4 then 1 else 0 end) as countForKnot
+)
+from Review r
+right join r.reviewTask rt
+where rt.id = :taskId and r.department.id = :departmentId
+group by r.department.id
+''', [taskId: taskId, departmentId: securityService.departmentId]
+        return result ? result[0] : [:]
+    }
+
     /**
      * @return 已申请过的任务和申请项目数、正在开放的任务
      */
@@ -142,5 +156,37 @@ where (current_date between rt.startDate and rt.endDate) or r.id is not null
 group by rt.id, rt.title, rt.endDate, rt.type
 order by rt.dateCreated desc
 ''', [teacher: Teacher.load(securityService.userId)]
+    }
+
+    def listForExpert() {
+        ReviewTask.executeQuery'''
+select new map(
+    rt.id as id,
+    rt.title as title,
+    rt.endDate as endDate,
+    rt.type as type,
+    count(*) as countForReview,
+    sum (case when er.dateReviewed is null then 1 else 0 end) as countUnReview
+)
+from Review r
+join r.reviewTask rt
+join r.expertReview er
+where er.expert.id = :userId
+group by rt.id, rt.title, rt.endDate, rt.type
+''', [userId: securityService.userId]
+    }
+
+    def countForExpert(Long taskId) {
+        def result = Review.executeQuery '''
+select new map(
+    sum (case when er.dateReviewed is null and r.reportType in (2, 3) then 1 else 0 end) as countForCheck,
+    sum (case when er.dateReviewed is null and r.reportType = 4 then 1 else 0 end) as countForKnot
+)
+from Review r
+join r.reviewTask rt
+join r.expertReview er
+where rt.id = :taskId and er.expert.id = :userId
+''', [taskId: taskId, userId: securityService.userId]
+        return result ? result[0] : [:]
     }
 }

@@ -14,7 +14,7 @@ class ExpertReviewService {
     SecurityService securityService
     DataAccessService dataAccessService
 
-    def list(String reportType, type) {
+    def list(Long taskId, Integer reviewType, type) {
         def sql = '''
 select new map(
     application.id as id,
@@ -44,21 +44,8 @@ order by application.dateChecked
         if (type == 'done') {
             sql = sql.replace('e.dateReviewed is null', 'e.dateReviewed is not null')
         }
-        def reportTypes
-        switch (reportType) {
-            case 'application':
-                reportTypes = [1]
-                break
-            case 'middle':
-                reportTypes = [2, 3]
-                break
-            case 'knot':
-                reportTypes = [4]
-                break
-            default:
-                throw new BadRequestException()
-        }
 
+        def reportTypes = reportTypes(taskId, reviewType)
         def list = ExpertReview.executeQuery sql, [user: expert, reportTypes: reportTypes]
 
         return [
@@ -68,6 +55,18 @@ order by application.dateChecked
                 done: countDone(reportTypes)
             ]
         ]
+    }
+
+    private static reportTypes (Long taskId, Integer reviewType) {
+        def task = ReviewTask.load(taskId)
+        if (task.type == ReviewType.APPLICATION) {
+            return [1]
+        }
+        switch (reviewType) {
+            case 0: return [2, 3]
+            case 1: return [4]
+        }
+        return [0]
     }
 
     def countTodo(List<Integer> reportTypes) {
@@ -104,6 +103,7 @@ and e.dateReviewed is not null
                 departmentOpinion: application.departmentOpinion,
                 departmentConclusion: application.departmentConclusion,
                 conclusion: expertReview.conclusion,
+                editAble: !expertReview.dateReviewed,
                 opinion: expertReview.opinion
         ]
     }

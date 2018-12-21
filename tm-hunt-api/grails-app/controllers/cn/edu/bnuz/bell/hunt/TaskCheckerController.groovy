@@ -5,7 +5,6 @@ import org.springframework.security.access.prepost.PreAuthorize
 
 @PreAuthorize('hasRole("ROLE_HUNT_CHECKER")')
 class TaskCheckerController {
-    ApplicationCheckService applicationCheckService
     ReviewTaskService reviewTaskService
 
     def index(String checkerId) {
@@ -13,6 +12,6 @@ class TaskCheckerController {
     }
 
     def show(String checkerId, Long id) {
-        renderJson([task: reviewTaskService.getFormForShow(id), applications: applicationCheckService.allTypeList(checkerId, id)])
+        renderJson([task: reviewTaskService.getFormForShow(id), counts: reviewTaskService.countForDepartment(id)])
     }
 }

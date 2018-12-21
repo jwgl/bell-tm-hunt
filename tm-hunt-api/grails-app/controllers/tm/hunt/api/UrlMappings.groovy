@@ -52,6 +52,7 @@ class UrlMappings {
 
         "/experts"(resources: 'expert', includes: []) {
             "/reviews"(resources: 'expertReview')
+            "/tasks"(resources: 'taskExpert', includes: ['index', 'show'])
         }
 
         "500"(view: '/error')

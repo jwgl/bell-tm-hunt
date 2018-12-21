@@ -22,12 +22,15 @@ class ApplicationCheckController {
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
-    def index(String checkerId, Long taskId, String type) {
+    def index(String checkerId, Long taskId, String type, Integer reviewType) {
         if (type && type != 'null') {
             ListType listType= ListType.valueOf(type)
-            renderJson applicationCheckService.list(checkerId, taskId, listType)
+            renderJson ([
+                    list: applicationCheckService.list(checkerId, taskId, listType, reviewType),
+                    counts: applicationCheckService.counts(checkerId, taskId, reviewType)
+            ])
         } else {
-            renderJson applicationCheckService.allTypeList(checkerId, taskId)
+            renderBadRequest()
         }
     }
 

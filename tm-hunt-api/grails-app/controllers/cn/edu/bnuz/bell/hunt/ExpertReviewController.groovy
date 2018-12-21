@@ -10,8 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize
 class ExpertReviewController {
     ExpertReviewService expertReviewService
 
-    def index(String expertId, String reportType, String type) {
-        renderJson expertReviewService.list(reportType, type)
+    def index(String expertId, Long taskId, Integer reviewType, String type) {
+        renderJson expertReviewService.list(taskId, reviewType, type)
     }
 
     def show(String expertId, Long id) {
