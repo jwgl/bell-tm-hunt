@@ -94,6 +94,7 @@ where application.id = :id
 select new map(
     application.id as id,
     task.id as taskId,
+    project.id as projectId,
     project.principal.name as principalName,
     project.title as title,
     project.degree as degree,
@@ -116,16 +117,7 @@ select new map(
     subtype.name as subtype,
     origin.name as origin,
     project.members as members,
-    application.content as content,
-    application.further as achievements,
-    application.departmentConclusion as departmentConclusion,
-    application.departmentOpinion as departmentOpinion,
-    application.conclusionOfUniversity as conclusionOfUniversity,
-    application.opinionOfUniversity as opinionOfUniversity,
     application.reportType as reportType,
-    application.mainInfoForm as mainInfoForm,
-    application.proofFile as proofFile,
-    application.summaryReport as summaryReport,
     application.locked as locked,
     case when current_date between task.startDate and task.endDate then true else false end as isValidDate,
     application.workflowInstance.id as workflowInstanceId
@@ -139,6 +131,7 @@ where application.id = :id
 ''', [id: id]
         if (result) {
             Map review = result[0]
+            review['relationReportTypes'] = reportTypes(review.projectId)
             if (securityService.hasRole("ROLE_HUNT_ADMIN")) {
                 review['expertReview'] = getExpertReview(review.id)
                 review['period'] = getPeriod(review.id)
@@ -153,6 +146,26 @@ where application.id = :id
         } else {
             return null
         }
+    }
+
+    static reportTypes(Long projectId) {
+        Project.executeQuery'''
+select new map(
+    r.reportType as reportType,
+    r.content as content,
+    r.further as achievements,
+    r.other as other,
+    r.departmentConclusion as departmentConclusion,
+    r.departmentOpinion as departmentOpinion,
+    r.conclusionOfUniversity as conclusionOfUniversity,
+    r.opinionOfUniversity as opinionOfUniversity,
+    r.reportType as reportType,
+    r.mainInfoForm as mainInfoForm,
+    r.proofFile as proofFile,
+    r.summaryReport as summaryReport
+)
+from Project p join p.review r where p.id = :id
+''', [id: projectId]
     }
 
     def create(ProjectCommand cmd) {
