@@ -35,6 +35,8 @@ select new map(
     subtype.name as subtype,
     origin.name as origin,
     application.dateSubmitted as dateSubmitted,
+    application.conclusionOfUniversity as conclusionOfUniversity,
+    application.conclusionOfProvince as conclusionOfProvince,
     application.status as status
 )
 from Review application right join application.project project
@@ -135,12 +137,6 @@ where application.id = :id
             if (securityService.hasRole("ROLE_HUNT_ADMIN")) {
                 review['expertReview'] = getExpertReview(review.id)
                 review['period'] = getPeriod(review.id)
-            } else {
-                if (review.status != State.FINISHED.name()) {
-                    // 审批结束前不让其他人看学校意见和结论
-                    review.conclusionOfUniversity = null
-                    review.opinionOfUniversity = null
-                }
             }
             return review
         } else {
@@ -151,6 +147,7 @@ where application.id = :id
     static reportTypes(Long projectId) {
         Project.executeQuery'''
 select new map(
+    r.status as status,
     r.reportType as reportType,
     r.content as content,
     r.further as achievements,
@@ -159,6 +156,8 @@ select new map(
     r.departmentOpinion as departmentOpinion,
     r.conclusionOfUniversity as conclusionOfUniversity,
     r.opinionOfUniversity as opinionOfUniversity,
+    r.conclusionOfProvince as conclusionOfProvince,
+    r.opinionOfProvince as opinionOfProvince,
     r.reportType as reportType,
     r.mainInfoForm as mainInfoForm,
     r.proofFile as proofFile,
@@ -296,7 +295,7 @@ select new map(
 from ExpertReview e
 join e.review r
 join e.expert t
-where r.id = :id
+where r.id = :id and e.dateReviewed is not null
 ''', [id: reviewId]
     }
 

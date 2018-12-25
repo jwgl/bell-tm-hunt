@@ -65,18 +65,21 @@ class ApplicationAdministrationService {
         form.setConclusionOfProvince(cmd.conclusionOfProvince ? (cmd.conclusionOfProvince as Conclusion) : null)
         form.setOpinionOfUniversity(cmd.opinionOfUniversity)
         form.setOpinionOfProvince(cmd.opinionOfProvince)
-        if ((form.project.level == Level.PROVINCE && form.conclusionOfProvince == Conclusion.OK) ||
-            (form.project.level == Level.UNIVERSITY && form.conclusionOfUniversity == Conclusion.OK))   {
+        // 只有立项申报的时候需要设置一下内容
+        if (form.reportType == 1) {
+            if ((form.project.level == Level.PROVINCE && form.conclusionOfProvince == Conclusion.OK) ||
+                    (form.project.level == Level.UNIVERSITY && form.conclusionOfUniversity == Conclusion.OK))   {
 
-            form.project.setCode(cmd.code)
-            form.project.setDateStart(ApprovalOperationCommand.toDate(cmd.dateStarted))
-            form.project.setMiddleYear(cmd.middleYear)
-            form.project.setKnotYear(cmd.knotYear)
-        } else {
-            form.project.setCode(null)
-            form.project.setDateStart(null)
-            form.project.setMiddleYear(null)
-            form.project.setKnotYear(null)
+                form.project.setCode(cmd.code)
+                form.project.setDateStart(ApprovalOperationCommand.toDate(cmd.dateStarted))
+                form.project.setMiddleYear(cmd.middleYear)
+                form.project.setKnotYear(cmd.knotYear)
+            } else {
+                form.project.setCode(null)
+                form.project.setDateStart(null)
+                form.project.setMiddleYear(null)
+                form.project.setKnotYear(null)
+            }
         }
         form.project.save()
         form.save()
@@ -90,7 +93,7 @@ select new map(
 )
 from ExpertReview expertReview
 join expertReview.expert expert
-where expertReview.review.id = :id
+where expertReview.review.id = :id and expertReview.dateReviewed is not null
 ''', [id: reviewId]
     }
 }

@@ -3,6 +3,7 @@ package cn.edu.bnuz.bell.hunt
 import cn.edu.bnuz.bell.hunt.cmd.ReviewTaskCommand
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
+import cn.edu.bnuz.bell.service.DataAccessService
 import cn.edu.bnuz.bell.workflow.State
 import com.sun.glass.ui.EventLoop
 import grails.gorm.transactions.Transactional
@@ -10,6 +11,7 @@ import grails.gorm.transactions.Transactional
 @Transactional
 class ReviewTaskService {
     SecurityService securityService
+    DataAccessService dataAccessService
 
     def list() {
         ReviewTask.executeQuery'''
@@ -61,8 +63,18 @@ from ReviewTask rt
 where rt.id = :id
 ''', [id: id]
         if (result) {
-            return result[0]
+            Map task = result[0]
+            if (task.type.toString() == 'APPLICATION' && task.ban) {
+                task['banMe'] = existRunningProject(task.ban)
+            }
+            return task
         }
+    }
+
+    private Integer existRunningProject(Level level) {
+        dataAccessService.getInteger'''
+select count(*) from Review r join r.project p where p.level = :level and p.principal.id = :userId
+''', [level: level, userId: securityService.userId]
     }
 
     def update(Long id, ReviewTaskCommand cmd) {
@@ -152,7 +164,8 @@ select new map(
 from Review r
 right join r.reviewTask rt
 left join r.project p
-where (current_date between rt.startDate and rt.endDate) or r.id is not null
+where (current_date between rt.startDate and rt.endDate)
+or r.id is not null
 group by rt.id, rt.title, rt.endDate, rt.type
 order by rt.dateCreated desc
 ''', [teacher: Teacher.load(securityService.userId)]
