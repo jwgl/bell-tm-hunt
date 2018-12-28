@@ -106,9 +106,8 @@ class ApplicationController {
             File dir= new File(filePath)
             if (!dir.exists() || dir.isFile()) {
                 dir.mkdirs()
-            } else {
-                uploadFile.transferTo( new File(filePath, filename) )
             }
+            uploadFile.transferTo( new File(filePath, filename) )
             renderJson([file: filename])
         } else {
             throw new BadRequestException('Empty file.')

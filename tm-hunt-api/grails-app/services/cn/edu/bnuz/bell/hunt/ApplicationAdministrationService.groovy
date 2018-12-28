@@ -74,6 +74,9 @@ class ApplicationAdministrationService {
                 form.project.setDateStart(ApprovalOperationCommand.toDate(cmd.dateStarted))
                 form.project.setMiddleYear(cmd.middleYear)
                 form.project.setKnotYear(cmd.knotYear)
+                form.project.setContent(form.content)
+                form.project.setAchievements(form.further)
+                form.project.setMainInfoForm(form.mainInfoForm)
             } else {
                 form.project.setCode(null)
                 form.project.setDateStart(null)

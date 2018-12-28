@@ -26,6 +26,14 @@ class UrlMappings {
                 }
             }
             "/tasks"(resources: 'taskPublic', includes: ['index', 'show'])
+            "/infoChanges"(resources: 'infoChange') {
+                "/checkers"(controller: 'application', action: 'checkers', method: 'GET')
+                collection {
+                    "/project"(controller: 'infoChange', action: 'findProject', method: 'GET')
+                    "/upload"(controller: 'infoChange', action: 'upload', method: 'POST')
+                    "/attachments"(controller: 'infoChange', action: 'attachments', method: 'GET')
+                }
+            }
         }
 
         "/checkers"(resources: 'checker', includes: []) {

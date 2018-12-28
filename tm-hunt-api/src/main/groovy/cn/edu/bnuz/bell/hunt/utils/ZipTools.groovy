@@ -1,6 +1,8 @@
 package cn.edu.bnuz.bell.hunt.utils
 
+import cn.edu.bnuz.bell.hunt.InfoChange
 import cn.edu.bnuz.bell.hunt.Review
+import cn.edu.bnuz.bell.organization.Teacher
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -19,6 +21,21 @@ class ZipTools {
         }
         if (review.summaryReport) {
             addEntry("${baseDir}/${review.summaryReport}", "${outputFileName('summary', review, getExt(review.summaryReport))}", zipFile)
+        }
+
+        zipFile.finish()
+
+        return baos.toByteArray()
+    }
+
+    static byte[] zip(InfoChange infoChange, String baseDir) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ZipOutputStream zipFile = new ZipOutputStream(baos)
+
+        if (infoChange.mainInfoForm) {
+            Teacher teacher =infoChange.principal ? infoChange.principal : infoChange.project.principal
+            String outputName = "申报书-${infoChange.project.name}-${levelLabel(infoChange.project.level.name())}-${infoChange.project.subtype.name}-${teacher.name}"
+            addEntry("${baseDir}/${infoChange.mainInfoForm}", "${outputName}.${getExt(infoChange.mainInfoForm)}", zipFile)
         }
 
         zipFile.finish()
@@ -56,7 +73,7 @@ class ZipTools {
         }
     }
 
-    private static levelLabel(String level) {
+    static levelLabel(String level) {
         def labelMap = [
                 UNIVERSITY: '校级',
                 CITY: '市级',

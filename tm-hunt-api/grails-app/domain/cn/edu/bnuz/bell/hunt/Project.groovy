@@ -67,9 +67,14 @@ class Project {
      */
     String achievements
 
+    /**
+     * 申报书
+     */
+    String mainInfoForm
+
     static hasOne = [contract: Contract]
 
-    static hasMany = [review: Review]
+    static hasMany = [review: Review, infoChange: InfoChange]
 
     static mapping = {
         comment                 '项目'
@@ -99,6 +104,7 @@ class Project {
         content                 length: 2000, comment: '主要内容'
         achievements            length: 2000, comment: '预期成果'
         delayTimes              defaultValue: 0, comment: '延期次数'
+        mainInfoForm            length: 50, comment: '申报书'
     }
     static constraints = {
         direction       nullable: true
@@ -115,5 +121,6 @@ class Project {
         discipline      nullable: true
         major           nullable: true
         direction       nullable: true
+        mainInfoForm    nullable: true
     }
 }
