@@ -5,6 +5,8 @@ import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.hunt.cmd.InfoChangeCommand
 import cn.edu.bnuz.bell.hunt.utils.ZipTools
+import cn.edu.bnuz.bell.workflow.Event
+import cn.edu.bnuz.bell.workflow.commands.SubmitCommand
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.multipart.MultipartFile
@@ -20,7 +22,7 @@ class InfoChangeController {
     }
 
     def show(String teacherId, Long id) {
-        def form = infoChangeService.getInfoForShow(teacherId, id)
+        def form = infoChangeService.getInfoForShow(id)
         renderJson([
                 form: form,
                 project: infoChangeService.findProject(form?.projectId)
@@ -28,7 +30,7 @@ class InfoChangeController {
     }
 
     def edit(String teacherId, Long id) {
-        def form = infoChangeService.getInfoForShow(teacherId, id)
+        def form = infoChangeService.getInfoForShow(id)
         if (!form) {
             throw new NotFoundException()
         } else {
@@ -70,6 +72,19 @@ class InfoChangeController {
 
     def findProject(String teacherId, Long id) {
         renderJson infoChangeService.findProject(id)
+    }
+
+    def patch(String teacherId, Long id, String op) {
+        def operation = Event.valueOf(op)
+        switch (operation) {
+            case Event.SUBMIT:
+                def cmd = new SubmitCommand()
+                bindData(cmd, request.JSON)
+                cmd.id = id
+                infoChangeService.submit(teacherId, cmd)
+                break
+        }
+        renderOk()
     }
 
     /**

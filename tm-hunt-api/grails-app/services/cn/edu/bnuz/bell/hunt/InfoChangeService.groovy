@@ -2,11 +2,13 @@ package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.hunt.cmd.InfoChangeCommand
 import cn.edu.bnuz.bell.hunt.utils.ZipTools
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import cn.edu.bnuz.bell.workflow.DomainStateMachineHandler
+import cn.edu.bnuz.bell.workflow.commands.SubmitCommand
 import grails.gorm.transactions.Transactional
 
 import javax.annotation.Resource
@@ -41,7 +43,7 @@ where i.applicant.id = :userId
 ''', [userId: userId]
     }
 
-    Map getInfoForShow(String userId, Long id) {
+    Map getInfoForShow(Long id) {
         def result = InfoChange.executeQuery'''
 select new map(
     i.id as id,
@@ -57,18 +59,19 @@ select new map(
     i.achievements as achievements,
     i.other as other,
     i.mainInfoForm as mainInfoForm,
-    p.name as name,
+    i.name as name,
     type.name as subtype,
     p.level as level,
     p.code as code,
-    p.principal.name as principalName
+    p.principal.name as principalName,
+    i.workflowInstance.id as workflowInstanceId
 )
 from InfoChange i
 left join i.principal principal
 join i.project p
 join p.subtype type
-where i.id = :id and i.applicant.id = :userId
-''', [id: id, userId: userId]
+where i.id = :id
+''', [id: id]
         if (result) {
             Map map = result[0] as Map
             if (map.mainInfoForm) {
@@ -183,5 +186,25 @@ where id = :id
         if (form) {
             form.delete()
         }
+    }
+
+    def submit(String userId, SubmitCommand cmd) {
+        InfoChange form = InfoChange.get(cmd.id)
+
+        if (!form) {
+            throw new NotFoundException()
+        }
+
+        if (form.project.principal.id != userId) {
+            throw new ForbiddenException()
+        }
+
+        if (!domainStateMachineHandler.canSubmit(form)) {
+            throw new BadRequestException()
+        }
+        domainStateMachineHandler.submit(form, userId, cmd.to, cmd.comment, cmd.title)
+
+        form.dateSubmitted = new Date()
+        form.save()
     }
 }

@@ -72,6 +72,11 @@ class Project {
      */
     String mainInfoForm
 
+    /**
+     * 备注
+     */
+    String memo
+
     static hasOne = [contract: Contract]
 
     static hasMany = [review: Review, infoChange: InfoChange]
@@ -105,6 +110,7 @@ class Project {
         achievements            length: 2000, comment: '预期成果'
         delayTimes              defaultValue: 0, comment: '延期次数'
         mainInfoForm            length: 50, comment: '申报书'
+        memo                    length: 1000, comment: '备注'
     }
     static constraints = {
         direction       nullable: true
@@ -122,5 +128,6 @@ class Project {
         major           nullable: true
         direction       nullable: true
         mainInfoForm    nullable: true
+        memo            nullable: true
     }
 }

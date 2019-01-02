@@ -20,4 +20,8 @@ class ChangeItem {
         key                     length: 50, comment: '变更属性'
         content                 length: 2000, comment: '变更内容'
     }
+
+    static constraints = {
+        content     nullable: true
+    }
 }

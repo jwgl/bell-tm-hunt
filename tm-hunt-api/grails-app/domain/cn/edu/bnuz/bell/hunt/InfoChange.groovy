@@ -62,6 +62,8 @@ class InfoChange implements StateObject {
      */
     WorkflowInstance workflowInstance
 
+    static hasMany = [items: ChangeItem]
+
     static mapping = {
         comment                 '项目变更审核'
         table                   schema: 'tm_hunt'

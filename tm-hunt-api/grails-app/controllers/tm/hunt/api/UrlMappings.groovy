@@ -28,10 +28,10 @@ class UrlMappings {
             "/tasks"(resources: 'taskPublic', includes: ['index', 'show'])
             "/infoChanges"(resources: 'infoChange') {
                 "/checkers"(controller: 'application', action: 'checkers', method: 'GET')
+                "/attachments"(controller: 'infoChange', action: 'attachments', method: 'GET')
                 collection {
                     "/project"(controller: 'infoChange', action: 'findProject', method: 'GET')
                     "/upload"(controller: 'infoChange', action: 'upload', method: 'POST')
-                    "/attachments"(controller: 'infoChange', action: 'attachments', method: 'GET')
                 }
             }
         }
@@ -43,6 +43,11 @@ class UrlMappings {
                 "/attachments"(controller: 'applicationCheck', action: 'attachments', method: 'GET')
             }
             "/tasks"(resources: 'taskChecker', includes: ['index', 'show'])
+            "/infoChanges"(resources: 'infoChangeCheck', includes: ['index']) {
+                "/workitems"(resources: 'infoChangeCheck', includes: ['show', 'patch'])
+                "/approvers"(controller: 'applicationCheck', action: 'approvers', method: 'GET')
+                "/attachments"(controller: 'infoChangeCheck', action: 'attachments', method: 'GET')
+            }
         }
 
         "/approvers"(resources: 'approver', includes: []) {
@@ -55,6 +60,10 @@ class UrlMappings {
                     "/attachments"(controller: 'applicationAdministration', action: 'attachments', method: 'GET')
                     "/expertReviews"(controller: 'applicationAdministration', action: 'expertReviews', method: 'GET')
                 }
+            }
+            "/infoChanges"(resources: 'infoChangeApproval', includes: ['index']) {
+                "/workitems"(resources: 'infoChangeApproval', includes: ['show', 'patch'])
+                "/attachments"(controller: 'infoChangeApproval', action: 'attachments', method: 'GET')
             }
         }
 
