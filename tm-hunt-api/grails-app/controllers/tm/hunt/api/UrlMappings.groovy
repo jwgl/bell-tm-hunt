@@ -48,6 +48,7 @@ class UrlMappings {
                 "/approvers"(controller: 'applicationCheck', action: 'approvers', method: 'GET')
                 "/attachments"(controller: 'infoChangeCheck', action: 'attachments', method: 'GET')
             }
+            "/projects"(resources: 'projectDepartment')
         }
 
         "/approvers"(resources: 'approver', includes: []) {
