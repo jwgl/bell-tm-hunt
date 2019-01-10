@@ -34,4 +34,8 @@ where checker.department.id = :id
     List<Map> getApprovers() {
         User.findAllWithPermission('PERM_HUNT_ADMIN')
     }
+
+    List<Map> getReviewers() {
+        User.findAllWithPermission('PERM_HUNT_DIRECT')
+    }
 }

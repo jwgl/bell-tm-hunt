@@ -159,14 +159,14 @@ select new map(
     rt.endDate as endDate,
     rt.type as type,
     rt.ban as ban,
-    sum (case when p.principal = :teacher then 1 else 0 end) as countApplication
+    count(*) as countApplication
 )
 from Review r
 right join r.reviewTask rt
 left join r.project p
 where (current_date between rt.startDate and rt.endDate)
-or r.id is not null
-group by rt.id, rt.title, rt.endDate, rt.type
+or p.principal = :teacher
+group by rt.id, rt.title, rt.endDate, rt.type, rt.ban
 order by rt.dateCreated desc
 ''', [teacher: Teacher.load(securityService.userId)]
     }

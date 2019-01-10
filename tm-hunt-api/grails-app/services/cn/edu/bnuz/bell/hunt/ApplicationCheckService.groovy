@@ -204,20 +204,24 @@ order by application.dateChecked desc
 
     void accept(String userId, AcceptCommand cmd, UUID workitemId) {
         Review application = Review.get(cmd.id)
-        domainStateMachineHandler.accept(application, userId, Activities.CHECK, cmd.comment, workitemId, cmd.to)
-        application.checker = Teacher.load(userId)
-        application.dateChecked = new Date()
-        application.departmentOpinion = cmd.comment
-        application.save()
+        if (application.status == State.SUBMITTED) {
+            domainStateMachineHandler.accept(application, userId, Activities.CHECK, cmd.comment, workitemId, cmd.to)
+            application.checker = Teacher.load(userId)
+            application.dateChecked = new Date()
+            application.departmentOpinion = cmd.comment
+            application.save()
+        }
     }
 
     void reject(String userId, RejectCommand cmd, UUID workitemId) {
         Review application = Review.get(cmd.id)
-        domainStateMachineHandler.reject(application, userId, Activities.CHECK, cmd.comment, workitemId)
-        application.checker = Teacher.load(userId)
-        application.dateChecked = new Date()
-        application.departmentOpinion = cmd.comment
-        application.save()
+        if (application.status == State.SUBMITTED) {
+            domainStateMachineHandler.reject(application, userId, Activities.CHECK, cmd.comment, workitemId)
+            application.checker = Teacher.load(userId)
+            application.dateChecked = new Date()
+            application.departmentOpinion = cmd.comment
+            application.save()
+        }
     }
 
     void rollback(String userId, RevokeCommand cmd) {

@@ -65,6 +65,7 @@ class UrlMappings {
             "/infoChanges"(resources: 'infoChangeApproval', includes: ['index']) {
                 "/workitems"(resources: 'infoChangeApproval', includes: ['show', 'patch'])
                 "/attachments"(controller: 'infoChangeApproval', action: 'attachments', method: 'GET')
+                "/reviewers"(controller: 'infoChangeApproval', action: 'reviewers', method: 'GET')
             }
         }
 

@@ -8,8 +8,10 @@ import cn.edu.bnuz.bell.hunt.utils.ZipTools
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import cn.edu.bnuz.bell.workflow.DomainStateMachineHandler
+import cn.edu.bnuz.bell.workflow.State
 import cn.edu.bnuz.bell.workflow.commands.SubmitCommand
 import grails.gorm.transactions.Transactional
+import org.springframework.boot.actuate.info.Info
 
 import javax.annotation.Resource
 import java.time.LocalDate
@@ -60,6 +62,8 @@ select new map(
     i.other as other,
     i.mainInfoForm as mainInfoForm,
     i.name as name,
+    i.locked as locked,
+    i.dateReviewed as dateReviewed,
     type.name as subtype,
     p.level as level,
     p.code as code,
@@ -206,5 +210,19 @@ where id = :id
 
         form.dateSubmitted = new Date()
         form.save()
+    }
+
+    /**
+     * 当审批通过，变更了原项目信息后，要在申请单中还原原项目信息以保持前后对照
+     * @param infoChangeId
+     * @param project
+     */
+    void projectUpdatedBefore(Long infoChangeId, Map project) {
+        def infoChange = InfoChange.load(infoChangeId)
+        if (infoChange && infoChange.status == State.FINISHED) {
+            infoChange.items.each { item ->
+                project[item.key] = item.content
+            }
+        }
     }
 }

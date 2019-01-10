@@ -23,9 +23,11 @@ class InfoChangeController {
 
     def show(String teacherId, Long id) {
         def form = infoChangeService.getInfoForShow(id)
+        def project = infoChangeService.findProject(form?.projectId)
+        infoChangeService.projectUpdatedBefore(id, project as Map)
         renderJson([
                 form: form,
-                project: infoChangeService.findProject(form?.projectId)
+                project: project
         ])
     }
 

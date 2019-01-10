@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 
 @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
 class InfoChangeApprovalController {
+    ProjectReviewerService projectReviewerService
 	InfoChangeApprovalService infoChangeApprovalService
     @Value('${bell.teacher.filesPath}')
     String filesPath
@@ -47,6 +48,12 @@ class InfoChangeApprovalController {
                 cmd.id = infoChangeApprovalId
                 infoChangeApprovalService.reject(approverId, cmd, UUID.fromString(id))
                 break
+            case Event.REVIEW:
+                def cmd = new AcceptCommand()
+                bindData(cmd, request.JSON)
+                cmd.id = infoChangeApprovalId
+                infoChangeApprovalService.createReview(approverId, cmd, UUID.fromString(id))
+                break
             default:
                 throw new BadRequestException()
         }
@@ -72,5 +79,9 @@ class InfoChangeApprovalController {
         response.contentType = "application/zip"
         response.outputStream << ZipTools.zip(infoChange, basePath)
         response.outputStream.flush()
+    }
+
+    def reviewers(String approverId) {
+        renderJson projectReviewerService.getReviewers()
     }
 }

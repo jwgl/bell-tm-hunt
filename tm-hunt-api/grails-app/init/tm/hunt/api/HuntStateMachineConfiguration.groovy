@@ -4,6 +4,7 @@ import cn.edu.bnuz.bell.workflow.Activities
 import cn.edu.bnuz.bell.workflow.Event
 import cn.edu.bnuz.bell.workflow.State
 import cn.edu.bnuz.bell.workflow.actions.AbstractEntryAction
+import cn.edu.bnuz.bell.workflow.actions.ManualEntryAction
 import cn.edu.bnuz.bell.workflow.actions.SubmittedEntryAction
 import cn.edu.bnuz.bell.workflow.config.StandardActionConfiguration
 import cn.edu.bnuz.bell.workflow.events.EventData
@@ -90,6 +91,19 @@ class HuntStateMachineConfiguration extends EnumStateMachineConfigurerAdapter<St
                 .target(State.CLOSED)
                 .and()
             .withInternal()
+                .source(State.SUBMITTED)
+                .event(Event.REVIEW)
+                .action(actions.logTransitionAction())
+                .action(reviewEntryAction())
+                .and()
+        .withInternal()
+                .source(State.CHECKED)
+                .event(Event.REVIEW)
+                .action(actions.logTransitionAction())
+                .action(actions.workitemProcessedAction())
+                .action(reviewEntryAction())
+                .and()
+            .withInternal()
                 .source(State.REJECTED)
                 .event(Event.UPDATE)
                 .action(actions.logTransitionAction())
@@ -147,5 +161,10 @@ class HuntStateMachineConfiguration extends EnumStateMachineConfigurerAdapter<St
                 }
             }
         }
+    }
+
+    @Bean
+    Action<State, Event> reviewEntryAction() {
+        new ManualEntryAction(Activities.REVIEW)
     }
 }

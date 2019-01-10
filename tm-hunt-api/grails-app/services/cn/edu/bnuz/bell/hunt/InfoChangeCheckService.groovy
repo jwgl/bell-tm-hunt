@@ -39,7 +39,7 @@ where form.department = (
   join checker.teacher teacher
   where teacher.id = :userId
 )
-''', [userId: userId, doneStates: [State.CHECKED, State.CLOSED]]
+''', [userId: userId, doneStates: [State.CHECKED, State.FINISHED, State.CLOSED]]
         [
                 (ListType.TODO): result ? result[0].todo : 0,
                 (ListType.DONE): result ? result[0].done : 0,
@@ -101,7 +101,7 @@ where form.department = (
   join checker.teacher teacher
   where teacher.id = :userId
 ) and form.status in (:doneStates)
-''', [userId: userId, doneStates: [State.CHECKED, State.CLOSED]], args
+''', [userId: userId, doneStates: [State.CHECKED, State.FINISHED, State.CLOSED]], args
         return [forms: forms, counts: getCounts(userId)]
     }
 
@@ -114,9 +114,11 @@ where form.department = (
                 User.load(userId),
         )
         domainStateMachineHandler.checkReviewer(id, userId, activity)
+        def project = infoChangeService.findProject(form?.projectId)
+        infoChangeService.projectUpdatedBefore(id, project as Map)
         return [
                 form      : form,
-                project   : infoChangeService.findProject(form?.projectId),
+                project   : project,
                 counts    : getCounts(userId),
                 workitemId: workitem ? workitem.id : null,
                 prevId    : getPrevCheckId(userId, id, type),

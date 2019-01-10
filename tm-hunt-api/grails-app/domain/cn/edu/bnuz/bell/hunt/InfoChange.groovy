@@ -56,6 +56,8 @@ class InfoChange implements StateObject {
     String opinionOfUniversity
     Date dateApproved
     State status
+    Boolean locked
+    Date dateReviewed
 
     /**
      * 工作流实例
@@ -89,6 +91,8 @@ class InfoChange implements StateObject {
         approver                comment: '审批人'
         opinionOfUniversity     length: 500, comment: '学校意见'
         dateApproved            comment: '审批日期'
+        locked                  comment: '锁定'
+        dateReviewed            comment: '加签日期'
         status                  sqlType: 'tm.state', type: StateUserType, comment: '审批进度、状态'
     }
 
@@ -111,6 +115,8 @@ class InfoChange implements StateObject {
         achievements            nullable: true
         members                 nullable: true
         workflowInstance        nullable: true
+        locked                  nullable: true
+        dateReviewed            nullable: true
     }
 
     String getWorkflowId() {

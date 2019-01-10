@@ -54,6 +54,7 @@ select new map(
     project.subtype.name as subtype,
     form.dateChecked as date,
     form.type as type,
+    form.locked as locked,
     form.status as status
 )
 from InfoChange form
@@ -74,6 +75,7 @@ select new map(
     project.subtype.name as subtype,
     form.dateApproved as date,
     form.type as type,
+    form.locked as locked,
     form.status as status
 )
 from InfoChange form
@@ -97,9 +99,11 @@ order by form.dateApproved desc
                 User.load(userId),
         )
         domainStateMachineHandler.checkReviewer(id, userId, activity)
+        def project = infoChangeService.findProject(form?.projectId)
+        infoChangeService.projectUpdatedBefore(id, project as Map)
         return [
                 form      : form,
-                project   : infoChangeService.findProject(form?.projectId),
+                project   : project,
                 counts    : getCounts(),
                 workitemId: workitem ? workitem.id : null,
                 prevId    : getPrevApprovalId(userId, id, type),
@@ -262,6 +266,16 @@ order by form.dateApproved desc
         form.dateApproved = new Date()
         form.checker = null
         form.dateChecked = null
+        form.save()
+    }
+
+    void createReview(String userId, AcceptCommand cmd, UUID workitemId) {
+        InfoChange form = InfoChange.get(cmd.id)
+        if (!domainStateMachineHandler.canReview(form)) {
+            throw new BadRequestException()
+        }
+        domainStateMachineHandler.createReview(form, userId, cmd.comment, workitemId, cmd.to)
+        form.locked = true
         form.save()
     }
 }
