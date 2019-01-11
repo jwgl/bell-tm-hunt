@@ -65,6 +65,9 @@ select new map(
     project.name as name,
     project.level as level,
     project.subtype.name as subtype,
+    project.middleYear as middleYear,
+    project.knotYear as knotYear,
+    project.delayTimes as delayTimes,
     form.dateSubmitted as date,
     form.type as type,
     form.status as status
@@ -89,6 +92,9 @@ select new map(
     project.name as name,
     project.level as level,
     project.subtype.name as subtype,
+    project.middleYear as middleYear,
+    project.knotYear as knotYear,
+    project.delayTimes as delayTimes,
     form.dateChecked as date,
     form.type as type,
     form.status as status

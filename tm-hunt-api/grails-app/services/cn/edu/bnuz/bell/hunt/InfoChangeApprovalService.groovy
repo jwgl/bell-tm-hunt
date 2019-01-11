@@ -52,9 +52,13 @@ select new map(
     project.name as name,
     project.level as level,
     project.subtype.name as subtype,
+    project.middleYear as middleYear,
+    project.knotYear as knotYear,
+    project.delayTimes as delayTimes,
     form.dateChecked as date,
     form.type as type,
-    form.locked as locked,
+    case when form.reviewer is null then false else true end as reviewer,
+    form.dateReviewed as dateReviewed,
     form.status as status
 )
 from InfoChange form
@@ -73,9 +77,13 @@ select new map(
     project.name as name,
     project.level as level,
     project.subtype.name as subtype,
+    project.middleYear as middleYear,
+    project.knotYear as knotYear,
+    project.delayTimes as delayTimes,
     form.dateApproved as date,
     form.type as type,
-    form.locked as locked,
+    case when form.reviewer is null then false else true end as reviewer,
+    form.dateReviewed as dateReviewed,
     form.status as status
 )
 from InfoChange form
@@ -98,6 +106,13 @@ order by form.dateApproved desc
                 WorkflowActivity.load("${InfoChange.WORKFLOW_ID}.${activity}"),
                 User.load(userId),
         )
+        if (!workitem) {
+            workitem = Workitem.findByInstanceAndActivityAndToAndDateProcessedIsNull(
+                    WorkflowInstance.load(form.workflowInstanceId),
+                    WorkflowActivity.load("${InfoChange.WORKFLOW_ID}.${Activities.REVIEW}"),
+                    User.load(userId),
+            )
+        }
         domainStateMachineHandler.checkReviewer(id, userId, activity)
         def project = infoChangeService.findProject(form?.projectId)
         infoChangeService.projectUpdatedBefore(id, project as Map)
@@ -143,7 +158,8 @@ order by form.dateChecked asc
                 return dataAccessService.getLong('''
 select form.id
 from InfoChange form
-where form.approver is not null and form.dateApproved > (select dateApproved from InfoChange where id = :id)
+where form.approver is not null
+and form.dateApproved > (select dateApproved from InfoChange where id = :id)
 order by form.dateApproved asc
 ''', [id: id])
         }
@@ -163,7 +179,8 @@ order by form.dateChecked asc
                 return dataAccessService.getLong('''
 select form.id
 from InfoChange form
-where form.dateApproved < (select dateApproved from InfoChange where id = :id)
+where form.approver is not null
+and form.dateApproved < (select dateApproved from InfoChange where id = :id)
 order by form.dateApproved desc
 ''', [id: id])
         }
@@ -199,6 +216,7 @@ order by form.dateApproved desc
                         )
                         form.addToItems(item)
                         project.middleYear = form.middleYear
+                        project.delayTimes ++
                     }
                     ChangeItem item = new ChangeItem(
                             infoChane: form,
@@ -251,6 +269,7 @@ order by form.dateApproved desc
                     project.memo = "${project.memo}; ${form.other}"
             }
         }
+        project.mainInfoForm = form.mainInfoForm
         form.approver = Teacher.load(userId)
         form.dateApproved = new Date()
         form.save()
@@ -275,7 +294,7 @@ order by form.dateApproved desc
             throw new BadRequestException()
         }
         domainStateMachineHandler.createReview(form, userId, cmd.comment, workitemId, cmd.to)
-        form.locked = true
+        form.reviewer = Teacher.load(cmd.to)
         form.save()
     }
 }

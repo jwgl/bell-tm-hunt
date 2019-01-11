@@ -17,6 +17,8 @@ class ProjectReviewerService implements ReviewerProvider{
                 return getCheckers()
             case Activities.APPROVE:
                 return getApprovers()
+            case Activities.REVIEW:
+                return getReviewers() + getApprovers()
             default:
                 throw new BadRequestException()
         }

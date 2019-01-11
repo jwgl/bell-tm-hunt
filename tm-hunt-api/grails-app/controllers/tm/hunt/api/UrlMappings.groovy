@@ -74,6 +74,14 @@ class UrlMappings {
             "/tasks"(resources: 'taskExpert', includes: ['index', 'show'])
         }
 
+        "/directors"(resources: 'director', includes: []) {
+            "/infoChanges"(resources: 'infoChangeReview', includes: ['index']) {
+                "/workitems"(resources: 'infoChangeReview', includes: ['show', 'patch'])
+                "/attachments"(controller: 'infoChangeReview', action: 'attachments', method: 'GET')
+                "/reviewers"(controller: 'infoChangeReview', action: 'reviewers', method: 'GET')
+            }
+        }
+
         "500"(view: '/error')
         "404"(view: '/notFound')
     }
