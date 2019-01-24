@@ -49,6 +49,12 @@ class UrlMappings {
                 "/attachments"(controller: 'infoChangeCheck', action: 'attachments', method: 'GET')
             }
             "/projects"(resources: 'projectDepartment')
+            "/principalChanges"(resources: 'principalChange') {
+                "/checkers"(controller: 'principalChange', action: 'checkers', method: 'GET')
+                collection {
+                    "/upload"(controller: 'principalChange', action: 'upload', method: 'POST')
+                }
+            }
         }
 
         "/approvers"(resources: 'approver', includes: []) {

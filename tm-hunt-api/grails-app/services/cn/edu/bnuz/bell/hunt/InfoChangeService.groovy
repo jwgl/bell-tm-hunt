@@ -26,7 +26,7 @@ class InfoChangeService {
         InfoChange.executeQuery'''
 select new map(
     i.id as id,
-    i.department as department,
+    i.department.name as department,
     i.type as type,
     i.dateSubmitted as dateSubmitted,
     i.status as status,
@@ -46,6 +46,34 @@ where i.applicant.id = :userId
 ''', [userId: userId]
     }
 
+    def principalChangelist() {
+        InfoChange.executeQuery'''
+select new map(
+    i.id as id,
+    i.department.name as department,
+    i.type as type,
+    i.dateSubmitted as dateSubmitted,
+    i.status as status,
+    p.id as projectId,
+    p.middleYear as middleYear,
+    p.knotYear as knotYear,
+    p.delayTimes as delayTimes,
+    p.name as name,
+    type.name as subtype,
+    p.level as level,
+    p.code as code,
+    p.principal.name as principalName,
+    principal.name as principalNameNew
+    
+)
+from InfoChange i
+join i.project p
+join i.principal principal
+join p.subtype type
+where i.department.id = :departmentId
+''', [departmentId: securityService.departmentId]
+    }
+
     Map getInfoForShow(Long id) {
         def result = InfoChange.executeQuery'''
 select new map(
@@ -54,6 +82,7 @@ select new map(
     i.project.name as projectName,
     i.department.name as departmentName,
     i.type as type,
+    i.reason as reason,
     i.dateSubmitted as dateSubmitted,
     i.status as status,
     i.middleYear as middleYear,
@@ -69,7 +98,13 @@ select new map(
     type.name as subtype,
     p.level as level,
     p.code as code,
-    p.principal.name as principalName,
+    principal.name as principalName,
+    principal.id as principalId,
+    i.phone as phone,
+    i.email as email,
+    i.degree as degree,
+    i.title as title,
+    i.office as office,
     i.workflowInstance.id as workflowInstanceId
 )
 from InfoChange i
@@ -94,6 +129,9 @@ where i.id = :id
         if (!project) {
             throw new BadRequestException('没有指定变更项目')
         }
+        if (project.status != Status.INHAND) {
+            throw new BadRequestException('不是在研项目不可变更')
+        }
         Teacher principal = cmd.principalId ? Teacher.load(cmd.principalId) : null
         InfoChange infoChange = new InfoChange(
                 applicant: Teacher.load(securityService.userId),
@@ -101,6 +139,7 @@ where i.id = :id
                 department: principal ? principal.department : project.department,
                 type: cmd.type,
                 principal: principal,
+                reason: cmd.reason,
                 middleYear: cmd.middleYear,
                 knotYear: cmd.knotYear,
                 name: cmd.name,
@@ -112,6 +151,13 @@ where i.id = :id
                 status: domainStateMachineHandler.initialState,
                 dateCreated: LocalDate.now()
         )
+        if (principal) {
+            infoChange.title = cmd.title
+            infoChange.degree = cmd.degree
+            infoChange.email = cmd.email
+            infoChange.phone = cmd.phone
+            infoChange.office = cmd.office
+        }
         if (!infoChange.save()) {
             infoChange.errors.each {
                 println it
@@ -127,6 +173,7 @@ where i.id = :id
             throw new ForbiddenException()
         }
         form.setType(cmd.type)
+        form.setReason(cmd.reason)
         form.setPrincipal(cmd.principalId ? Teacher.load(cmd.principalId) : null)
         form.setMiddleYear(cmd.middleYear)
         form.setKnotYear(cmd.knotYear)
@@ -168,6 +215,7 @@ select new map(
     id as id,
     principal.name as principalName,
     name as name,
+    department.name as departmentName,
     members as members,
     content as content,
     achievements as achievements,
@@ -189,7 +237,7 @@ where id = :id
 
     def delete(Long id) {
         def form = InfoChange.get(id)
-        if (form) {
+        if (form && form.applicant.id == securityService.userId) {
             form.delete()
         }
     }
@@ -201,7 +249,9 @@ where id = :id
             throw new NotFoundException()
         }
 
-        if (form.project.principal.id != userId) {
+        // 如果不是负责人本人，不允许递交项目负责人变更以外的变更；变更负责人只允许本学院审核员提交。
+        if (form.project.principal.id != userId &&
+                (form.type[0] != 1 || !securityService.hasPermission('PERM_HUNT_CHECK') || form.department.id != securityService.departmentId)) {
             throw new ForbiddenException()
         }
 
@@ -226,5 +276,12 @@ where id = :id
                 project[item.key] = item.content
             }
         }
+    }
+
+    Map getProjectForChange(Long projectId) {
+        return [
+                form: [],
+                project: findProject(projectId)
+        ]
     }
 }

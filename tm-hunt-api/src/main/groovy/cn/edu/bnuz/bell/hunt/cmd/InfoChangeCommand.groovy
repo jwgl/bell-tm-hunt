@@ -3,7 +3,7 @@ package cn.edu.bnuz.bell.hunt.cmd
 class InfoChangeCommand {
     Long projectId
     Integer[] type
-    String principalId
+    String reason
     Integer middleYear
     Integer knotYear
     String name
@@ -12,9 +12,21 @@ class InfoChangeCommand {
     String members
     String other
     String mainInfoForm
+    /**
+     * 负责人变更
+     */
+    String principalId
+    String title
+    String degree
+    String email
+    String office
+    String phone
 
     String toString() {
-        return  "principalId: ${projectId}; " +
+        return  "projectId: ${projectId}; " +
+                "principalId: ${principalId}; " +
+                "reason: ${reason}" +
+                "degree: ${degree}" +
                 "name: ${name}; " +
                 "middleYear: ${middleYear}; " +
                 "knotYear: ${knotYear}; " +

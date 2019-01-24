@@ -8,6 +8,7 @@ import grails.gorm.transactions.Transactional
 class ProjectDepartmentService {
     SecurityService securityService
     ApplicationService applicationService
+    TypeService typeService
 
     def list(ProjectDepartmentOptionCommand cmd) {
         def sqlStr = '''
@@ -36,7 +37,13 @@ where project.status <> 'CREATED'
             sqlStr += " and ${cmd.criterion}"
         }
         sqlStr += " order by project.level, subtype.name, project.code"
-        Project.executeQuery sqlStr, cmd.args
+        def list = Project.executeQuery sqlStr, cmd.args
+        return [
+                list: list,
+                subtypes: typeService.getAllSubtypes(),
+                middleYears: middleYears,
+                knotYears: knotYears
+        ]
     }
 
     def getMiddleYears() {

@@ -27,9 +27,19 @@ class InfoChange implements StateObject {
     Integer[] type
 
     /**
+     * 变更原因
+     */
+    String reason
+
+    /**
      * 变更申请明细
      */
     Teacher principal
+    String title
+    String degree
+    String email
+    String office
+    String phone
     Integer middleYear
     Integer knotYear
     String name
@@ -94,6 +104,12 @@ class InfoChange implements StateObject {
         reviewer                comment: '加签人'
         dateReviewed            comment: '加签日期'
         status                  sqlType: 'tm.state', type: StateUserType, comment: '审批进度、状态'
+        reason                  length: 1000, comment: '变更原因'
+        title                   length: 20, comment: '职称'
+        degree                  length: 20, comment: '学位'
+        email                   length: 50, comment: '邮箱'
+        office                  length: 20, comment: '行政岗位'
+        phone                   length: 30, comment: '电话'
     }
 
     static constraints = {
@@ -117,6 +133,12 @@ class InfoChange implements StateObject {
         workflowInstance        nullable: true
         reviewer                nullable: true
         dateReviewed            nullable: true
+        reason                  nullable: true
+        title                   nullable: true
+        degree                  nullable: true
+        email                   nullable: true
+        office                  nullable: true
+        phone                   nullable: true
     }
 
     String getWorkflowId() {

@@ -6,8 +6,6 @@ import org.springframework.security.access.prepost.PreAuthorize
 @PreAuthorize('hasAuthority("PERM_HUNT_CHECK")')
 class ProjectDepartmentController {
     ProjectDepartmentService projectDepartmentService
-    ApplicationService applicationService
-    TypeService typeService
 
     def index(String checkerId, ProjectDepartmentOptionCommand cmd) {
         renderJson projectDepartmentService.list(cmd)
@@ -17,11 +15,4 @@ class ProjectDepartmentController {
         renderJson projectDepartmentService.getFormInfo(id)
     }
 
-    def create(Long checkerId) {
-        renderJson([
-                subtypes: typeService.getAllSubtypes(),
-                middleYears: projectDepartmentService.middleYears,
-                knotYears: projectDepartmentService.knotYears
-        ])
-    }
 }
