@@ -14,7 +14,7 @@ class ProjectReviewerService implements ReviewerProvider{
     List<Map> getReviewers(Object id, String activity) {
         switch (activity) {
             case Activities.CHECK:
-                return getCheckers()
+                return getCheckers() + getApprovers()
             case Activities.APPROVE:
                 return getApprovers()
             case Activities.REVIEW:

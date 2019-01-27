@@ -111,6 +111,24 @@ order by rt.dateCreated desc
 '''
     }
 
+    def countForApproval(Long taskId) {
+        ReviewTask.executeQuery'''
+select new map(
+    rt.id as id,
+    r.reportType as reportType,
+    sum (case when r.reportType != 1 or r.status != 'CREATED' then 1 else 0 end) as countProject,
+    sum (case when r.status = 'CHECKED' then 1 else 0 end) as countUncheck,
+    sum (case when r.status = 'FINISHED' and r.conclusionOfUniversity = 'OK' then 1 else 0 end) as countPass,
+    sum (case when r.status = 'FINISHED' and r.conclusionOfUniversity = 'VETO' then 1 else 0 end) as countFail
+)
+from Review r
+join r.reviewTask rt
+where rt.id = :taskId
+group by rt.id, r.reportType
+order by r.reportType
+''', [taskId: taskId]
+    }
+
     def listForDepartment() {
         ReviewTask.executeQuery'''
 select new map(

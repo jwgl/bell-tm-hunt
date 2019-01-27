@@ -7,8 +7,12 @@ import org.springframework.security.access.prepost.PreAuthorize
 class TaskApprovalController {
     ReviewTaskService reviewTaskService
 
-    def index() {
-        renderJson reviewTaskService.listForApproval()
+    def index(Long taskId) {
+        if (taskId) {
+            renderJson reviewTaskService.countForApproval(taskId)
+        } else {
+            renderJson reviewTaskService.listForApproval()
+        }
     }
 
     def show(Long id) {

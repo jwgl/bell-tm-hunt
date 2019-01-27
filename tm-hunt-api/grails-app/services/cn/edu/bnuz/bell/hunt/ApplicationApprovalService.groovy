@@ -28,14 +28,14 @@ class ApplicationApprovalService {
     DomainStateMachineHandler domainStateMachineHandler
     DataAccessService dataAccessService
 
-    def list(String userId, Long taskId, ListType type) {
+    def list(String userId, Long taskId, ListType type, Integer reportType) {
         switch (type) {
             case ListType.TODO:
-                return findTodoList(userId, taskId)
+                return findTodoList(userId, taskId, reportType)
             case ListType.DONE:
-                return findDoneList(userId, taskId)
+                return findDoneList(userId, taskId, reportType)
             case ListType.EXPR:
-                return findFailList(userId, taskId)
+                return findFailList(userId, taskId, reportType)
             default:
                 return allTypeList(userId, taskId)
         }
@@ -69,7 +69,7 @@ order by application.dateChecked
 ''', [userId: userId, status: [State.CHECKED, State.APPROVED], taskId: taskId]
     }
 
-    def findTodoList(String userId, Long taskId) {
+    def findTodoList(String userId, Long taskId, Integer reportType) {
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -95,12 +95,13 @@ join project.subtype subtype
 join project.origin origin
 join application.department department
 where application.status = :status
+and application.reportType = :reportType
 and application.reviewTask.id = :taskId
 order by application.dateChecked
-''', [status: State.CHECKED, taskId: taskId]
+''', [status: State.CHECKED, taskId: taskId, reportType: reportType]
     }
 
-    def findDoneList(String userId, Long taskId) {
+    def findDoneList(String userId, Long taskId, Integer reportType) {
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -126,12 +127,13 @@ join project.subtype subtype
 join project.origin origin
 join application.department department
 where application.status = 'FINISHED' and application.conclusionOfUniversity = 'OK'
+and application.reportType = :reportType
 and application.reviewTask.id = :taskId
 order by application.dateApproved desc
-''', [taskId: taskId]
+''', [taskId: taskId, reportType: reportType]
     }
 
-    def findFailList(String userId, Long taskId) {
+    def findFailList(String userId, Long taskId, Integer reportType) {
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -156,9 +158,10 @@ join project.subtype subtype
 join project.origin origin
 join application.department department
 where application.status = 'APPROVED' and application.conclusionOfUniversity = 'VETO'
+and application.reportType = :reportType
 and application.reviewTask.id = :taskId
 order by application.dateApproved desc
-''', [taskId: taskId]
+''', [taskId: taskId, reportType: reportType]
     }
 
     void finish(String userId, FinishCommand cmd, UUID workitemId) {

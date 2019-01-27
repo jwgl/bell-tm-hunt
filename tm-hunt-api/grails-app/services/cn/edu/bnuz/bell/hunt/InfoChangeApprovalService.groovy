@@ -27,9 +27,11 @@ class InfoChangeApprovalService {
     DomainStateMachineHandler domainStateMachineHandler
 
     private static getCounts() {
+
         return [
                 (ListType.TODO): InfoChange.countByStatus(State.CHECKED),
                 (ListType.DONE): InfoChange.countByDateApprovedIsNotNull(),
+                (ListType.TOBE): InfoChange.countByStatusAndType(State.SUBMITTED, [1] as Integer[]),
         ]
     }
 
@@ -39,6 +41,8 @@ class InfoChangeApprovalService {
                 return findTodoList(cmd)
             case ListType.DONE:
                 return findDoneList(cmd)
+            case ListType.TOBE:
+                return findTobeList(cmd)
             default:
                 throw new BadRequestException()
         }
@@ -94,6 +98,31 @@ order by form.dateApproved desc
         return [forms: forms, counts: getCounts()]
     }
 
+    def findTobeList(ListCommand cmd) {
+        def forms = InfoChange.executeQuery '''
+select new map(
+    form.id as id,
+    project.code as code,
+    project.name as name,
+    project.level as level,
+    project.subtype.name as subtype,
+    project.middleYear as middleYear,
+    project.knotYear as knotYear,
+    project.delayTimes as delayTimes,
+    form.dateChecked as date,
+    form.type as type,
+    case when form.reviewer is null then false else true end as reviewer,
+    form.dateReviewed as dateReviewed,
+    form.status as status
+)
+from InfoChange form
+join form.project project
+where form.status = :status
+order by form.dateChecked
+''', [status: State.SUBMITTED], cmd.args
+        return [forms: forms, counts: getCounts()]
+    }
+
     def getFormForApproval(String userId, Long id, ListType type) {
         def form = infoChangeService.getInfoForShow(id)
 
@@ -110,6 +139,13 @@ order by form.dateApproved desc
             workitem = Workitem.findByInstanceAndActivityAndToAndDateProcessedIsNull(
                     WorkflowInstance.load(form.workflowInstanceId),
                     WorkflowActivity.load("${InfoChange.WORKFLOW_ID}.${Activities.REVIEW}"),
+                    User.load(userId),
+            )
+        }
+        if (!workitem) {
+            workitem = Workitem.findByInstanceAndActivityAndToAndDateProcessedIsNull(
+                    WorkflowInstance.load(form.workflowInstanceId),
+                    WorkflowActivity.load("${InfoChange.WORKFLOW_ID}.${Activities.CHECK}"),
                     User.load(userId),
             )
         }
@@ -134,9 +170,11 @@ order by form.dateApproved desc
         }
         def activity = Workitem.get(workitemId).activitySuffix
         domainStateMachineHandler.checkReviewer(id, userId, activity)
-
+        def project = infoChangeService.findProject(form?.projectId)
+        infoChangeService.projectUpdatedBefore(id, project as Map)
         return [
                 form      : form,
+                project   : project,
                 counts    : getCounts(),
                 workitemId: workitemId,
                 prevId    : getPrevApprovalId(userId, id, type),
@@ -162,6 +200,16 @@ where form.approver is not null
 and form.dateApproved > (select dateApproved from InfoChange where id = :id)
 order by form.dateApproved asc
 ''', [id: id])
+            case ListType.TOBE:
+                return
+                dataAccessService.getLong('''
+select form.id
+from InfoChange form
+where form.status = :status
+and :type = any_element(form.type)
+and form.dateSubmitted < (select dateSubmitted from InfoChange where id = :id)
+order by form.dateSubmitted asc
+''', [id: id, status: State.SUBMITTED, type: 1 as Long])
         }
     }
 
@@ -183,28 +231,41 @@ where form.approver is not null
 and form.dateApproved < (select dateApproved from InfoChange where id = :id)
 order by form.dateApproved desc
 ''', [id: id])
+            case ListType.TOBE:
+                return dataAccessService.getLong('''
+select form.id
+from InfoChange form
+where form.status = :status
+and :type = any_element(form.type)
+and form.dateSubmitted > (select dateSubmitted from InfoChange where id = :id)
+order by form.dateSubmitted asc
+''', [id: id, status: State.SUBMITTED, type: 1 as Long])
         }
     }
 
     void accept(String userId, AcceptCommand cmd, UUID workitemId) {
         InfoChange form = InfoChange.get(cmd.id)
 
-        if (form.status != State.CHECKED) {
+        if (form.status != State.CHECKED && !(form.status == State.SUBMITTED && form.type[0] == 1)) {
             return
         }
         domainStateMachineHandler.finish(form, userId, workitemId)
-//        domainStateMachineHandler.accept(form, userId, Activities.APPROVE, cmd.comment, workitemId)
         def project = form.project
         form.type.each {
             switch (it) {
                 case 1:
                     ChangeItem item = new ChangeItem(
                             infoChane: form,
-                            key: 'principal',
-                            content: project.principal.id
+                            key: 'principalName',
+                            content: "${project.principal.id} ${project.principal.name} ${project.title} ${project.degree} ${project.phone} ${project.email}"
                     )
                     form.addToItems(item)
                     project.principal = form.principal
+                    project.degree = form.degree
+                    project.title = form.title
+                    project.office = form.office
+                    project.phone = form.phone
+                    project.email - form.email
                     break
                 case 2:
                     def review = Review.findByProjectAndReportTypeAndStatusAndConclusionOfUniversity(form.project, 3, State.FINISHED, Conclusion.OK)
@@ -277,7 +338,7 @@ order by form.dateApproved desc
 
     void reject(String userId, RejectCommand cmd, UUID workitemId) {
         InfoChange form = InfoChange.get(cmd.id)
-        if (form.status != State.CHECKED) {
+        if (form.status != State.CHECKED && !(form.status == State.SUBMITTED && form.type[0] == 1)) {
             return
         }
         domainStateMachineHandler.reject(form, userId, cmd.comment, workitemId, form.checker.id)

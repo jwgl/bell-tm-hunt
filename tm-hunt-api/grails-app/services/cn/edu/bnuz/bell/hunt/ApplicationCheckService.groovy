@@ -161,11 +161,17 @@ select new map(
     application.conclusionOfProvince as conclusionOfProvince,
     application.status as status
 )
-from Review application join application.project project
+from Review application
+join application.project project
 join project.subtype subtype
 join project.origin origin
 join application.checker checker
-where checker.id = :userId
+where application.department = (
+  select checker.department
+  from Checker checker
+  join checker.teacher teacher
+  where teacher.id = :userId
+)
 and application.status = :status
 and application.reviewTask.id = :taskId
 and application.reportType in (:reportTypes)

@@ -21,9 +21,9 @@ class ApplicationApprovalController {
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
-    def index(String approverId, Long taskId, String type) {
+    def index(String approverId, Long taskId, String type, Integer reportType) {
         ListType listType= ListType.valueOf(type)
-        renderJson applicationApprovalService.list(approverId, taskId, listType)
+        renderJson applicationApprovalService.list(approverId, taskId, listType, reportType ? reportType : 1)
     }
 
     def show(String approverId, Long applicationApprovalId, String id, String type) {
