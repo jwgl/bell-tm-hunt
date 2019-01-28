@@ -73,6 +73,7 @@ class UrlMappings {
                 "/attachments"(controller: 'infoChangeApproval', action: 'attachments', method: 'GET')
                 "/reviewers"(controller: 'infoChangeApproval', action: 'reviewers', method: 'GET')
             }
+
         }
 
         "/experts"(resources: 'expert', includes: []) {
@@ -87,6 +88,8 @@ class UrlMappings {
                 "/reviewers"(controller: 'infoChangeReview', action: 'reviewers', method: 'GET')
             }
         }
+
+        "/projects"(resources: 'projects')
 
         "500"(view: '/error')
         "404"(view: '/notFound')
