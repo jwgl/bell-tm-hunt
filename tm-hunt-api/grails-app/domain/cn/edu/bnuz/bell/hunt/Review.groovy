@@ -195,7 +195,7 @@ class Review  implements StateObject{
         conclusionOfProvince    nullable: true
         conclusionOfUniversity  nullable: true
         opinionOfProvince       nullable: true
-        mainInfoForm           nullable: true
+        mainInfoForm            nullable: true
         proofFile               nullable: true
         summaryReport           nullable: true
     }

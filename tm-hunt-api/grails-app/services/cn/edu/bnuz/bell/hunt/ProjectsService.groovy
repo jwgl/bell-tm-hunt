@@ -1,15 +1,22 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.NotFoundException
+import cn.edu.bnuz.bell.hunt.cmd.ProjectCommand
 import cn.edu.bnuz.bell.hunt.cmd.ProjectDepartmentOptionCommand
+import cn.edu.bnuz.bell.organization.Department
+import cn.edu.bnuz.bell.organization.DepartmentService
+import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import grails.gorm.transactions.Transactional
+
+import java.time.LocalDate
 
 @Transactional
 class ProjectsService {
     SecurityService securityService
     TypeService typeService
     ApplicationService applicationService
+    DepartmentService departmentService
 
     def list(ProjectDepartmentOptionCommand cmd) {
         def sqlStr = '''
@@ -41,9 +48,10 @@ where project.status <> 'CREATED'
         def list = Project.executeQuery sqlStr, cmd.args
         return [
                 list: list,
-                subtypes: typeService.getAllSubtypes(),
+                subtypes: typeService.allSubtypes,
                 middleYears: middleYears,
-                knotYears: knotYears
+                knotYears: knotYears,
+                createAble: securityService.hasRole('ROLE_HUNT_ADMIN')
         ]
     }
 
@@ -122,5 +130,37 @@ where project.id = :id
         } else {
             return null
         }
+    }
+
+    Map getFormForCreate() {
+        return [
+                form: [level: Level.UNIVERSITY],
+                departments: departmentService.allDepartments,
+                subtypes: typeService.allSubtypesWithPeriod,
+                origins: Origin.findAll()
+        ]
+    }
+
+    def create(ProjectCommand cmd) {
+        def form = new Project(
+                principal: Teacher.load(cmd.principalId),
+                department: Department.load(cmd.departmentId),
+                name: cmd.name,
+                level: cmd.level as Level,
+                status: Status.INHAND,
+                subtype: Subtype.load(cmd.subtypeId),
+                origin: Origin.load(cmd.originId),
+                phone: '/',
+                delayTimes: 0,
+                title: '/',
+                degree: '/',
+                email: '/'
+        )
+        if (!form.save()) {
+            form.errors.each {
+                println it
+            }
+        }
+        return form
     }
 }

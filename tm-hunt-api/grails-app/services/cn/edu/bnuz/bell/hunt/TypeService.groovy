@@ -33,6 +33,19 @@ select new map(id as id, name as name) from Subtype where enabled = true
 '''
     }
 
+    def getAllSubtypesWithPeriod() {
+        Subtype.executeQuery'''
+select new map(
+id as id,
+name as name,
+periodOfUniversity as periodOfUniversity,
+periodOfCity as periodOfCity,     
+periodOfProvince as periodOfProvince,
+periodOfNation as periodOfNation
+) from Subtype where enabled = true
+'''
+    }
+
     def createType(String name) {
         if (!Type.findByName(name)) {
             def type = new Type(name: name)

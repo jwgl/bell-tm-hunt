@@ -27,6 +27,14 @@ class ProjectCommand {
     String proofFile
     String summaryReport
 
+    /**
+     * 立项信息
+     */
+    String code
+    String dateStarted
+    Integer middleYear
+    Integer knotYear
+
     String toString() {
         return  "reviewTaskId: ${reviewTaskId}; " +
                 "principalId: ${principalId}; " +
