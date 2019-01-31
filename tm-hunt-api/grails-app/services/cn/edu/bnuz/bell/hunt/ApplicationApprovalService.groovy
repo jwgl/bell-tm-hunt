@@ -158,10 +158,9 @@ join project.subtype subtype
 join project.origin origin
 join application.department department
 where application.status = 'APPROVED' and application.conclusionOfUniversity = 'VETO'
-and application.reportType = :reportType
 and application.reviewTask.id = :taskId
 order by application.dateApproved desc
-''', [taskId: taskId, reportType: reportType]
+''', [taskId: taskId]
     }
 
     void finish(String userId, FinishCommand cmd, UUID workitemId) {
@@ -177,7 +176,13 @@ order by application.dateApproved desc
         application.dateApproved = new Date()
         if ((application.project.level == Level.PROVINCE && application.conclusionOfProvince == Conclusion.OK) ||
             (application.project.level == Level.UNIVERSITY && application.conclusionOfUniversity == Conclusion.OK)) {
-            application.project.setStatus(Status.FINISHED)
+            switch (application.reportType) {
+                case 1:
+                    application.project.setStatus(Status.INHAND)
+                    break
+                case 4:
+                    application.project.setStatus(Status.FINISHED)
+            }
             application.project.save()
         } else if (application.conclusionOfProvince == Conclusion.DELAY){
             // 如果是中期暂缓，中期和结项时间都延期，如果是结项暂缓，只延期结题
@@ -193,12 +198,6 @@ order by application.dateApproved desc
             }
         }
         application.save()
-
-        // 正式立项，创建任务书信息
-        def project = application.project
-        project.setDateStart(LocalDate.now())
-        //
-        project.setMiddleYear(1)
     }
 
     void reject(String userId, RejectCommand cmd, UUID workitemId) {

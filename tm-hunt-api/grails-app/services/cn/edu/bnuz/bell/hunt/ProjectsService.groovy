@@ -9,8 +9,6 @@ import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import grails.gorm.transactions.Transactional
 
-import java.time.LocalDate
-
 @Transactional
 class ProjectsService {
     SecurityService securityService
@@ -51,6 +49,7 @@ where project.status <> 'CREATED'
                 subtypes: typeService.allSubtypes,
                 middleYears: middleYears,
                 knotYears: knotYears,
+                departments: departmentService.allDepartments,
                 createAble: securityService.hasRole('ROLE_HUNT_ADMIN')
         ]
     }

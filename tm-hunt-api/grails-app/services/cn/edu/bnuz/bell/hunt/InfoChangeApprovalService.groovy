@@ -265,7 +265,7 @@ order by form.dateSubmitted asc
                     project.title = form.title
                     project.office = form.office
                     project.phone = form.phone
-                    project.email - form.email
+                    project.email = form.email
                     break
                 case 2:
                     def review = Review.findByProjectAndReportTypeAndStatusAndConclusionOfUniversity(form.project, 3, State.FINISHED, Conclusion.OK)

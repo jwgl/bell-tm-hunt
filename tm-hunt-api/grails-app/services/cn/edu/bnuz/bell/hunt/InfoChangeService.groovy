@@ -284,4 +284,16 @@ where id = :id
                 project: findProject(projectId)
         ]
     }
+
+    def getCheckers(Long infoChangeId) {
+        Checker.executeQuery'''
+select new map(t.id as id, t.name as name)
+from Checker c
+join c.department d
+join c.teacher t,
+InfoChange r
+join r.department rd
+where r.id = :id and d.id = rd.id
+''', [id: infoChangeId]
+    }
 }

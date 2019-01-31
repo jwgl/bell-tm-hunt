@@ -185,6 +185,7 @@ from Project p join p.review r where p.id = :id
                 urls: cmd.urls,
                 subtype: Subtype.load(cmd.subtypeId),
                 origin: Origin.load(cmd.originId),
+                delayTimes: 0,
                 members: cmd.members
         )
         Review review = new Review(
@@ -273,14 +274,16 @@ from Project p join p.review r where p.id = :id
         ]
     }
 
-    def getCheckers() {
+    def getCheckers(Long applicationId) {
         Checker.executeQuery'''
 select new map(t.id as id, t.name as name)
 from Checker c
 join c.department d
-join c.teacher t
-where d.id = :id
-''', [id: securityService.departmentId]
+join c.teacher t,
+Review r
+join r.department rd
+where r.id = :id and d.id = rd.id
+''', [id: applicationId]
     }
 
     private static getExpertReview(Long reviewId) {

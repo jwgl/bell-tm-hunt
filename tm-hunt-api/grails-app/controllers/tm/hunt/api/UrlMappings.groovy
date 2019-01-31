@@ -27,7 +27,7 @@ class UrlMappings {
             }
             "/tasks"(resources: 'taskPublic', includes: ['index', 'show'])
             "/infoChanges"(resources: 'infoChange') {
-                "/checkers"(controller: 'application', action: 'checkers', method: 'GET')
+                "/checkers"(controller: 'infoChange', action: 'checkers', method: 'GET')
                 "/attachments"(controller: 'infoChange', action: 'attachments', method: 'GET')
                 collection {
                     "/project"(controller: 'infoChange', action: 'findProject', method: 'GET')

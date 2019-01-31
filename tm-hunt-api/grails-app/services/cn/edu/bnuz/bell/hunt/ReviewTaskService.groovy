@@ -177,7 +177,7 @@ select new map(
     rt.endDate as endDate,
     rt.type as type,
     rt.ban as ban,
-    count(*) as countApplication
+    sum (case when r.status is not null and r.status <> 'CREATED' then 1 else 0 end) as countApplication
 )
 from Review r
 right join r.reviewTask rt

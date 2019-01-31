@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile
 @PreAuthorize('hasAuthority("PERM_HUNT_WRITE")')
 class InfoChangeController {
     InfoChangeService infoChangeService
+    FileTransferService fileTransferService
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
@@ -72,6 +73,13 @@ class InfoChangeController {
         renderOk()
     }
 
+    /**
+     * 获取审核人
+     */
+    def checkers(String teacherId, Long infoChangeId) {
+        renderJson infoChangeService.getCheckers(infoChangeId)
+    }
+
     def findProject(String teacherId, Long id) {
         renderJson infoChangeService.findProject(id)
     }
@@ -94,21 +102,7 @@ class InfoChangeController {
      */
     def upload(String teacherId) {
         def prefix = params.prefix
-        MultipartFile uploadFile = request.getFile('file')
-        if (prefix && !uploadFile.empty) {
-            def filePath = "${filesPath}/info-change/${teacherId}"
-            def ext = uploadFile.originalFilename.substring(uploadFile.originalFilename.lastIndexOf('.') + 1).toLowerCase()
-            def filename = "${prefix}_${UUID.randomUUID()}.${ext}"
-            File dir= new File(filePath)
-            if (!dir.exists() || dir.isFile()) {
-                dir.mkdirs()
-            }
-            uploadFile.transferTo( new File(filePath, filename) )
-            renderJson([file: filename])
-        } else {
-            throw new BadRequestException('Empty file.')
-        }
-
+        renderJson ([file: fileTransferService.upload(prefix, "info-change/${teacherId}", request)])
     }
 
     /**

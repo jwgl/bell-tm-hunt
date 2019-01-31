@@ -68,8 +68,8 @@ class ApplicationController {
     /**
      * 获取审核人
      */
-    def checkers(String teacherId) {
-        renderJson applicationService.checkers
+    def checkers(String teacherId, Long applicationId) {
+        renderJson applicationService.getCheckers(applicationId)
     }
 
     def patch(String teacherId, Long id, String op) {
