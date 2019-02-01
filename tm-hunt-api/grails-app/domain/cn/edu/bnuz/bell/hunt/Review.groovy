@@ -171,9 +171,9 @@ class Review  implements StateObject{
         other                   type: 'text', comment: '其他说明、成果应用情况'
         locked                  comment: '锁定'
         conclusionOfProvince    sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '省厅结论'
-        mainInfoForm            comment: '申报书、中期验收登记表、结项验收登记表'
-        proofFile               comment: '主要佐证材料'
-        summaryReport           comment: '总结报告'
+        mainInfoForm            type: 'text', comment: '申报书、中期验收登记表、结项验收登记表'
+        proofFile               type: 'text', comment: '主要佐证材料'
+        summaryReport           type: 'text', comment: '总结报告'
     }
 
     static constraints = {

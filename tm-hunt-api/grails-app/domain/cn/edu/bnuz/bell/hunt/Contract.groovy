@@ -31,8 +31,8 @@ class Contract {
 
         project         comment: '所属项目'
         dateCreated     comment: '立项时间'
-        yearForMid      length: 4, comment: '计划中期检查年份'
-        yearForEnding   length: 4, comment: '计划结项验收年份'
+        yearForMid      type: 'text', comment: '计划中期检查年份'
+        yearForEnding   type: 'text', comment: '计划结项验收年份'
     }
 
     static constraints = {

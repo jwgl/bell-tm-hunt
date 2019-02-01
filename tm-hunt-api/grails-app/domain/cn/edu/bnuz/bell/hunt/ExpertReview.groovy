@@ -45,7 +45,7 @@ class ExpertReview {
         id                      generator: 'identity', comment: '无意义ID'
         expert                  comment: '专家'
         opinion                 type: 'text', comment: '专家意见'
-        conclusion              length: 5, comment: '专家评审结论'
+        conclusion              type: 'text', comment: '专家评审结论'
         review                  comment: '所属项目审核'
         value                   defaultValue: 0, comment: '评分'
     }
