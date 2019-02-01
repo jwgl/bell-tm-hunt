@@ -17,8 +17,8 @@ class ChangeItem {
         comment                 '变更明细'
         table                   schema: 'tm_hunt'
         id                      generator: 'identity', comment: '明细ID'
-        key                     length: 50, comment: '变更属性'
-        content                 length: 2000, comment: '变更内容'
+        key                     comment: '变更属性'
+        content                 type: 'text', comment: '变更内容'
     }
 
     static constraints = {

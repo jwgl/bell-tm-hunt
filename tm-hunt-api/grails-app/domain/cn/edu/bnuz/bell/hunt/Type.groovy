@@ -8,6 +8,6 @@ class Type {
         comment                 '主类'
         table                   schema: 'tm_hunt'
         id                      generator: 'identity', comment: '主类ID'
-        name                    unique: true, length: 20, comment: '主类名称'
+        name                    unique: true, comment: '主类名称'
     }
 }

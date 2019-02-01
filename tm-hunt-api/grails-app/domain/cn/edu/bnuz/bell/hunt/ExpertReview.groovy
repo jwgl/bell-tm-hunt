@@ -44,13 +44,13 @@ class ExpertReview {
 
         id                      generator: 'identity', comment: '无意义ID'
         expert                  comment: '专家'
-        opinion                 length: 1500, comment: '专家意见'
+        opinion                 type: 'text', comment: '专家意见'
         conclusion              length: 5, comment: '专家评审结论'
         review                  comment: '所属项目审核'
         value                   defaultValue: 0, comment: '评分'
     }
     static constraints = {
-        opinion         nullable: true
+        opinion         nullable: true, maxSize: 1500
         conclusion      nullable: true
         dateReviewed    nullable: true
     }

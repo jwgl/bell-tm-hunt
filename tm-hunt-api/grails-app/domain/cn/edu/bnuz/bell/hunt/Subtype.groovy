@@ -14,7 +14,7 @@ class Subtype {
         comment        '项目类别'
         table          schema: 'tm_hunt'
         id                          generator: 'identity', comment: '类别ID'
-        name                        unique: true, length: 20, comment: '类别名称'
+        name                        unique: true, comment: '类别名称'
         periodOfUniversity          comment: '校级周期'
         periodOfCity                comment: '市级周期'
         periodOfProvince            comment: '省级周期'
