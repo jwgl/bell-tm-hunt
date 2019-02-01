@@ -16,7 +16,7 @@ select new map(
     application.reportType as reportType,
     application.status as status,
     application.content as content,
-    application.further as further,
+    application.further as achievements,
     application.other as other,
     application.mainInfoForm as mainInfoForm,
     application.proofFile as proofFile,
