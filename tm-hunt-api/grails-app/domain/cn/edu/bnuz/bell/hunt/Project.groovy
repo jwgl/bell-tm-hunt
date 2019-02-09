@@ -129,5 +129,9 @@ class Project {
         direction       nullable: true
         mainInfoForm    nullable: true
         memo            nullable: true
+        title           nullable: true
+        degree          nullable: true
+        email           nullable: true
+        phone           nullable: true
     }
 }
