@@ -136,15 +136,15 @@ select new map(
     rt.title as title,
     rt.endDate as endDate,
     rt.type as type,
-    sum (case when r.status != 'CREATED' and r.department.id = :departmentId then 1 else 0 end) as countProject,
-    sum (case when r.status = 'SUBMITTED' and r.department.id = :departmentId then 1 else 0 end) as countUncheck,
-    sum (case when r.status in (:passStates) and r.department.id = :departmentId then 1 else 0 end) as countPass,
-    sum (case when r.status in (:failStates) and r.department.id = :departmentId  then 1 else 0 end) as countFail,
-    sum (case when r.status = 'FINISHED' and r.department.id = :departmentId then 1 else 0 end) as countFinal
+    sum (case when r.status != 'CREATED' then 1 else 0 end) as countProject,
+    sum (case when r.status = 'SUBMITTED' then 1 else 0 end) as countUncheck,
+    sum (case when r.status in (:passStates) then 1 else 0 end) as countPass,
+    sum (case when r.status in (:failStates) then 1 else 0 end) as countFail,
+    sum (case when r.status = 'FINISHED' then 1 else 0 end) as countFinal
 )
 from Review r
 right join r.reviewTask rt
-where (current_date between rt.startDate and rt.endDate) or r.id is not null
+where (current_date between rt.startDate and rt.endDate) or r.department.id = :departmentId
 group by rt.id, rt.title, rt.endDate, rt.type
 order by rt.dateCreated desc
 ''', [departmentId: securityService.departmentId,
