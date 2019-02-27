@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 class InfoChangeApprovalController {
     ProjectReviewerService projectReviewerService
 	InfoChangeApprovalService infoChangeApprovalService
+    FileTransferService fileTransferService
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
@@ -72,13 +73,7 @@ class InfoChangeApprovalController {
         if (!infoChange) {
             throw new NotFoundException()
         }
-
-        def basePath = "${filesPath}/info-change/${infoChange.project.principal.id}"
-        response.setHeader("Content-disposition",
-                "attachment; filename=\"" + URLEncoder.encode("${infoChange.project.subtype.name}-${infoChange.project.name}-${infoChange.project.principal.name}.zip", "UTF-8") + "\"")
-        response.contentType = "application/zip"
-        response.outputStream << ZipTools.zip(infoChange, basePath)
-        response.outputStream.flush()
+        fileTransferService.download(infoChange, response)
     }
 
     def reviewers(String approverId) {

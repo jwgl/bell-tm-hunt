@@ -1,6 +1,9 @@
 package cn.edu.bnuz.bell.hunt
 
+import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.hunt.cmd.InfoChangeCommand
+import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.workflow.Event
 import cn.edu.bnuz.bell.workflow.commands.SubmitCommand
 import org.springframework.security.access.prepost.PreAuthorize
@@ -68,5 +71,22 @@ class PrincipalChangeController {
 
     def checkers(String checkerId) {
         renderJson projectReviewerService.getApprovers()
+    }
+
+    /**
+     * 下载附件
+     * @param teacherId 负责人ID
+     * @param applicationId 申请ID
+     * @return
+     */
+    def attachments(String checkerId, Long principalChangeId) {
+        def infoChange = InfoChange.load(principalChangeId)
+        if (!infoChange) {
+            throw new NotFoundException()
+        }
+        if (infoChange.department != Teacher.load(checkerId).department) {
+            throw new ForbiddenException()
+        }
+        fileTransferService.download(infoChange, response)
     }
 }

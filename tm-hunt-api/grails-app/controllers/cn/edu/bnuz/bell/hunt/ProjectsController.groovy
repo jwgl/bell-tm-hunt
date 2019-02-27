@@ -1,5 +1,6 @@
 package cn.edu.bnuz.bell.hunt
 
+import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.hunt.cmd.ProjectCommand
 import cn.edu.bnuz.bell.hunt.cmd.ProjectDepartmentOptionCommand
 import org.springframework.security.access.prepost.PreAuthorize
@@ -7,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 
 @PreAuthorize('hasAuthority("PERM_HUNT_OVERVIEW")')
 class ProjectsController {
+    FileTransferService fileTransferService
     ProjectsService projectsService
 
     def index(ProjectDepartmentOptionCommand cmd) {
@@ -37,5 +39,14 @@ class ProjectsController {
     def update(Long id) {
         projectsService.updateMemo(id, request.JSON.memo)
         renderOk()
+    }
+
+    def attachments(Long projectsId) {
+        println projectsId
+        def review = Review.load(projectsId)
+        if (!review) {
+            throw new NotFoundException()
+        }
+        fileTransferService.download(review, response)
     }
 }

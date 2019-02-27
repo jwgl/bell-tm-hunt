@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile
 class ApplicationController {
     ApplicationService applicationService
     InspectFormService inspectFormService
+    FileTransferService fileTransferService
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
@@ -98,21 +99,7 @@ class ApplicationController {
      */
     def upload(String teacherId, Long taskId) {
         def prefix = params.prefix
-        MultipartFile uploadFile = request.getFile('file')
-        if (taskId && prefix && !uploadFile.empty) {
-            def filePath = "${filesPath}/${taskId}/${teacherId}"
-            def ext = uploadFile.originalFilename.substring(uploadFile.originalFilename.lastIndexOf('.') + 1).toLowerCase()
-            def filename = "${prefix}_${UUID.randomUUID()}.${ext}"
-            File dir= new File(filePath)
-            if (!dir.exists() || dir.isFile()) {
-                dir.mkdirs()
-            }
-            uploadFile.transferTo( new File(filePath, filename) )
-            renderJson([file: filename])
-        } else {
-            throw new BadRequestException('Empty file.')
-        }
-
+        renderJson ([file: fileTransferService.upload(prefix, "${teacherId}", request)])
     }
 
     /**
@@ -129,12 +116,7 @@ class ApplicationController {
         if (review.project.principal.id != teacherId) {
             throw new ForbiddenException()
         }
-        def basePath = "${filesPath}/${review.reviewTask.id}/${teacherId}"
-        response.setHeader("Content-disposition",
-                "attachment; filename=\"" + URLEncoder.encode("${review.project.subtype.name}-${review.project.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
-        response.contentType = "application/zip"
-        response.outputStream << ZipTools.zip(review, basePath)
-        response.outputStream.flush()
+        fileTransferService.download(review, response)
     }
 
 }

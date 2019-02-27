@@ -51,6 +51,7 @@ class UrlMappings {
             "/projects"(resources: 'projectDepartment')
             "/principalChanges"(resources: 'principalChange') {
                 "/checkers"(controller: 'principalChange', action: 'checkers', method: 'GET')
+                "/attachments"(controller: 'principalChange', action: 'attachments', method: 'GET')
                 collection {
                     "/upload"(controller: 'principalChange', action: 'upload', method: 'POST')
                 }
@@ -89,7 +90,9 @@ class UrlMappings {
             }
         }
 
-        "/projects"(resources: 'projects')
+        "/projects"(resources: 'projects') {
+            "/attachments"(controller: 'projects', action: 'attachments', method: 'GET')
+        }
 
         "500"(view: '/error')
         "404"(view: '/notFound')

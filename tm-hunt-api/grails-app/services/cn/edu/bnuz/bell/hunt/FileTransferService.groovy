@@ -1,6 +1,7 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
+import cn.edu.bnuz.bell.hunt.utils.ZipTools
 import grails.gorm.transactions.Transactional
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.multipart.MultipartFile
@@ -28,6 +29,22 @@ class FileTransferService {
         } else {
             throw new BadRequestException('Empty file.')
         }
+    }
 
+    def download(Object form, HttpServletResponse response) {
+        if (form instanceof Review) {
+            def basePath = "${filesPath}/${form.project.principal.id}"
+            response.setHeader("Content-disposition",
+                    "attachment; filename=\"" + URLEncoder.encode("${form.project.subtype.name}-${form.project.name}-${form.project.principal.name}.zip", "UTF-8") + "\"")
+            response.contentType = "application/zip"
+            response.outputStream << ZipTools.zip(form, basePath)
+        } else if (form instanceof InfoChange) {
+            def basePath = "${filesPath}/info-change/${form.applicant.id}"
+            response.setHeader("Content-disposition",
+                    "attachment; filename=\"" + URLEncoder.encode("${form.project.subtype.name}-${form.project.name}-${form.project.principal.name}.zip", "UTF-8") + "\"")
+            response.contentType = "application/zip"
+            response.outputStream << ZipTools.zip(form, basePath)
+        }
+        response.outputStream.flush()
     }
 }
