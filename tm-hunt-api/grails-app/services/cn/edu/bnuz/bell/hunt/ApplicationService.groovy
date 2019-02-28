@@ -147,6 +147,7 @@ where application.id = :id
     static reportTypes(Long projectId) {
         Project.executeQuery'''
 select new map(
+    r.id as id,
     r.status as status,
     r.reportType as reportType,
     r.content as content,

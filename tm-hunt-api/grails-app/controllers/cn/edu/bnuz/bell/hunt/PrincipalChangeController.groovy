@@ -72,21 +72,4 @@ class PrincipalChangeController {
     def checkers(String checkerId) {
         renderJson projectReviewerService.getApprovers()
     }
-
-    /**
-     * 下载附件
-     * @param teacherId 负责人ID
-     * @param applicationId 申请ID
-     * @return
-     */
-    def attachments(String checkerId, Long principalChangeId) {
-        def infoChange = InfoChange.load(principalChangeId)
-        if (!infoChange) {
-            throw new NotFoundException()
-        }
-        if (infoChange.department != Teacher.load(checkerId).department) {
-            throw new ForbiddenException()
-        }
-        fileTransferService.download(infoChange, response)
-    }
 }

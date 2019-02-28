@@ -87,19 +87,4 @@ class ApplicationApprovalController {
             renderBadRequest()
         }
     }
-
-    /**
-     * 下载附件
-     * @param approverId 审核员ID
-     * @param applicationCheckId 申请ID
-     * @return
-     */
-    def attachments(String approverId, Long applicationApprovalId) {
-        def review = Review.load(applicationApprovalId)
-        if (!review) {
-            throw new NotFoundException()
-        }
-        fileTransferService.download(review, response)
-    }
-
 }

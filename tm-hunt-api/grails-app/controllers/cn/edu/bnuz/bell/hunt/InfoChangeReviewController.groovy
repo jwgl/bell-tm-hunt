@@ -47,20 +47,6 @@ class InfoChangeReviewController {
         show(directorId, infoChangeReviewId, id, 'todo')
     }
 
-    /**
-     * 下载附件
-     * @param checkerId 负责人ID
-     * @param applicationId 申请ID
-     * @return
-     */
-    def attachments(String directorId, Long infoChangeReviewId) {
-        def infoChange = InfoChange.load(infoChangeReviewId)
-        if (!infoChange) {
-            throw new NotFoundException()
-        }
-        fileTransferService.download(infoChange, response)
-    }
-
     def reviewers(String directorId) {
         renderJson projectReviewerService.approvers
     }

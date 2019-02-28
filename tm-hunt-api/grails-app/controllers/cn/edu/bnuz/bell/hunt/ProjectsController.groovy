@@ -40,13 +40,4 @@ class ProjectsController {
         projectsService.updateMemo(id, request.JSON.memo)
         renderOk()
     }
-
-    def attachments(Long projectsId) {
-        println projectsId
-        def review = Review.load(projectsId)
-        if (!review) {
-            throw new NotFoundException()
-        }
-        fileTransferService.download(review, response)
-    }
 }

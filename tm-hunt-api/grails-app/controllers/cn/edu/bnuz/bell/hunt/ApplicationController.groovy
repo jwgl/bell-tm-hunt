@@ -101,22 +101,4 @@ class ApplicationController {
         def prefix = params.prefix
         renderJson ([file: fileTransferService.upload(prefix, "${teacherId}", request)])
     }
-
-    /**
-     * 下载附件
-     * @param teacherId 负责人ID
-     * @param applicationId 申请ID
-     * @return
-     */
-    def attachments(String teacherId, Long applicationId) {
-        def review = Review.load(applicationId)
-        if (!review) {
-            throw new NotFoundException()
-        }
-        if (review.project.principal.id != teacherId) {
-            throw new ForbiddenException()
-        }
-        fileTransferService.download(review, response)
-    }
-
 }

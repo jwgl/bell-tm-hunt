@@ -39,20 +39,6 @@ class ApplicationAdministrationController {
     }
 
     /**
-     * 下载附件
-     * @param approverId 审核员ID
-     * @param applicationAdministrationId 申请ID
-     * @return
-     */
-    def attachments(String approverId, Long applicationAdministrationId) {
-        def review = Review.load(applicationAdministrationId)
-        if (!review) {
-            throw new NotFoundException()
-        }
-        fileTransferService.download(review, response)
-    }
-
-    /**
      * 专家评审
      * @param approverId 审核员ID
      * @param applicationAdministrationId 申请ID

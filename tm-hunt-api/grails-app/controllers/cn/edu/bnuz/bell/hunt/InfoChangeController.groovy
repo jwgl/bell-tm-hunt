@@ -104,21 +104,4 @@ class InfoChangeController {
         def prefix = params.prefix
         renderJson ([file: fileTransferService.upload(prefix, "info-change/${teacherId}", request)])
     }
-
-    /**
-     * 下载附件
-     * @param teacherId 负责人ID
-     * @param applicationId 申请ID
-     * @return
-     */
-    def attachments(String teacherId, Long infoChangeId) {
-        def infoChange = InfoChange.load(infoChangeId)
-        if (!infoChange) {
-            throw new NotFoundException()
-        }
-        if (infoChange.project.principal.id != teacherId) {
-            throw new ForbiddenException()
-        }
-        fileTransferService.download(infoChange, response)
-    }
 }

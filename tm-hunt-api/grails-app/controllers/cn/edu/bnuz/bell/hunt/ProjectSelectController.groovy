@@ -61,26 +61,11 @@ class ProjectSelectController {
         ])
     }
 
-
     /**
      * 删除
      */
     def delete(Long id) {
         projectSelectService.unCheck(id)
         renderOk()
-    }
-
-    /**
-     * 下载附件
-     * @param approverId 审核员ID
-     * @param applicationCheckId 申请ID
-     * @return
-     */
-    def attachments(String approverId, Long applicationAdministrationId) {
-        def review = Review.load(applicationAdministrationId)
-        if (!review) {
-            throw new NotFoundException()
-        }
-        fileTransferService.download(review, response)
     }
 }

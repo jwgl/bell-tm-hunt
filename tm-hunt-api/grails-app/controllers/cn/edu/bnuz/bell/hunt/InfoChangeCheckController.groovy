@@ -53,18 +53,4 @@ class InfoChangeCheckController {
 
         show(checkerId, infoChangeCheckId, id, 'todo')
     }
-
-    /**
-     * 下载附件
-     * @param checkerId 负责人ID
-     * @param applicationId 申请ID
-     * @return
-     */
-    def attachments(String checkerId, Long infoChangeCheckId) {
-        def infoChange = InfoChange.load(infoChangeCheckId)
-        if (!infoChange) {
-            throw new NotFoundException()
-        }
-        fileTransferService.download(infoChange, response)
-    }
 }

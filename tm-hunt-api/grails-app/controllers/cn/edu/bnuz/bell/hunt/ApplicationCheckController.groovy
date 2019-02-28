@@ -75,21 +75,4 @@ class ApplicationCheckController {
     def approvers(String checkerId, Long applicationCheckId) {
         renderJson projectReviewerService.getApprovers()
     }
-
-    /**
-     * 下载附件
-     * @param checkerId 审核员ID
-     * @param applicationCheckId 申请ID
-     * @return
-     */
-    def attachments(String checkerId, Long applicationCheckId) {
-        def review = Review.load(applicationCheckId)
-        if (!review) {
-            throw new NotFoundException()
-        }
-        if (review.department != Teacher.load(checkerId).department) {
-            throw new ForbiddenException()
-        }
-        fileTransferService.download(review, response)
-    }
 }
