@@ -104,26 +104,4 @@ class InfoChangeController {
         def prefix = params.prefix
         renderJson ([file: fileTransferService.upload(prefix, "info-change/${teacherId}", request)])
     }
-
-    /**
-     * 下载附件
-     * @param teacherId 负责人ID
-     * @param applicationId 申请ID
-     * @return
-     */
-    def attachments(String teacherId, Long infoChangeId) {
-        def infoChange = InfoChange.load(infoChangeId)
-        if (!infoChange) {
-            throw new NotFoundException()
-        }
-        if (infoChange.project.principal.id != teacherId) {
-            throw new ForbiddenException()
-        }
-        def basePath = "${filesPath}/info-change/${teacherId}"
-        response.setHeader("Content-disposition",
-                "attachment; filename=\"" + URLEncoder.encode("${infoChange.project.subtype.name}-${infoChange.project.name}-${infoChange.project.principal.name}.zip", "UTF-8") + "\"")
-        response.contentType = "application/zip"
-        response.outputStream << ZipTools.zip(infoChange, basePath)
-        response.outputStream.flush()
-    }
 }

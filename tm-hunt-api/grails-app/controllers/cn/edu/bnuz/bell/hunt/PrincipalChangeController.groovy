@@ -1,6 +1,9 @@
 package cn.edu.bnuz.bell.hunt
 
+import cn.edu.bnuz.bell.http.ForbiddenException
+import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.hunt.cmd.InfoChangeCommand
+import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.workflow.Event
 import cn.edu.bnuz.bell.workflow.commands.SubmitCommand
 import org.springframework.security.access.prepost.PreAuthorize

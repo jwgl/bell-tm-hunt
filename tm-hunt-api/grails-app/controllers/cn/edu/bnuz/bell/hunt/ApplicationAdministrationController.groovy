@@ -13,6 +13,7 @@ class ApplicationAdministrationController {
     ApplicationService applicationService
     ProjectSelectService projectSelectService
     ApplicationAdministrationService applicationAdministrationService
+    FileTransferService fileTransferService
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
@@ -35,28 +36,6 @@ class ApplicationAdministrationController {
     def delete(Long id) {
         projectSelectService.unCheck(id)
         renderOk()
-    }
-
-    /**
-     * 下载附件
-     * @param approverId 审核员ID
-     * @param applicationAdministrationId 申请ID
-     * @return
-     */
-    def attachments(String approverId, Long applicationAdministrationId) {
-        def review = Review.load(applicationAdministrationId)
-        if (!review) {
-            throw new NotFoundException()
-        }
-        if (review.department != Teacher.load(approverId).department) {
-            throw new ForbiddenException()
-        }
-        def basePath = "${filesPath}/${review.reviewTask.id}/${review.project.principal.id}"
-        response.setHeader("Content-disposition",
-                "attachment; filename=\"" + URLEncoder.encode("${review.project.subtype.name}-${review.project.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
-        response.contentType = "application/zip"
-        response.outputStream << ZipTools.zip(review, basePath)
-        response.outputStream.flush()
     }
 
     /**

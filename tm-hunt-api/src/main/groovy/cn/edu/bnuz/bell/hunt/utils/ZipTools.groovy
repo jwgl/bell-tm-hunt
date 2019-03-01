@@ -14,12 +14,14 @@ class ZipTools {
         ZipOutputStream zipFile = new ZipOutputStream(baos)
 
         if (review.mainInfoForm) {
+            println(review.mainInfoForm)
             addEntry("${baseDir}/${review.mainInfoForm}", "${outputFileName('main', review, getExt(review.mainInfoForm))}", zipFile)
         }
         if (review.proofFile) {
             addEntry("${baseDir}/${review.proofFile}", "${outputFileName('proof', review, getExt(review.proofFile))}", zipFile)
         }
         if (review.summaryReport) {
+            println(review.summaryReport)
             addEntry("${baseDir}/${review.summaryReport}", "${outputFileName('summary', review, getExt(review.summaryReport))}", zipFile)
         }
 

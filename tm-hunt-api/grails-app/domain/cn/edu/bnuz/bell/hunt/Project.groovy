@@ -104,8 +104,8 @@ class Project {
         members                 type: 'text', comment: '参与人'
         dateStart               comment: '立项日期'
         code                    type: 'text', comment: '项目编号'
-        middleYear              type: 'text', comment: '预期中期年份'
-        knotYear                type: 'text', comment: '预期结项年份'
+        middleYear              comment: '预期中期年份'
+        knotYear                comment: '预期结项年份'
         content                 type: 'text', comment: '主要内容'
         achievements            type: 'text', comment: '预期成果'
         delayTimes              defaultValue: 0, comment: '延期次数'
@@ -129,5 +129,9 @@ class Project {
         direction       nullable: true
         mainInfoForm    nullable: true
         memo            nullable: true
+        title           nullable: true
+        degree          nullable: true
+        email           nullable: true
+        phone           nullable: true
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 class ApplicationApprovalController {
     ApplicationApprovalService applicationApprovalService
     ApplicationAdministrationService applicationAdministrationService
+    FileTransferService fileTransferService
     @Value('${bell.teacher.filesPath}')
     String filesPath
 
@@ -86,27 +87,4 @@ class ApplicationApprovalController {
             renderBadRequest()
         }
     }
-
-    /**
-     * 下载附件
-     * @param approverId 审核员ID
-     * @param applicationCheckId 申请ID
-     * @return
-     */
-    def attachments(String approverId, Long applicationApprovalId) {
-        def review = Review.load(applicationApprovalId)
-        if (!review) {
-            throw new NotFoundException()
-        }
-        if (review.department != Teacher.load(approverId).department) {
-            throw new ForbiddenException()
-        }
-        def basePath = "${filesPath}/${review.reviewTask.id}/${review.project.principal.id}"
-        response.setHeader("Content-disposition",
-                "attachment; filename=\"" + URLEncoder.encode("${review.project.subtype.name}-${review.project.name}-${review.project.principal.name}.zip", "UTF-8") + "\"")
-        response.contentType = "application/zip"
-        response.outputStream << ZipTools.zip(review, basePath)
-        response.outputStream.flush()
-    }
-
 }
