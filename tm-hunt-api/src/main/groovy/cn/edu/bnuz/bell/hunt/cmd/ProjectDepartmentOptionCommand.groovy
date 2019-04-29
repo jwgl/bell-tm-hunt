@@ -12,10 +12,15 @@ class ProjectDepartmentOptionCommand implements Validateable {
     String level
     String code
     String departmentId
+    String q
 
     Map getArgs() {
         def arg = [:]
 
+        if (q) {
+            arg += [q: "%${q}%"]
+            return arg
+        }
         if (departmentId) {
             arg += [departmentId: departmentId]
         }
@@ -43,6 +48,14 @@ class ProjectDepartmentOptionCommand implements Validateable {
     String getCriterion() {
         def criterion = ''
 
+        if (q) {
+            return '''
+(project.department.name like :q 
+or project.name like :q
+or project.principal.name like :q
+or project.code like :q
+)'''
+        }
         if (departmentId) {
             criterion += "${criterion.isEmpty() ? "" : " and "}project.department.id = :departmentId"
         }
