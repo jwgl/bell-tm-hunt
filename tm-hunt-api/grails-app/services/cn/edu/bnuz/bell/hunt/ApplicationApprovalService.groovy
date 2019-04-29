@@ -157,10 +157,11 @@ from Review application join application.project project
 join project.subtype subtype
 join project.origin origin
 join application.department department
-where application.status = 'APPROVED' and application.conclusionOfUniversity = 'VETO'
+where application.status = 'FINISHED' and (application.conclusionOfUniversity = 'VETO' or application.conclusionOfUniversity = 'DELAY')
 and application.reviewTask.id = :taskId
+and application.reportType = :reportType
 order by application.dateApproved desc
-''', [taskId: taskId]
+''', [taskId: taskId, reportType: reportType]
     }
 
     void finish(String userId, FinishCommand cmd, UUID workitemId) {

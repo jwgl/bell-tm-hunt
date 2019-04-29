@@ -31,8 +31,32 @@ class FileTransferService {
         }
     }
 
+    def uploadKeepFileName(String base, HttpServletRequest request) {
+        MultipartFile uploadFile = request.getFile('file')
+        if (!uploadFile.empty) {
+            def filePath = "${filesPath}/${base}"
+            def filename = uploadFile.originalFilename
+            File dir= new File(filePath)
+            if (!dir.exists() || dir.isFile()) {
+                dir.mkdirs()
+            }
+            uploadFile.transferTo( new File(filePath, filename) )
+            return filename
+        } else {
+            throw new BadRequestException('Empty file.')
+        }
+    }
+
     def download(Object form, HttpServletResponse response) {
-        if (form instanceof Review) {
+        if (form instanceof ReviewTask) {
+            def basePath = "${filesPath}/review-task"
+            def file = new File(basePath, form.attach)
+            byte[] bytes = file.bytes
+            response.setHeader("Content-disposition",
+                    "attachment; filename=\"" + URLEncoder.encode("${form.attach}", "UTF-8") + "\"")
+            response.contentType = URLConnection.guessContentTypeFromName(file.getName())
+            response.outputStream << bytes
+        } else if (form instanceof Review) {
             def basePath = "${filesPath}/${form.project.principal.id}"
             response.setHeader("Content-disposition",
                     "attachment; filename=\"" + URLEncoder.encode("${form.project.subtype.name}-${form.project.name}-${form.project.principal.name}.zip", "UTF-8") + "\"")

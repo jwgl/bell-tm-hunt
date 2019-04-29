@@ -11,6 +11,7 @@ class ReviewTaskCommand {
     String type
     String remind
     String ban
+    String attach
 
     static LocalDate toDate(String dateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
