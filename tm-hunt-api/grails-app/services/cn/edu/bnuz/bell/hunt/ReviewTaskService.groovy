@@ -7,11 +7,14 @@ import cn.edu.bnuz.bell.service.DataAccessService
 import cn.edu.bnuz.bell.workflow.State
 import com.sun.glass.ui.EventLoop
 import grails.gorm.transactions.Transactional
+import org.springframework.beans.factory.annotation.Value
 
 @Transactional
 class ReviewTaskService {
     SecurityService securityService
     DataAccessService dataAccessService
+    @Value('${bell.teacher.filesPath}')
+    String filesPath
 
     def list() {
         ReviewTask.executeQuery'''
@@ -37,7 +40,8 @@ order by rt.dateCreated desc
                 type: cmd.type as ReviewType,
                 content: cmd.content,
                 remind: cmd.remind,
-                ban: cmd.ban as Level
+                ban: cmd.ban as Level,
+                attach: cmd.attach
         )
         if (!form.save()) {
            form.errors.each {
@@ -57,7 +61,9 @@ select new map(
     rt.type as type,
     rt.content as content,
     rt.remind as remind,
-    rt.ban as ban
+    rt.ban as ban,
+    rt.attach as attach,
+    rt.remind as remind
 )
 from ReviewTask rt
 where rt.id = :id
@@ -66,6 +72,10 @@ where rt.id = :id
             Map task = result[0]
             if (task.type.toString() == 'APPLICATION' && task.ban) {
                 task['banMe'] = existRunningProject(task.ban)
+            }
+            // 只有管理员可以看专家注意事项
+            if (!securityService.hasRole('ROLE_HUNT_ADMIN')) {
+                task.remind = null
             }
             return task
         }
@@ -80,6 +90,14 @@ select count(*) from Review r join r.project p where p.level = :level and p.prin
     def update(Long id, ReviewTaskCommand cmd) {
         def form = ReviewTask.load(id)
         if (form) {
+            // 先处理旧附件
+            if (form.attach && form.attach != cmd.attach) {
+                def basePath = "${filesPath}/review-task"
+                File file = new File(basePath, form.attach)
+                if (file.exists()) {
+                    file.delete()
+                }
+            }
             form.title = cmd.title
             form.startDate = ReviewTaskCommand.toDate(cmd.startDate)
             form.endDate = ReviewTaskCommand.toDate(cmd.endDate)
@@ -87,6 +105,7 @@ select count(*) from Review r join r.project p where p.level = :level and p.prin
             form.content = cmd.content
             form.remind = cmd.remind
             form.ban = cmd.ban as Level
+            form.attach = cmd.attach
             form.save()
         }
         return form
@@ -119,7 +138,7 @@ select new map(
     sum (case when r.reportType != 1 or r.status != 'CREATED' then 1 else 0 end) as countProject,
     sum (case when r.status = 'CHECKED' then 1 else 0 end) as countUncheck,
     sum (case when r.status = 'FINISHED' and r.conclusionOfUniversity = 'OK' then 1 else 0 end) as countPass,
-    sum (case when r.status = 'FINISHED' and r.conclusionOfUniversity = 'VETO' then 1 else 0 end) as countFail
+    sum (case when r.status = 'FINISHED' and (r.conclusionOfUniversity = 'VETO' or r.conclusionOfUniversity = 'DELAY') then 1 else 0 end) as countFail
 )
 from Review r
 join r.reviewTask rt

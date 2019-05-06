@@ -11,7 +11,14 @@ class UrlMappings {
             "/teams"(resources: 'team')
             "/checkers"(resources: 'checker')
             "/tasks"(resources: 'reviewTask') {
+                "/upload"(controller: 'reviewTask', action: 'upload', method: 'POST')
                 "/projects"(resources: 'projectSelect')
+            }
+        }
+
+        "/tasks"(resources: 'reviewTask', includes: []) {
+            collection {
+                "/upload"(controller: 'reviewTask', action: 'upload', method: 'POST')
             }
         }
 

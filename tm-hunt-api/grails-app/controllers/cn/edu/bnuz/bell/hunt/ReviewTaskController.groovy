@@ -1,13 +1,13 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.hunt.cmd.ReviewTaskCommand
-import cn.edu.bnuz.bell.security.SecurityService
 import org.springframework.security.access.prepost.PreAuthorize
 
 
 @PreAuthorize('hasRole("ROLE_HUNT_ADMIN")')
 class ReviewTaskController {
     ReviewTaskService reviewTaskService
+    FileTransferService fileTransferService
 
     def index() {
         renderJson reviewTaskService.list()
@@ -42,6 +42,13 @@ class ReviewTaskController {
         bindData(cmd, request.JSON)
         reviewTaskService.update(id, cmd)
         renderOk()
+    }
+
+    /**
+     * 上传文件
+     */
+    def upload() {
+        renderJson ([file: fileTransferService.uploadKeepFileName("review-task", request)])
     }
 
 }

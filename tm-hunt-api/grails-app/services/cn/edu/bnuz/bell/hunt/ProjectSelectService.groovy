@@ -85,6 +85,7 @@ select new map(
     department.name as departmentName,
     application.departmentOpinion as departmentOpinion,
     application.status as status,
+    case when project.level = 'PROVINCE' then application.conclusionOfProvince else application.conclusionOfUniversity end as conclusion,
     round (sum (case when expertReview.dateReviewed is not null and expertReview.conclusion != '弃权' then expertReview.value end)/
         sum (case when expertReview.dateReviewed is not null and expertReview.conclusion != '弃权' then 1 else 0 end)),
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '同意' then 1 else 0 end) as countOk,

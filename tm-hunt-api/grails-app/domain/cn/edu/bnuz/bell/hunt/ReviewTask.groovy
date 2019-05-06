@@ -46,6 +46,11 @@ class ReviewTask {
      */
     Level ban
 
+    /**
+     * 附件
+     */
+    String attach
+
 
     static mapping = {
         comment         '项目审核安排'
@@ -59,10 +64,12 @@ class ReviewTask {
         remind          type: 'text', comment: '专家注意事项'
         dateCreated     comment: '创建日期'
         ban             sqlType: 'tm_hunt.level', type: LevelUserType, comment: '禁止对象'
+        attach          type: 'text', comment: '附件'
     }
     static constraints = {
         ban     nullable: true
         remind  nullable: true
+        attach  nullable: true
     }
 
     Boolean isValidDate() {
