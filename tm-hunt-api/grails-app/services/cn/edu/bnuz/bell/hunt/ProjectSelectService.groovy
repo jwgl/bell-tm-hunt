@@ -84,6 +84,9 @@ select new map(
     principal.name as principalName,
     department.name as departmentName,
     application.departmentOpinion as departmentOpinion,
+    application.opinionOfUniversity as opinionOfUniversity,
+    application.opinionOfProvince as opinionOfProvince,
+    application.conclusionOfUniversity as conclusionOfUniversity,
     application.status as status,
     case when project.level = 'PROVINCE' then application.conclusionOfProvince else application.conclusionOfUniversity end as conclusion,
     round (sum (case when expertReview.dateReviewed is not null and expertReview.conclusion != '弃权' then expertReview.value end)/

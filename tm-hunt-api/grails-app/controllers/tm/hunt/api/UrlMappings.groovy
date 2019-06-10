@@ -71,7 +71,11 @@ class UrlMappings {
                 "/workitems"(resources: 'infoChangeApproval', includes: ['show', 'patch'])
                 "/reviewers"(controller: 'infoChangeApproval', action: 'reviewers', method: 'GET')
             }
-
+            "/funds"(resources: 'funds') {
+                collection {
+                    "/upload"(controller: 'funds', action: 'importData', method: 'POST')
+                }
+            }
         }
 
         "/experts"(resources: 'expert', includes: []) {
