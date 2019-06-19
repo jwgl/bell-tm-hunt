@@ -14,17 +14,35 @@ class ZipTools {
         ZipOutputStream zipFile = new ZipOutputStream(baos)
 
         if (review.mainInfoForm) {
-            println(review.mainInfoForm)
             addEntry("${baseDir}/${review.mainInfoForm}", "${outputFileName('main', review, getExt(review.mainInfoForm))}", zipFile)
         }
         if (review.proofFile) {
             addEntry("${baseDir}/${review.proofFile}", "${outputFileName('proof', review, getExt(review.proofFile))}", zipFile)
         }
         if (review.summaryReport) {
-            println(review.summaryReport)
             addEntry("${baseDir}/${review.summaryReport}", "${outputFileName('summary', review, getExt(review.summaryReport))}", zipFile)
         }
 
+        zipFile.finish()
+
+        return baos.toByteArray()
+    }
+
+    static byte[] zipAll(List<Review> reviews, String baseDir) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ZipOutputStream zipFile = new ZipOutputStream(baos)
+        reviews.each {review ->
+            def fileDir = "${baseDir}/${review.project.principal.id}"
+            if (review.mainInfoForm) {
+                addEntry("${fileDir}/${review.mainInfoForm}", "${review.project.name}/${outputFileName('main', review, getExt(review.mainInfoForm))}", zipFile)
+            }
+            if (review.proofFile) {
+                addEntry("${fileDir}/${review.proofFile}", "${review.project.name}/${outputFileName('proof', review, getExt(review.proofFile))}", zipFile)
+            }
+            if (review.summaryReport) {
+                addEntry("${fileDir}/${review.summaryReport}", "${review.project.name}/${outputFileName('summary', review, getExt(review.summaryReport))}", zipFile)
+            }
+        }
         zipFile.finish()
 
         return baos.toByteArray()

@@ -23,7 +23,7 @@ import javax.annotation.Resource
 class InfoChangeApprovalService {
     DataAccessService dataAccessService
     InfoChangeService infoChangeService
-    @Resource(name = 'projectReviewStateMachine')
+    @Resource(name = 'infoChangeReviewStateMachine')
     DomainStateMachineHandler domainStateMachineHandler
 
     private static getCounts() {

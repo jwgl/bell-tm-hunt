@@ -20,12 +20,15 @@ import grails.gorm.transactions.Transactional
 
 import javax.annotation.Resource
 
+/**
+ * 处长加签
+ */
 @Transactional
 class InfoChangeReviewService {
     DataAccessService dataAccessService
     SecurityService securityService
     InfoChangeService infoChangeService
-    @Resource(name = 'projectReviewStateMachine')
+    @Resource(name = 'infoChangeReviewStateMachine')
     DomainStateMachineHandler domainStateMachineHandler
 
     private static getCounts(String userId) {

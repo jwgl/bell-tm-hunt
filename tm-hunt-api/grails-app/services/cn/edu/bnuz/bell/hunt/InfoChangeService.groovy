@@ -19,7 +19,7 @@ import java.time.LocalDate
 @Transactional
 class InfoChangeService {
     SecurityService securityService
-    @Resource(name='projectReviewStateMachine')
+    @Resource(name='infoChangeReviewStateMachine')
     DomainStateMachineHandler domainStateMachineHandler
 
     def list(String userId) {

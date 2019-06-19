@@ -1,18 +1,22 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
+import cn.edu.bnuz.bell.hunt.cmd.DownloadCommand
 import cn.edu.bnuz.bell.hunt.utils.ZipTools
+import cn.edu.bnuz.bell.security.SecurityService
 import grails.gorm.transactions.Transactional
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.multipart.MultipartFile
 
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletRequest
+import java.time.LocalDate
 
 @Transactional
 class FileTransferService {
     @Value('${bell.teacher.filesPath}')
     String filesPath
+    SecurityService securityService
 
     def upload(String prefix, String base, HttpServletRequest request) {
         MultipartFile uploadFile = request.getFile('file')
@@ -69,6 +73,32 @@ class FileTransferService {
             response.contentType = "application/zip"
             response.outputStream << ZipTools.zip(form, basePath)
         }
+        response.outputStream.flush()
+    }
+
+    def downloadAll(DownloadCommand cmd, HttpServletResponse response) {
+        List<Review> reviews = []
+        switch (cmd.role) {
+            case 'ADMIN':
+                reviews = Review.executeQuery'''
+select r
+from Review r
+where r.id in (:ids)
+''', [ids: cmd.ids]
+                break
+            case 'EXPERT':
+                reviews = Review.executeQuery'''
+select r
+from Review r
+join r.expertReview er
+join er.expert e
+where r.id in (:ids) and e.id = :expert
+''', [ids: cmd.ids, expert: securityService.userId]
+        }
+        response.setHeader("Content-disposition",
+                "attachment; filename=\"" + URLEncoder.encode("项目附件_${LocalDate.now().toString()}.zip", "UTF-8") + "\"")
+        response.contentType = "application/zip"
+        response.outputStream << ZipTools.zipAll(reviews, filesPath)
         response.outputStream.flush()
     }
 }

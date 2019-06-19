@@ -299,7 +299,7 @@ select new map(
 from ExpertReview e
 join e.review r
 join e.expert t
-where r.id = :id and e.dateReviewed is not null
+where r.id = :id
 ''', [id: reviewId]
     }
 

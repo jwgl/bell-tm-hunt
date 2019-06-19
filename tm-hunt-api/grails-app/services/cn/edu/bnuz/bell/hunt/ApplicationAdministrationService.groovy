@@ -60,7 +60,6 @@ class ApplicationAdministrationService {
         if (!form || form.status != State.CHECKED) {
             throw new BadRequestException()
         }
-        println cmd.opinionOfUniversity
         form.setConclusionOfUniversity(cmd.conclusionOfUniversity ? (cmd.conclusionOfUniversity as Conclusion) : null)
         form.setConclusionOfProvince(cmd.conclusionOfProvince ? (cmd.conclusionOfProvince as Conclusion) : null)
         form.setOpinionOfUniversity(cmd.opinionOfUniversity)

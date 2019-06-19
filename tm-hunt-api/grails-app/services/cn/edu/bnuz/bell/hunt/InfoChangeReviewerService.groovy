@@ -8,7 +8,7 @@ import cn.edu.bnuz.bell.workflow.ReviewerProvider
 import grails.gorm.transactions.Transactional
 
 @Transactional(readOnly = true)
-class ProjectReviewerService implements ReviewerProvider{
+class InfoChangeReviewerService implements ReviewerProvider{
     SecurityService securityService
 
     List<Map> getReviewers(Object id, String activity) {
@@ -29,8 +29,8 @@ class ProjectReviewerService implements ReviewerProvider{
 select new map(teacher.id as id, teacher.name as name)
 from Checker checker 
 join checker.teacher teacher,
-Review application
-where checker.department = application.department and application.id = :id
+InfoChange infoChange
+where checker.department = infoChange.department and infoChange.id = :id
 ''', [id: id]
     }
 
