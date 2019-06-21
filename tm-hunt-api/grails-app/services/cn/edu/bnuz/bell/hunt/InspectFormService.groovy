@@ -42,7 +42,7 @@ where application.id = :id
         review.setFurther(cmd.achievements)
         review.setOther(cmd.other)
         review.setMainInfoForm(cmd.mainInfoForm)
-        review.setProofFile(cmd.proofFile)
+        review.proofFile= cmd.proofFile
         review.setSummaryReport(cmd.summaryReport)
         form.save()
     }

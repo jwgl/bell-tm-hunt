@@ -17,7 +17,9 @@ class ZipTools {
             addEntry("${baseDir}/${review.mainInfoForm}", "${outputFileName('main', review, getExt(review.mainInfoForm))}", zipFile)
         }
         if (review.proofFile) {
-            addEntry("${baseDir}/${review.proofFile}", "${outputFileName('proof', review, getExt(review.proofFile))}", zipFile)
+            review.proofFile.eachWithIndex { name, index ->
+                addEntry("${baseDir}/${name}", "${index + 1}_${outputFileName('proof', review, getExt(name))}", zipFile)
+            }
         }
         if (review.summaryReport) {
             addEntry("${baseDir}/${review.summaryReport}", "${outputFileName('summary', review, getExt(review.summaryReport))}", zipFile)
@@ -54,7 +56,7 @@ class ZipTools {
 
         if (infoChange.mainInfoForm) {
             Teacher teacher =infoChange.principal ? infoChange.principal : infoChange.project.principal
-            String outputName = "申报书-${infoChange.project.name}-${levelLabel(infoChange.project.level.name())}-${infoChange.project.subtype.name}-${teacher.name}"
+            String outputName = "申报书-${infoChange.project.code}-${levelLabel(infoChange.project.level.name())}-${infoChange.project.subtype.name}-${teacher.name}"
             addEntry("${baseDir}/${infoChange.mainInfoForm}", "${outputName}.${getExt(infoChange.mainInfoForm)}", zipFile)
         }
 

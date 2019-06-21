@@ -2,6 +2,7 @@ package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.organization.Department
 import cn.edu.bnuz.bell.organization.Teacher
+import cn.edu.bnuz.bell.orm.PostgreSQLStringArrayUserType
 import cn.edu.bnuz.bell.workflow.State
 import cn.edu.bnuz.bell.workflow.StateObject
 import cn.edu.bnuz.bell.workflow.StateUserType
@@ -129,7 +130,7 @@ class Review  implements StateObject{
     /**
      * 主要佐证材料
      */
-    String proofFile
+    String[] proofFile
 
     /**
      * 总结报告
@@ -172,7 +173,7 @@ class Review  implements StateObject{
         locked                  comment: '锁定'
         conclusionOfProvince    sqlType: 'tm_hunt.conclusion', type:ConclusionUserType, comment: '省厅结论'
         mainInfoForm            type: 'text', comment: '申报书、中期验收登记表、结项验收登记表'
-        proofFile               type: 'text', comment: '主要佐证材料'
+        proofFile               sqlType: 'text[]', type: PostgreSQLStringArrayUserType, comment: '主要佐证材料'
         summaryReport           type: 'text', comment: '总结报告'
     }
 
