@@ -3,13 +3,14 @@ package cn.edu.bnuz.bell.hunt.cmd
 class ExpertReviewCommand {
     String conclusion
     String opinion
-    private Integer value
+    Boolean isCommit
+    private Integer score
 
-    void setValue(Integer value) {
-        this.value = value
+    void setScore(Integer value) {
+        this.score = value
     }
 
-    Integer getValue() {
-        return this.value ? this.value : 0
+    Integer getScore() {
+        return this.score ? this.score : 0
     }
 }

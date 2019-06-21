@@ -1,7 +1,9 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
+import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.http.NotFoundException
+import cn.edu.bnuz.bell.hunt.cmd.DownloadCommand
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 
@@ -9,6 +11,16 @@ import cn.edu.bnuz.bell.security.SecurityService
 class AttachmentController {
     FileTransferService fileTransferService
     SecurityService securityService
+
+    def index(DownloadCommand cmd) {
+        if ((cmd.role == 'ADMIN' && !securityService.hasRole('ROLE_HUNT_ADMIN'))
+            || (cmd.role == 'EXPERT' && !securityService.hasRole('ROLE_HUNT_EXPERT'))
+            || (cmd.role == 'CHECKER' && !securityService.hasRole('ROLE_HUNT_CHECKER'))
+        ) {
+            throw new ForbiddenException()
+        }
+        fileTransferService.downloadAll(cmd, response)
+    }
 
     def show(Long id, String type) {
         def obj

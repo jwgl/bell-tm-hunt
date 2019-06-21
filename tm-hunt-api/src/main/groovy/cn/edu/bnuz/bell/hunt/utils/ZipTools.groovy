@@ -14,17 +14,37 @@ class ZipTools {
         ZipOutputStream zipFile = new ZipOutputStream(baos)
 
         if (review.mainInfoForm) {
-            println(review.mainInfoForm)
             addEntry("${baseDir}/${review.mainInfoForm}", "${outputFileName('main', review, getExt(review.mainInfoForm))}", zipFile)
         }
         if (review.proofFile) {
-            addEntry("${baseDir}/${review.proofFile}", "${outputFileName('proof', review, getExt(review.proofFile))}", zipFile)
+            review.proofFile.eachWithIndex { name, index ->
+                addEntry("${baseDir}/${name}", "${index + 1}_${outputFileName('proof', review, getExt(name))}", zipFile)
+            }
         }
         if (review.summaryReport) {
-            println(review.summaryReport)
             addEntry("${baseDir}/${review.summaryReport}", "${outputFileName('summary', review, getExt(review.summaryReport))}", zipFile)
         }
 
+        zipFile.finish()
+
+        return baos.toByteArray()
+    }
+
+    static byte[] zipAll(List<Review> reviews, String baseDir) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ZipOutputStream zipFile = new ZipOutputStream(baos)
+        reviews.each {review ->
+            def fileDir = "${baseDir}/${review.project.principal.id}"
+            if (review.mainInfoForm) {
+                addEntry("${fileDir}/${review.mainInfoForm}", "${review.project.name}/${outputFileName('main', review, getExt(review.mainInfoForm))}", zipFile)
+            }
+            if (review.proofFile) {
+                addEntry("${fileDir}/${review.proofFile}", "${review.project.name}/${outputFileName('proof', review, getExt(review.proofFile))}", zipFile)
+            }
+            if (review.summaryReport) {
+                addEntry("${fileDir}/${review.summaryReport}", "${review.project.name}/${outputFileName('summary', review, getExt(review.summaryReport))}", zipFile)
+            }
+        }
         zipFile.finish()
 
         return baos.toByteArray()
@@ -36,7 +56,7 @@ class ZipTools {
 
         if (infoChange.mainInfoForm) {
             Teacher teacher =infoChange.principal ? infoChange.principal : infoChange.project.principal
-            String outputName = "申报书-${infoChange.project.name}-${levelLabel(infoChange.project.level.name())}-${infoChange.project.subtype.name}-${teacher.name}"
+            String outputName = "申报书-${infoChange.project.code}-${levelLabel(infoChange.project.level.name())}-${infoChange.project.subtype.name}-${teacher.name}"
             addEntry("${baseDir}/${infoChange.mainInfoForm}", "${outputName}.${getExt(infoChange.mainInfoForm)}", zipFile)
         }
 

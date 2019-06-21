@@ -116,8 +116,11 @@ and e.dateReviewed is not null
         }
         expertReview.setConclusion(cmd.conclusion)
         expertReview.setOpinion(cmd.opinion)
-        expertReview.setValue(cmd.value)
+        expertReview.setValue(cmd.score)
         expertReview.save()
+        if (cmd.isCommit) {
+            submit(id)
+        }
     }
 
     def submit(Long id) {

@@ -91,7 +91,8 @@ select new map(
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '同意' then 1 else 0 end) as countOk,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '不同意' then 1 else 0 end) as countVeto,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '弃权' then 1 else 0 end) as countWaiver,
-    sum (case when expertReview.dateReviewed is null then 1 else 0 end) as countNull
+    sum (case when expertReview.dateReviewed is null then 1 else 0 end) as countNull,
+    sum (expertReview.value) as totalScore
 )
 from Review application join application.project project
 join project.subtype subtype

@@ -1,5 +1,6 @@
 package tm.hunt.api
 
+import cn.edu.bnuz.bell.hunt.InfoChangeReviewerService
 import cn.edu.bnuz.bell.hunt.ProjectReviewerService
 import cn.edu.bnuz.bell.workflow.DomainStateMachineHandler
 import cn.edu.bnuz.bell.workflow.Event
@@ -24,5 +25,14 @@ class WorkflowConfiguration {
             StateMachinePersister<State, Event, StateObject> persister,
             ProjectReviewerService projectReviewerService) {
         new DomainStateMachineHandler(stateMachine, persister, projectReviewerService)
+    }
+
+    @Bean('infoChangeReviewStateMachine')
+    DomainStateMachineHandler InfoChangeReviewStateMachine(
+            @Qualifier('HuntStateMachine')
+                    StateMachine<State, Event> stateMachine,
+            StateMachinePersister<State, Event, StateObject> persister,
+            InfoChangeReviewerService infoChangeReviewerService) {
+        new DomainStateMachineHandler(stateMachine, persister, infoChangeReviewerService)
     }
 }

@@ -199,7 +199,7 @@ from Project p join p.review r where p.id = :id
                 content: cmd.content,
                 further: cmd.achievements,
                 mainInfoForm: cmd.mainInfoForm,
-                proofFile: cmd.proofFile
+                proofFile: cmd.proofFile?.toArray()
         )
         form.addToReview(review)
         if (!form.save()) {
@@ -238,7 +238,7 @@ from Project p join p.review r where p.id = :id
         review.setContent(cmd.content)
         review.setFurther(cmd.achievements)
         review.setMainInfoForm(cmd.mainInfoForm)
-        review.setProofFile(cmd.proofFile)
+        review.proofFile = cmd.proofFile
         form.save()
 
     }
@@ -299,7 +299,7 @@ select new map(
 from ExpertReview e
 join e.review r
 join e.expert t
-where r.id = :id and e.dateReviewed is not null
+where r.id = :id
 ''', [id: reviewId]
     }
 

@@ -19,7 +19,7 @@ import java.time.LocalDate
 @Transactional
 class InfoChangeService {
     SecurityService securityService
-    @Resource(name='projectReviewStateMachine')
+    @Resource(name='infoChangeReviewStateMachine')
     DomainStateMachineHandler domainStateMachineHandler
 
     def list(String userId) {
@@ -232,7 +232,7 @@ where id = :id
 
     static String getMainInfoFormName(Map form) {
         def ext = form.mainInfoForm.substring(form.mainInfoForm.lastIndexOf('.') + 1).toLowerCase()
-        return "申报书-${form.name}-${ZipTools.levelLabel(form.level as String)}-${form.subtype}.${ext}"
+        return "申报书-${form.code}-${ZipTools.levelLabel(form.level as String)}-${form.subtype}.${ext}"
     }
 
     def delete(Long id) {

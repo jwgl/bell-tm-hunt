@@ -10,6 +10,9 @@ import cn.edu.bnuz.bell.workflow.commands.AcceptCommand
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 
+/**
+ * 处长加签
+ */
 @PreAuthorize('hasRole("ROLE_HUNT_DIRECTOR")')
 class InfoChangeReviewController {
     ProjectReviewerService projectReviewerService

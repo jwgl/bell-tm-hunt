@@ -24,7 +24,7 @@ class ProjectCommand {
     String other
     String level
     String mainInfoForm
-    String proofFile
+    List<String> proofFile
     String summaryReport
 
     /**
@@ -56,7 +56,6 @@ class ProjectCommand {
                 "achievements: ${achievements}; " +
                 "level: ${level}" +
                 "mainInfoForm: ${mainInfoForm}" +
-                "proofFile: ${proofFile}" +
                 "summaryReport: ${summaryReport}"
     }
 }
