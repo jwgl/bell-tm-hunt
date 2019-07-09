@@ -2,12 +2,26 @@ package cn.edu.bnuz.bell.hunt.utils
 
 import cn.edu.bnuz.bell.hunt.InfoChange
 import cn.edu.bnuz.bell.hunt.Review
+import cn.edu.bnuz.bell.hunt.ReviewTask
 import cn.edu.bnuz.bell.organization.Teacher
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class ZipTools {
+
+    static byte[] zip(ReviewTask reviewTask, String baseDir) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ZipOutputStream zipFile = new ZipOutputStream(baos)
+
+        if (reviewTask.attach) {
+            reviewTask.attach.each { name ->
+                addEntry("${baseDir}/${name}", "${name}", zipFile)
+            }
+        }
+        zipFile.finish()
+        return baos.toByteArray()
+    }
 
     static byte[] zip(Review review, String baseDir) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream()

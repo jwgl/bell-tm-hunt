@@ -54,12 +54,10 @@ class FileTransferService {
     def download(Object form, HttpServletResponse response) {
         if (form instanceof ReviewTask) {
             def basePath = "${filesPath}/review-task"
-            def file = new File(basePath, form.attach)
-            byte[] bytes = file.bytes
-            response.setHeader("Content-disposition",
-                    "attachment; filename=\"" + URLEncoder.encode("${form.attach}", "UTF-8") + "\"")
-            response.contentType = URLConnection.guessContentTypeFromName(file.getName())
-            response.outputStream << bytes
+             response.setHeader("Content-disposition",
+                    "attachment; filename=\"" + URLEncoder.encode("${form.title}.zip", "UTF-8") + "\"")
+            response.contentType = "application/zip"
+            response.outputStream << ZipTools.zip(form, basePath)
         } else if (form instanceof Review) {
             def basePath = "${filesPath}/${form.project.principal.id}"
             response.setHeader("Content-disposition",
