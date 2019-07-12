@@ -91,11 +91,15 @@ select count(*) from Review r join r.project p where p.level = :level and p.prin
         def form = ReviewTask.load(id)
         if (form) {
             // 先处理旧附件
-            if (form.attach && form.attach != cmd.attach) {
+            if (form.attach) {
                 def basePath = "${filesPath}/review-task"
-                File file = new File(basePath, form.attach)
-                if (file.exists()) {
-                    file.delete()
+                form.attach.each{ String name ->
+                    if (!cmd.attach.contains(name)) {
+                        File file = new File(basePath, name)
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                    }
                 }
             }
             form.title = cmd.title

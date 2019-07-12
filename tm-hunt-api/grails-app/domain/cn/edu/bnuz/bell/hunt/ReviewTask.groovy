@@ -1,5 +1,7 @@
 package cn.edu.bnuz.bell.hunt
 
+import cn.edu.bnuz.bell.orm.PostgreSQLStringArrayUserType
+
 import java.time.LocalDate
 
 /**
@@ -49,7 +51,7 @@ class ReviewTask {
     /**
      * 附件
      */
-    String attach
+    String[] attach
 
 
     static mapping = {
@@ -64,7 +66,7 @@ class ReviewTask {
         remind          type: 'text', comment: '专家注意事项'
         dateCreated     comment: '创建日期'
         ban             sqlType: 'tm_hunt.level', type: LevelUserType, comment: '禁止对象'
-        attach          type: 'text', comment: '附件'
+        attach          sqlType: 'text[]', type: PostgreSQLStringArrayUserType, comment: '附件'
     }
     static constraints = {
         ban     nullable: true
