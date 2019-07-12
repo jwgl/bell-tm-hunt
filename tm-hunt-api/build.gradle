@@ -61,6 +61,9 @@ dependencies {
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 
+    //poi
+    compile "org.apache.poi:poi:4.1.0"
+
     // postgres
     runtime "org.postgresql:postgresql"
     // security
