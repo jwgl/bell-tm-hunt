@@ -8,6 +8,7 @@ import cn.edu.bnuz.bell.organization.Department
 import cn.edu.bnuz.bell.organization.DepartmentService
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
+import cn.edu.bnuz.bell.security.User
 import cn.edu.bnuz.bell.service.DataAccessService
 import cn.edu.bnuz.bell.workflow.DomainStateMachineHandler
 import cn.edu.bnuz.bell.workflow.State
@@ -257,7 +258,17 @@ from Project p join p.review r where p.id = :id
         if (!domainStateMachineHandler.canSubmit(form)) {
             throw new BadRequestException()
         }
-        domainStateMachineHandler.submit(form, userId, cmd.to, cmd.comment, cmd.title)
+
+        //如果学院教学院长做审核员，则默认由教学院长审核
+        def checker = cmd.to
+        List<Checker> checkers = Checker.findAllByDepartment(form.department)
+        checkers.each {
+            User user = User.load(it.teacher.id)
+            if (user.roles.find { it.id == 'ROLE_DEAN_OF_TEACHING'}) {
+                checker = it.teacher.id
+            }
+        }
+        domainStateMachineHandler.submit(form, userId, checker, cmd.comment, cmd.title)
 
         form.dateSubmitted = new Date()
         form.save()

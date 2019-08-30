@@ -104,10 +104,11 @@ join application.department department
 join project.principal principal
 left join application.expertReview expertReview
 where application.reportType = :reportType
+and application.status in (:passStates)
 and application.reviewTask.id = :taskId
 group by application.id, application.reviewTask.id, project.name, project.level, subtype.name, project.code, principal.name, department.name, application.status
 order by project.level, subtype.name, project.code
-''', [reportType: reportType, taskId: taskId]
+''', [reportType: reportType, passStates: [State.APPROVED, State.CHECKED], taskId: taskId]
     }
 
     def getMiddleYears() {
