@@ -146,10 +146,10 @@ select new map(
 )
 from Review r
 join r.reviewTask rt
-where rt.id = :taskId
+where rt.id = :taskId and r.status in (:passStates)
 group by rt.id, r.reportType
 order by r.reportType
-''', [taskId: taskId]
+''', [taskId: taskId, passStates: [State.APPROVED, State.CHECKED]]
     }
 
     def listForDepartment() {
@@ -159,11 +159,11 @@ select new map(
     rt.title as title,
     rt.endDate as endDate,
     rt.type as type,
-    sum (case when r.status != 'CREATED' then 1 else 0 end) as countProject,
-    sum (case when r.status = 'SUBMITTED' then 1 else 0 end) as countUncheck,
-    sum (case when r.status in (:passStates) then 1 else 0 end) as countPass,
-    sum (case when r.status in (:failStates) then 1 else 0 end) as countFail,
-    sum (case when r.status = 'FINISHED' then 1 else 0 end) as countFinal
+    sum (case when r.department.id = :departmentId and r.status != 'CREATED' then 1 else 0 end) as countProject,
+    sum (case when r.department.id = :departmentId and r.status = 'SUBMITTED' then 1 else 0 end) as countUncheck,
+    sum (case when r.department.id = :departmentId and r.status in (:passStates) then 1 else 0 end) as countPass,
+    sum (case when r.department.id = :departmentId and r.status in (:failStates) then 1 else 0 end) as countFail,
+    sum (case when r.department.id = :departmentId and r.status = 'FINISHED' then 1 else 0 end) as countFinal
 )
 from Review r
 right join r.reviewTask rt
