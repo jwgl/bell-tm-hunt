@@ -8,6 +8,7 @@ import cn.edu.bnuz.bell.organization.Department
 import cn.edu.bnuz.bell.organization.DepartmentService
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
+import cn.edu.bnuz.bell.security.User
 import cn.edu.bnuz.bell.service.DataAccessService
 import cn.edu.bnuz.bell.workflow.DomainStateMachineHandler
 import cn.edu.bnuz.bell.workflow.State
@@ -257,7 +258,24 @@ from Project p join p.review r where p.id = :id
         if (!domainStateMachineHandler.canSubmit(form)) {
             throw new BadRequestException()
         }
-        domainStateMachineHandler.submit(form, userId, cmd.to, cmd.comment, cmd.title)
+
+        //如果学院教学院长做审核员，则默认由教学院长审核
+        def checker = cmd.to
+        def deans = User.executeQuery '''
+select new map(u.id as id, u.name as name)
+from User u
+join u.roles ur
+join ur.role r,
+Checker c
+join c.teacher t
+where r.id = :role
+and u.departmentId = :departmentId
+and u.id = t.id
+''', [role: 'ROLE_DEAN_OF_TEACHING', departmentId: form.department.id]
+        if (deans && deans[0]) {
+            checker = deans[0].id
+        }
+        domainStateMachineHandler.submit(form, userId, checker, cmd.comment, cmd.title)
 
         form.dateSubmitted = new Date()
         form.save()
