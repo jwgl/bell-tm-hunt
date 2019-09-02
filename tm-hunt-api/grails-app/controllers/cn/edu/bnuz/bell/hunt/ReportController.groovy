@@ -13,7 +13,6 @@ class ReportController {
 
     def show(Integer id, String type) {
         def reportName = "hunt-${type}"
-        println id
         def parameters
         def format
         switch (type) {

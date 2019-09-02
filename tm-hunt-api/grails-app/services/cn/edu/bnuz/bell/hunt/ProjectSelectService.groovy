@@ -108,7 +108,7 @@ and application.status in (:passStates)
 and application.reviewTask.id = :taskId
 group by application.id, application.reviewTask.id, project.name, project.level, subtype.name, project.code, principal.name, department.name, application.status
 order by project.level, subtype.name, project.code
-''', [reportType: reportType, passStates: [State.APPROVED, State.CHECKED], taskId: taskId]
+''', [reportType: reportType, passStates: [State.FINISHED, State.CHECKED], taskId: taskId]
     }
 
     def getMiddleYears() {

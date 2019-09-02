@@ -261,12 +261,19 @@ from Project p join p.review r where p.id = :id
 
         //如果学院教学院长做审核员，则默认由教学院长审核
         def checker = cmd.to
-        List<Checker> checkers = Checker.findAllByDepartment(form.department)
-        checkers.each {
-            User user = User.load(it.teacher.id)
-            if (user.roles.find { it.id == 'ROLE_DEAN_OF_TEACHING'}) {
-                checker = it.teacher.id
-            }
+        def deans = User.executeQuery '''
+select new map(u.id as id, u.name as name)
+from User u
+join u.roles ur
+join ur.role r,
+Checker c
+join c.teacher t
+where r.id = :role
+and u.departmentId = :departmentId
+and u.id = t.id
+''', [role: 'ROLE_DEAN_OF_TEACHING', departmentId: form.department.id]
+        if (deans && deans[0]) {
+            checker = deans[0].id
         }
         domainStateMachineHandler.submit(form, userId, checker, cmd.comment, cmd.title)
 

@@ -66,7 +66,7 @@ join application.department department
 where application.status in (:status)'
 and application.reviewTask.id = :taskId
 order by application.dateChecked
-''', [userId: userId, status: [State.CHECKED, State.APPROVED], taskId: taskId]
+''', [userId: userId, status: [State.CHECKED, State.FINISHED], taskId: taskId]
     }
 
     def findTodoList(String userId, Long taskId, Integer reportType) {
