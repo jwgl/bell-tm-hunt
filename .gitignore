@@ -2,11 +2,11 @@ Thumbs.db
 .DS_Store
 .gradle
 build/
-classes/
+out/
 .idea
 *.iml
 *.ipr
 *.iws
-.application
+.project
 .settings
 .classpath

@@ -92,6 +92,8 @@ class UrlMappings {
 
         "/projects"(resources: 'projects')
 
+        "/reports"(resources: 'report', includes: ['show'])
+
         "/attachments"(resources: 'attachment', includes: ['index', 'show'])
 
         "500"(view: '/error')

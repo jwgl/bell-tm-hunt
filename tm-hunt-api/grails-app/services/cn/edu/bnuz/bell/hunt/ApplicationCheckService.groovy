@@ -419,7 +419,7 @@ and r.reportType in (:reportTypes)
 ''', [userId: userId,
       taskId: taskId,
       reportTypes: reportTypes(taskId, reviewType),
-      passStates: [State.APPROVED, State.CHECKED],
+      passStates: [State.FINISHED, State.CHECKED],
       failStates: [State.REJECTED, State.CLOSED]]
         return result ? result[0] : [:]
     }
