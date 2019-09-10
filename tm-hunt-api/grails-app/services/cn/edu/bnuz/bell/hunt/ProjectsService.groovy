@@ -38,10 +38,10 @@ join project.subtype subtype
 join project.origin origin
 where project.status <> 'CREATED'
 '''
-        if (cmd.criterion.isEmpty()) {
-            cmd.status = 'INHAND'
+        if (!cmd.criterion.isEmpty()) {
+            sqlStr += " and ${cmd.criterion}"
         }
-        sqlStr += " and ${cmd.criterion}"
+
         sqlStr += " order by project.level, subtype.name, project.code"
         def list = Project.executeQuery sqlStr, cmd.args
         return [
