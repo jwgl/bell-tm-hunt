@@ -1,6 +1,5 @@
 package cn.edu.bnuz.bell.hunt
 
-import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.hunt.cmd.ProjectCommand
 import cn.edu.bnuz.bell.hunt.cmd.ProjectDepartmentOptionCommand
 import org.springframework.security.access.prepost.PreAuthorize
