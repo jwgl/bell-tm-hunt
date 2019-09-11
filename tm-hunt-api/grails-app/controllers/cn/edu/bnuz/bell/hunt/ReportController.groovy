@@ -23,7 +23,14 @@ class ReportController {
                 format = 'xlsx'
                 parameters = [task_id: id, user_id: securityService.userId]
                 break
-            case 'application':
+            case 'reviews':
+                if (!securityService.hasRole('ROLE_HUNT_ADMIN')) {
+                    throw new ForbiddenException()
+                }
+                format = 'xlsx'
+                parameters = [task_id: id]
+                break
+            case 'expert-reviews':
                 if (!securityService.hasRole('ROLE_HUNT_ADMIN')) {
                     throw new ForbiddenException()
                 }
