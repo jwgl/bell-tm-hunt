@@ -77,6 +77,11 @@ class Project {
      */
     String memo
 
+    /**
+     * 结题时间
+     */
+    LocalDate dateFinished
+
     static hasOne = [contract: Contract]
 
     static hasMany = [review: Review, infoChange: InfoChange]
@@ -111,6 +116,7 @@ class Project {
         delayTimes              defaultValue: 0, comment: '延期次数'
         mainInfoForm            type: 'text', comment: '申报书'
         memo                    type: 'text', comment: '备注'
+        dateFinished            comment: '结项时间'
     }
     static constraints = {
         direction       nullable: true
@@ -133,5 +139,6 @@ class Project {
         degree          nullable: true
         email           nullable: true
         phone           nullable: true
+        dateFinished    nullable: true
     }
 }
