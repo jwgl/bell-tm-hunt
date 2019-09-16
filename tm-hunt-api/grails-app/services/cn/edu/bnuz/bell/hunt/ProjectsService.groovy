@@ -30,6 +30,7 @@ select new map(
     project.knotYear as knotYear,
     project.dateStart as dateStart,
     project.delayTimes as delayTimes,
+    project.dateFinished as dateFinished,
     (select count(*) from Review r where r.project.id = project.id and reportType = 3 and status = 'FINISHED' and conclusionOfUniversity = 'OK') as hasMid, 
     project.status as status
 )

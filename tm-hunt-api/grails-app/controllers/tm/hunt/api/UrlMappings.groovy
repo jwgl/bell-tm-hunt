@@ -92,7 +92,7 @@ class UrlMappings {
 
         "/projects"(resources: 'projects')
 
-        "/reports"(resources: 'report', includes: ['show'])
+        "/reports"(resources: 'report', includes: ['index', 'show'])
 
         "/attachments"(resources: 'attachment', includes: ['index', 'show'])
 

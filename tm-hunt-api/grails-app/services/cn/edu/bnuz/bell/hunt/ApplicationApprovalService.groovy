@@ -183,6 +183,7 @@ order by application.dateApproved desc
                     break
                 case 4:
                     application.project.setStatus(Status.FINISHED)
+                    application.project.setDateFinished(LocalDate.now())
             }
             application.project.save()
         } else if (application.conclusionOfProvince == Conclusion.DELAY){
