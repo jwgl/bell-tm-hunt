@@ -9,6 +9,8 @@ import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import grails.gorm.transactions.Transactional
 
+import java.time.LocalDate
+
 @Transactional
 class ProjectsService {
     SecurityService securityService
@@ -154,7 +156,11 @@ where project.id = :id
                 delayTimes: 0,
                 title: '/',
                 degree: '/',
-                email: '/'
+                email: '/',
+                dateStart: LocalDate.parse(cmd.dateStarted),
+                middleYear: cmd.middleYear,
+                knotYear: cmd.knotYear,
+                code: cmd.code
         )
         if (!form.save()) {
             form.errors.each {
