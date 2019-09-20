@@ -73,8 +73,8 @@ where rt.id = :id
             if (task.type.toString() == 'APPLICATION' && task.ban) {
                 task['banMe'] = existRunningProject(task.ban)
             }
-            // 只有管理员可以看专家注意事项
-            if (!securityService.hasRole('ROLE_HUNT_ADMIN')) {
+            // 只有管理员可以看专家注意事项和专家
+            if (!securityService.hasRole('ROLE_HUNT_ADMIN') && !securityService.hasRole('ROLE_HUNT_EXPERT')) {
                 task.remind = null
             }
             return task
