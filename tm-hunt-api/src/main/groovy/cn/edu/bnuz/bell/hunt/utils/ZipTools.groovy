@@ -53,7 +53,9 @@ class ZipTools {
                 addEntry("${fileDir}/${review.mainInfoForm}", "${review.project.name}/${outputFileName('main', review, getExt(review.mainInfoForm))}", zipFile)
             }
             if (review.proofFile) {
-                addEntry("${fileDir}/${review.proofFile}", "${review.project.name}/${outputFileName('proof', review, getExt(review.proofFile))}", zipFile)
+                review.proofFile.eachWithIndex { name, index ->
+                    addEntry("${baseDir}/${name}", "${index + 1}_${outputFileName('proof', review, getExt(name))}", zipFile)
+                }
             }
             if (review.summaryReport) {
                 addEntry("${fileDir}/${review.summaryReport}", "${review.project.name}/${outputFileName('summary', review, getExt(review.summaryReport))}", zipFile)

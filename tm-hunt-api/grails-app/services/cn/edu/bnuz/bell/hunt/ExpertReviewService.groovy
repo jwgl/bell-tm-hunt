@@ -13,6 +13,7 @@ import grails.gorm.transactions.Transactional
 class ExpertReviewService {
     SecurityService securityService
     DataAccessService dataAccessService
+    ApplicationService applicationService
 
     def list(Long taskId, Integer reviewType, type) {
         def sql = '''
@@ -98,6 +99,7 @@ and e.dateReviewed is not null
             throw new ForbiddenException()
         }
         return [
+                form: applicationService.getFormInfo(id),
                 remind: application.reviewTask.remind,
                 name: application.project.name,
                 departmentOpinion: application.departmentOpinion,
