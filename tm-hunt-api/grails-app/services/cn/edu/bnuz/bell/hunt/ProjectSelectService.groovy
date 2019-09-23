@@ -72,6 +72,7 @@ order by project.level, subtype.name, project.code
     }
 
     def listForAdministration(Long taskId, Integer reportType) {
+        // postgresql 中的numeric类型，在HQL中要用big_decimal
         Review.executeQuery'''
 select new map(
     application.id as id,
@@ -89,8 +90,8 @@ select new map(
     application.conclusionOfUniversity as conclusionOfUniversity,
     application.status as status,
     case when project.level = 'PROVINCE' then application.conclusionOfProvince else application.conclusionOfUniversity end as conclusion,
-    round (sum (case when expertReview.dateReviewed is not null and expertReview.value !=0 and expertReview.conclusion != '弃权' then expertReview.value end)/
-        sum (case when expertReview.dateReviewed is not null and expertReview.value !=0 expertReview.conclusion != '弃权' then 1 else 0 end)::numeric, 2) as average,
+    round (sum (case when expertReview.dateReviewed is not null and expertReview.conclusion != '弃权' then expertReview.value end)/
+        cast (sum (case when expertReview.dateReviewed is not null and expertReview.value != 0 and expertReview.conclusion != '弃权' then 1 else 0 end) as big_decimal), 2) as average,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '同意' then 1 else 0 end) as countOk,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '不同意' then 1 else 0 end) as countVeto,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '弃权' then 1 else 0 end) as countWaiver,
