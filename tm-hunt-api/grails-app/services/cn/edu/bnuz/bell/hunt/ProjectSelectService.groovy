@@ -89,8 +89,8 @@ select new map(
     application.conclusionOfUniversity as conclusionOfUniversity,
     application.status as status,
     case when project.level = 'PROVINCE' then application.conclusionOfProvince else application.conclusionOfUniversity end as conclusion,
-    round (sum (case when expertReview.dateReviewed is not null and expertReview.conclusion != '弃权' then expertReview.value end)/
-        sum (case when expertReview.dateReviewed is not null and expertReview.conclusion != '弃权' then 1 else 0 end), 2) as average,
+    round (sum (case when expertReview.dateReviewed is not null and expertReview.value !=0 and expertReview.conclusion != '弃权' then expertReview.value end)/
+        sum (case when expertReview.dateReviewed is not null and expertReview.value !=0 expertReview.conclusion != '弃权' then 1 else 0 end)::numeric, 2) as average,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '同意' then 1 else 0 end) as countOk,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '不同意' then 1 else 0 end) as countVeto,
     sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '弃权' then 1 else 0 end) as countWaiver,
