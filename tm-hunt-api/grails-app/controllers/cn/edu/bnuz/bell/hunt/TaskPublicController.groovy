@@ -8,8 +8,12 @@ class TaskPublicController {
     ReviewTaskService reviewTaskService
     ApplicationService applicationService
 
-    def index(String teacherId) {
-        renderJson reviewTaskService.listForTeacher()
+    def index(String teacherId, Boolean all) {
+        if (all) {
+            renderJson reviewTaskService.list()
+        } else {
+            renderJson reviewTaskService.listForTeacher()
+        }
     }
 
     def show(String teacherId, Long id) {
