@@ -14,14 +14,22 @@ class ReportController {
     def index(String type) {
         def reportName = "hunt-${type}"
         def format
-        if (!securityService.hasRole('ROLE_HUNT_ADMIN')) {
-            throw new ForbiddenException()
-        }
+        def parameters = [:]
         switch (type) {
             case 'projects-groupby-department':
             case 'projects-groupby--type':
             case 'projects':
+                if (!securityService.hasRole('ROLE_HUNT_ADMIN')) {
+                    throw new ForbiddenException()
+                }
                 format = 'xlsx'
+                break
+            case 'projects-department':
+                if (!securityService.hasRole('ROLE_HUNT_CHECKER')) {
+                    throw new ForbiddenException()
+                }
+                format = 'xlsx'
+                parameters = [department_id: securityService.departmentId]
                 break
             default:
                 throw new BadRequestException()
@@ -29,6 +37,7 @@ class ReportController {
         def reportRequest = new ReportRequest(
                 reportName: reportName,
                 format: format,
+                parameters: parameters
         )
         reportClientService.runAndRender(reportRequest, response)
     }
