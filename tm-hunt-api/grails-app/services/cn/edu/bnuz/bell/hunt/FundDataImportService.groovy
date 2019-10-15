@@ -97,7 +97,7 @@ class FundDataImportService {
 
     static def getValueByCell(Cell cell) {
         if (cell.cellType == CellType.BLANK) {
-            return ""
+            return 0
         } else if (cell.cellType == CellType.BOOLEAN) {
             return cell.booleanCellValue as Boolean
         } else if (cell.cellType == CellType.ERROR) {

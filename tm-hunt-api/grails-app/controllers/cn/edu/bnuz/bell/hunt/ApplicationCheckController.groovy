@@ -1,17 +1,12 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
-import cn.edu.bnuz.bell.http.ForbiddenException
-import cn.edu.bnuz.bell.http.NotFoundException
-import cn.edu.bnuz.bell.hunt.utils.ZipTools
-import cn.edu.bnuz.bell.organization.Teacher
-import cn.edu.bnuz.bell.workflow.Activities
 import cn.edu.bnuz.bell.workflow.Event
-import cn.edu.bnuz.bell.workflow.ListCommand
 import cn.edu.bnuz.bell.workflow.ListType
 import cn.edu.bnuz.bell.workflow.commands.AcceptCommand
 import cn.edu.bnuz.bell.workflow.commands.RejectCommand
 import cn.edu.bnuz.bell.workflow.commands.RevokeCommand
+import cn.edu.bnuz.bell.hunt.cmd.SuggestCommand
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 
@@ -48,7 +43,7 @@ class ApplicationCheckController {
         def operation = Event.valueOf(op)
         switch (operation) {
             case Event.ACCEPT:
-                def cmd = new AcceptCommand()
+                def cmd = new SuggestCommand()
                 bindData(cmd, request.JSON)
                 cmd.id = applicationCheckId
                 applicationCheckService.accept(checkerId, cmd, UUID.fromString(id))
