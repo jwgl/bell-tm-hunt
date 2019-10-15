@@ -118,6 +118,7 @@ select new map(
 from InfoChange form
 join form.project project
 where form.status = :status
+and 1 = any_element(form.type)
 order by form.dateChecked
 ''', [status: State.SUBMITTED], cmd.args
         return [forms: forms, counts: getCounts()]

@@ -16,6 +16,7 @@ class ReportController {
         def format
         def parameters = [:]
         switch (type) {
+            case 'fund-template':
             case 'projects-groupby-department':
             case 'projects-groupby--type':
             case 'projects':

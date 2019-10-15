@@ -37,7 +37,7 @@ where project.status <> 'CREATED'
         if (!cmd.criterion.isEmpty()) {
             sqlStr += " and ${cmd.criterion}"
         }
-        sqlStr += " order by project.level, subtype.name, project.code"
+        sqlStr += " order by project.dateStart, subtype.name, project.status"
         def list = Project.executeQuery sqlStr, cmd.args
         return [
                 list: list,

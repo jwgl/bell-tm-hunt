@@ -38,6 +38,7 @@ where form.department = (
   from Checker checker
   join checker.teacher teacher
   where teacher.id = :userId
+  and 1 != any_element(form.type)
 )
 ''', [userId: userId, doneStates: [State.CHECKED, State.FINISHED, State.CLOSED]]
         [
@@ -79,6 +80,7 @@ where form.department = (
   from Checker checker
   join checker.teacher teacher
   where teacher.id = :userId
+  and 1 != any_element(form.type)
 ) and form.status = :status
 ''', [userId: userId, status: State.SUBMITTED], args
         return [forms: forms, counts: getCounts(userId)]
@@ -106,6 +108,7 @@ where form.department = (
   from Checker checker
   join checker.teacher teacher
   where teacher.id = :userId
+  and 1 != any_element(form.type)
 ) and form.status in (:doneStates)
 ''', [userId: userId, doneStates: [State.CHECKED, State.FINISHED, State.CLOSED]], args
         return [forms: forms, counts: getCounts(userId)]
