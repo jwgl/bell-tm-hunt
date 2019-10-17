@@ -99,4 +99,19 @@ where r.id in (:ids) and e.id = :expert
         response.outputStream << ZipTools.zipAll(reviews, filesPath)
         response.outputStream.flush()
     }
+
+    /**
+     * 下载Excel模板
+     * @param fileName
+     * @param response
+     * @return
+     */
+    def template(String fileName, HttpServletResponse response) {
+        response.setHeader("Content-disposition",
+                "attachment; filename=\"${fileName}\"")
+        response.contentType = "application/excel"
+        FileInputStream file = new FileInputStream("${filesPath}/template/${fileName}")
+        response.outputStream << file.getBytes()
+        response.outputStream.flush()
+    }
 }

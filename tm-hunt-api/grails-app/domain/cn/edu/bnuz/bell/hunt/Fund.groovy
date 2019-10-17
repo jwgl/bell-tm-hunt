@@ -41,6 +41,6 @@ class Fund {
 
     static constraints = {
         memo nullable: true
-        reportType(unique: ['project', 'type'])
+        reportType(unique: ['project', 'level', 'type'])
     }
 }

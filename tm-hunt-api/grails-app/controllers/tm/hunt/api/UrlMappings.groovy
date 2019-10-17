@@ -43,6 +43,7 @@ class UrlMappings {
             "/applications"(resources: 'applicationCheck', includes: ['index']) {
                 "/workitems"(resources: 'applicationCheck', includes: ['show', 'patch'])
                 "/approvers"(controller: 'applicationCheck', action: 'approvers', method: 'GET')
+                "/reviewers"(controller: 'applicationCheck', action: 'approvers', method: 'GET')
             }
             "/tasks"(resources: 'taskChecker', includes: ['index', 'show'])
             "/infoChanges"(resources: 'infoChangeCheck', includes: ['index']) {

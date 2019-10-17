@@ -70,7 +70,6 @@ dependencies {
     
     //poi
     compile "org.apache.poi:poi:4.1.0"
-    compile "org.apache.poi:poi-ooxml:4.1.0"
     // postgres
     runtime "org.postgresql:postgresql"
     // security
