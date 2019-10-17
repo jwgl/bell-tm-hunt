@@ -10,37 +10,42 @@ import cn.edu.bnuz.bell.security.SecurityService
 class ReportController {
     ReportClientService reportClientService
     SecurityService securityService
+    FileTransferService fileTransferService
 
     def index(String type) {
-        def reportName = "hunt-${type}"
-        def format
-        def parameters = [:]
-        switch (type) {
-            case 'fund-template':
-            case 'projects-groupby-department':
-            case 'projects-groupby--type':
-            case 'projects':
-                if (!securityService.hasRole('ROLE_HUNT_ADMIN')) {
-                    throw new ForbiddenException()
-                }
-                format = 'xlsx'
-                break
-            case 'projects-department':
-                if (!securityService.hasRole('ROLE_HUNT_CHECKER')) {
-                    throw new ForbiddenException()
-                }
-                format = 'xlsx'
-                parameters = [department_id: securityService.departmentId]
-                break
-            default:
-                throw new BadRequestException()
+        if (type?.indexOf('template') != -1) {
+            fileTransferService.template("${type}.xls", response)
+        } else {
+            def reportName = "hunt-${type}"
+            def format
+            def parameters = [:]
+            switch (type) {
+                case 'fund-template':
+                case 'projects-groupby-department':
+                case 'projects-groupby--type':
+                case 'projects':
+                    if (!securityService.hasRole('ROLE_HUNT_ADMIN')) {
+                        throw new ForbiddenException()
+                    }
+                    format = 'xlsx'
+                    break
+                case 'projects-department':
+                    if (!securityService.hasRole('ROLE_HUNT_CHECKER')) {
+                        throw new ForbiddenException()
+                    }
+                    format = 'xlsx'
+                    parameters = [department_id: securityService.departmentId]
+                    break
+                default:
+                    throw new BadRequestException()
+            }
+            def reportRequest = new ReportRequest(
+                    reportName: reportName,
+                    format: format,
+                    parameters: parameters
+            )
+            reportClientService.runAndRender(reportRequest, response)
         }
-        def reportRequest = new ReportRequest(
-                reportName: reportName,
-                format: format,
-                parameters: parameters
-        )
-        reportClientService.runAndRender(reportRequest, response)
     }
 
     def show(Integer id, String type) {

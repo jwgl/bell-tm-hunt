@@ -64,7 +64,9 @@ select new map(
 )
 from InfoChange form
 join form.project project
-where form.status = :status and form.reviewer.id = :userId
+where (form.status = :status or (form.status = 'SUBMITTED' and 1 = any_element(form.type)))
+and form.dateReviewed is null
+and form.reviewer.id = :userId
 order by form.dateChecked
 ''', [status: State.CHECKED, userId: securityService.userId], cmd.args
         return [forms: forms, counts: getCounts(securityService.userId)]
@@ -124,9 +126,12 @@ order by form.dateApproved desc
         }
         def activity = Workitem.get(workitemId).activitySuffix
         domainStateMachineHandler.checkReviewer(id, userId, activity)
+        def project = infoChangeService.findProject(form?.projectId)
+        infoChangeService.projectUpdatedBefore(id, project as Map)
 
         return [
                 form      : form,
+                project   : project,
                 counts    : getCounts(securityService.userId),
                 workitemId: workitemId,
                 prevId    : getPrevApprovalId(userId, id, type),

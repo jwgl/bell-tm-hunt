@@ -140,9 +140,11 @@ where form.department = (
 
         def activity = Workitem.get(workitemId).activitySuffix
         domainStateMachineHandler.checkReviewer(id, userId, activity)
-
+        def project = infoChangeService.findProject(form?.projectId)
+        infoChangeService.projectUpdatedBefore(id, project as Map)
         return [
                 form      : form,
+                project   : project,
                 counts    : getCounts(userId),
                 workitemId: workitemId,
                 prevId    : getPrevCheckId(userId, id, type),

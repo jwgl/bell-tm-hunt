@@ -6,12 +6,11 @@ import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import cn.edu.bnuz.bell.security.User
-import cn.edu.bnuz.bell.security.UserLog
 import cn.edu.bnuz.bell.security.UserLogService
 import cn.edu.bnuz.bell.service.DataAccessService
 import cn.edu.bnuz.bell.workflow.Activities
 import cn.edu.bnuz.bell.workflow.DomainStateMachineHandler
-import cn.edu.bnuz.bell.hunt.cmd.SuggestCommand
+import cn.edu.bnuz.bell.hunt.cmd.ReviewCommand
 import cn.edu.bnuz.bell.workflow.ListType
 import cn.edu.bnuz.bell.workflow.State
 import cn.edu.bnuz.bell.workflow.WorkflowActivity
@@ -218,7 +217,18 @@ order by application.dateChecked desc
 ''', [userId: userId, status: [State.REJECTED, State.CLOSED], taskId: taskId, reportTypes: reportTypes(taskId, reviewType)]
     }
 
-    void accept(String userId, SuggestCommand cmd, UUID workitemId) {
+    void accept(String userId, AcceptCommand cmd, UUID workitemId) {
+        Review application = Review.get(cmd.id)
+        if (application.status == State.SUBMITTED) {
+            domainStateMachineHandler.accept(application, userId, Activities.CHECK, cmd.comment, workitemId, cmd.to)
+            application.checker = Teacher.load(userId)
+            application.dateChecked = new Date()
+            application.departmentOpinion = cmd.comment
+            application.save()
+        }
+    }
+
+    void review(String userId, ReviewCommand cmd, UUID workitemId) {
         Review application = Review.get(cmd.id)
         if (application.status == State.SUBMITTED) {
             domainStateMachineHandler.accept(application, userId, Activities.CHECK, cmd.comment, workitemId, cmd.to)
@@ -227,7 +237,7 @@ order by application.dateChecked desc
             application.departmentOpinion = cmd.comment
             // 项目检查时单位需给单位意见
             if (application.reportType != 1) {
-                application.departmentConclusion = cmd.suggest as Conclusion
+                application.departmentConclusion = cmd.review as Conclusion
             }
             application.save()
         }

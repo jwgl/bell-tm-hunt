@@ -6,7 +6,7 @@ import cn.edu.bnuz.bell.workflow.ListType
 import cn.edu.bnuz.bell.workflow.commands.AcceptCommand
 import cn.edu.bnuz.bell.workflow.commands.RejectCommand
 import cn.edu.bnuz.bell.workflow.commands.RevokeCommand
-import cn.edu.bnuz.bell.hunt.cmd.SuggestCommand
+import cn.edu.bnuz.bell.hunt.cmd.ReviewCommand
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.access.prepost.PreAuthorize
 
@@ -43,7 +43,7 @@ class ApplicationCheckController {
         def operation = Event.valueOf(op)
         switch (operation) {
             case Event.ACCEPT:
-                def cmd = new SuggestCommand()
+                def cmd = new AcceptCommand()
                 bindData(cmd, request.JSON)
                 cmd.id = applicationCheckId
                 applicationCheckService.accept(checkerId, cmd, UUID.fromString(id))
@@ -59,6 +59,12 @@ class ApplicationCheckController {
                 bindData(cmd, request.JSON)
                 cmd.id = applicationCheckId
                 applicationCheckService.rollback(checkerId, cmd)
+                break
+            case Event.REVIEW:
+                def cmd = new ReviewCommand()
+                bindData(cmd, request.JSON)
+                cmd.id = applicationCheckId
+                applicationCheckService.review(checkerId, cmd, UUID.fromString(id))
                 break
             default:
                 throw new BadRequestException()
