@@ -20,7 +20,6 @@ class ReportController {
             def format
             def parameters = [:]
             switch (type) {
-                case 'fund-template':
                 case 'projects-groupby-department':
                 case 'projects-groupby--type':
                 case 'projects':
@@ -73,6 +72,13 @@ class ReportController {
                 }
                 format = 'xlsx'
                 parameters = [task_id: id]
+                break
+            case 'info-change-application':
+                if (!securityService.hasRole('ROLE_HUNT_CHECKER')) {
+                    throw new ForbiddenException()
+                }
+                format = 'pdf'
+                parameters = [form_id: id]
                 break
             default:
                 throw new BadRequestException()
