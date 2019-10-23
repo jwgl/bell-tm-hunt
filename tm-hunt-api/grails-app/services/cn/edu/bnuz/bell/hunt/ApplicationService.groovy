@@ -166,6 +166,7 @@ select new map(
     r.summaryReport as summaryReport
 )
 from Project p join p.review r where p.id = :id
+order by r.id
 ''', [id: projectId]
     }
 
