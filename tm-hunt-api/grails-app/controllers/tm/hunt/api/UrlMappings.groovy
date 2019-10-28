@@ -97,6 +97,8 @@ class UrlMappings {
 
         "/attachments"(resources: 'attachment', includes: ['index', 'show'])
 
+        "/funds"(resources: 'funds', includes: ['index', 'show'])
+
         "500"(view: '/error')
         "404"(view: '/notFound')
     }

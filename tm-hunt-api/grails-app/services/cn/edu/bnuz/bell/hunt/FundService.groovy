@@ -12,18 +12,18 @@ import org.apache.poi.ss.usermodel.Row
 import javax.servlet.http.HttpServletRequest
 
 @Transactional
-class FundDataImportService {
+class FundService {
     static final List<String> fields = ['序号', '项目编号', '省（市）立项', '省（市）中期', '省（市）结项','校立项', '校中期', '校结项', '院立项', '院中期', '院结项']
     static final List<Map> colsName = [[:], [:],
                                        [level: Level.PROVINCE, reportType: 1],
-                                       [level: Level.PROVINCE, reportType: 2],
                                        [level: Level.PROVINCE, reportType: 3],
+                                       [level: Level.PROVINCE, reportType: 4],
                                        [level: Level.UNIVERSITY, reportType: 1],
-                                       [level: Level.UNIVERSITY, reportType: 2],
                                        [level: Level.UNIVERSITY, reportType: 3],
+                                       [level: Level.UNIVERSITY, reportType: 4],
                                        [level: Level.COLLEGE, reportType: 1],
-                                       [level: Level.COLLEGE, reportType: 2],
-                                       [level: Level.COLLEGE, reportType: 3],]
+                                       [level: Level.COLLEGE, reportType: 3],
+                                       [level: Level.COLLEGE, reportType: 4],]
 
     def upload(FundType fundType, HttpServletRequest request) {
         MultipartFile uploadFile = request.getFile('file')
@@ -111,5 +111,19 @@ class FundDataImportService {
         } else {
             return cell.stringCellValue
         }
+    }
+
+    def getProjectFunds(Long id) {
+        Fund.executeQuery'''
+select new map (
+f.dateCreated as dateCreated,
+f.level as level,
+f.reportType as reportType,
+f.type as type,
+f.amount as amount
+) from Fund f
+join f.project p
+where p.id = :id
+''', [id: id]
     }
 }

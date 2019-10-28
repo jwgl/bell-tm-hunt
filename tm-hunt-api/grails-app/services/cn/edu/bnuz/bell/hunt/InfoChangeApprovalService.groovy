@@ -334,6 +334,7 @@ order by form.dateSubmitted asc
         project.mainInfoForm = form.mainInfoForm
         form.approver = Teacher.load(userId)
         form.dateApproved = new Date()
+        form.opinionOfUniversity = cmd.comment
         form.save()
     }
 

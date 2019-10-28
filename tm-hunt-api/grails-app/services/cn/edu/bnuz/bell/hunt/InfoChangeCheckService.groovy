@@ -235,6 +235,7 @@ order by form.dateChecked desc
         domainStateMachineHandler.reject(form, userId, Activities.CHECK, cmd.comment, workitemId)
         form.checker = Teacher.load(userId)
         form.dateChecked = new Date()
+        form.departmentOpinion = cmd.comment
         form.save()
     }
 }
