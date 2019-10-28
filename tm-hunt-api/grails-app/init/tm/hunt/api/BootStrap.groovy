@@ -1,6 +1,7 @@
 package tm.hunt.api
 
 import cn.edu.bnuz.bell.hunt.Conclusion
+import cn.edu.bnuz.bell.hunt.FundType
 import cn.edu.bnuz.bell.hunt.Level
 import cn.edu.bnuz.bell.hunt.ReviewType
 import cn.edu.bnuz.bell.hunt.Status
@@ -19,6 +20,9 @@ class BootStrap {
             it.name()
         }
         JSON.registerObjectMarshaller(Status) {
+            it.name()
+        }
+        JSON.registerObjectMarshaller(FundType) {
             it.name()
         }
     }

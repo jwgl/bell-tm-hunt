@@ -63,4 +63,11 @@ where c.id = :id
             form.delete()
         }
     }
+
+    def getDepartmentId(String teacherId) {
+        def result = Checker.executeQuery'''
+select c.department.id as departmentId from Checker c join c.teacher t where t.id = :id
+''', [id: teacherId]
+        return result ? result[0] : null
+    }
 }

@@ -49,6 +49,7 @@ where project.status <> 'CREATED'
         def list = Project.executeQuery sqlStr, cmd.args
         return [
                 list: list,
+                fund: fund(cmd),
                 subtypes: typeService.allSubtypes,
                 middleYears: middleYears,
                 knotYears: knotYears,
@@ -168,5 +169,24 @@ where project.id = :id
             }
         }
         return form
+    }
+
+    def fund(ProjectDepartmentOptionCommand cmd) {
+        def sqlStr = '''
+select  new map(
+f.type as type,
+sum(f.amount) as total
+)
+from Fund f 
+join f.project project
+join project.subtype subtype
+where project.status <> 'CREATED'
+'''
+        if (!cmd.criterion.isEmpty()) {
+            sqlStr += " and ${cmd.criterion}"
+        }
+
+        sqlStr += " group by f.type order by f.type desc"
+        Fund.executeQuery sqlStr, cmd.args
     }
 }
