@@ -26,6 +26,7 @@ class ApplicationService {
     @Resource(name='projectReviewStateMachine')
     DomainStateMachineHandler domainStateMachineHandler
     DataAccessService dataAccessService
+    InfoChangeService infoChangeService
 
     def list(String userId, Long taskId) {
         Review.executeQuery'''
@@ -139,6 +140,7 @@ where application.id = :id
                 review['expertReview'] = getExpertReview(review.id)
                 review['period'] = getPeriod(review.id)
             }
+            review['infoChange'] = infoChangeService.findInfoChangeByProject(review.projectId)
             return review
         } else {
             return null

@@ -296,4 +296,34 @@ join r.department rd
 where r.id = :id and d.id = rd.id
 ''', [id: infoChangeId]
     }
+
+    def findInfoChangeByProject(Long projectId) {
+        def infoChanges = InfoChange.findAll("from InfoChange as i where i.project.id = :id order by i.dateApproved desc", [id: projectId])
+        if (infoChanges) {
+            def infoChangeList = []
+            infoChanges.each {item ->
+                def project = findProject(item.projectId)
+                projectUpdatedBefore(item.id, project as Map)
+                infoChangeList += [
+                        type: item.type,
+                        departmentOpinion: item.departmentOpinion,
+                        opinionOfUniversity: item.opinionOfUniversity,
+                        dateApproved: item.dateApproved,
+                        dateSubmitted: item.dateSubmitted,
+                        status: item.status,
+                        middleYear: item.middleYear,
+                        knotYear: item.knotYear,
+                        content: item.content,
+                        achievements: item.achievements,
+                        other: item.other,
+                        name: item.name,
+                        principalName: item.principal?.name,
+                        project: project
+                ]
+            }
+            return infoChangeList
+        } else {
+            return null
+        }
+    }
 }

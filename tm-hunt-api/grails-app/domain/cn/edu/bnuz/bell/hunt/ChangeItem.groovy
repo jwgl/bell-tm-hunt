@@ -11,7 +11,7 @@ class ChangeItem {
      */
     String content
 
-    static belongsTo = [infoChane: InfoChange]
+    static belongsTo = [infoChange: InfoChange]
 
     static mapping = {
         comment                 '变更明细'
