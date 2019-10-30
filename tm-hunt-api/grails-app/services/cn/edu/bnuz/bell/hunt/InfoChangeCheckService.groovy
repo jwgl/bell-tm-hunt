@@ -224,6 +224,7 @@ order by form.dateChecked desc
         form.dateChecked = new Date()
         form.approver = null
         form.dateApproved = null
+        form.departmentOpinion = cmd.comment
         form.save()
     }
 

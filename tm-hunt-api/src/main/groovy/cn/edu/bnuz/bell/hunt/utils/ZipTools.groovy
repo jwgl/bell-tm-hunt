@@ -92,12 +92,12 @@ class ZipTools {
 
     private static preLabel(String pre, Integer reportType) {
         def labelMap = [
-                main: ['申报书', '验收登记表'],
+                main: ['申报书', '年度检查表', '中期检查表', '结项验收表'],
                 proof: '主要佐证材料',
                 summary: '总结报告',
                 other: '其他']
         if (pre == 'main') {
-            return labelMap.main[reportType ==1 ? 0 : 1]
+            return labelMap.main[reportType - 1]
         } else {
             return labelMap[pre]
         }

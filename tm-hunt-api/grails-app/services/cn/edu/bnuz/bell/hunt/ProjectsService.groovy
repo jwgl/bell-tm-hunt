@@ -17,6 +17,7 @@ class ProjectsService {
     TypeService typeService
     ApplicationService applicationService
     DepartmentService departmentService
+    InfoChangeService infoChangeService
 
     def list(ProjectDepartmentOptionCommand cmd) {
         def sqlStr = '''
@@ -129,6 +130,7 @@ where project.id = :id
                 review.memo = null
             }
             review['relationReportTypes'] = applicationService.reportTypes(id)
+            review['infoChange'] = infoChangeService.findInfoChangeByProject(review.projectId)
             return review
         } else {
             return null

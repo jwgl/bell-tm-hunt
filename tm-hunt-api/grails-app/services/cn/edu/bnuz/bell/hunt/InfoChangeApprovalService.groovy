@@ -278,7 +278,7 @@ order by form.dateSubmitted asc
                         )
                         form.addToItems(item)
                         project.middleYear = form.middleYear
-                        project.delayTimes ++
+                        project.delayTimes = project.delayTimes +1
                     }
                     ChangeItem item = new ChangeItem(
                             infoChane: form,
