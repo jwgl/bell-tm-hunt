@@ -249,9 +249,10 @@ where id = :id
             throw new NotFoundException()
         }
 
-        // 如果不是负责人本人，不允许递交项目负责人变更以外的变更；变更负责人只允许本学院审核员提交。
+        // 如果不是负责人本人，不允许递交项目负责人变更和项目终止以外的变更；变更负责人只允许本学院审核员提交。
         if (form.project.principal.id != userId &&
-                (form.type[0] != 1 || !securityService.hasPermission('PERM_HUNT_CHECK') || form.department.id != securityService.departmentId)) {
+                (!(form.type == [1] || form.type == [5]) || !securityService.hasPermission('PERM_HUNT_CHECK') ||
+                        form.department.id != securityService.departmentId)) {
             throw new ForbiddenException()
         }
 

@@ -67,6 +67,9 @@ order by knotYear
 
     Map getFormInfo(Long id) {
         def form = projectsService.getFormInfo(id)
+        // 如果已经申请过终止，不管批否都不能再申请终止
+        def result = InfoChange.executeQuery("from InfoChange i where i.project.id = :projectId and  5 = any_element(i.type)", [projectId: form.projectId])
+        form['terminable'] = result ? false : true
         if (securityService.departmentId != form.departmentId) {
             throw new ForbiddenException()
         }

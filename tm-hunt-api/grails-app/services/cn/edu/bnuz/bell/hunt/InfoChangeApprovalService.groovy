@@ -26,12 +26,18 @@ class InfoChangeApprovalService {
     @Resource(name = 'infoChangeReviewStateMachine')
     DomainStateMachineHandler domainStateMachineHandler
 
-    private static getCounts() {
+    private def getCounts() {
 
         return [
                 (ListType.TODO): InfoChange.countByStatus(State.CHECKED),
                 (ListType.DONE): InfoChange.countByDateApprovedIsNotNull(),
-                (ListType.TOBE): InfoChange.countByStatusAndType(State.SUBMITTED, [1] as Integer[]),
+                (ListType.TOBE): dataAccessService.getInteger('''
+select count(*)
+from InfoChange form
+join form.project project
+where form.status = :status
+and (1 = any_element(form.type) or (5 = any_element(form.type) and project.principal != form.applicant))
+''', [status: State.SUBMITTED]),
         ]
     }
 
@@ -118,10 +124,14 @@ select new map(
 from InfoChange form
 join form.project project
 where form.status = :status
-and 1 = any_element(form.type)
+and (1 = any_element(form.type) or (5 = any_element(form.type) and project.principal != form.applicant))
 order by form.dateChecked
 ''', [status: State.SUBMITTED], cmd.args
         return [forms: forms, counts: getCounts()]
+    }
+
+    def countForCheck() {
+        InfoChange.getCount()
     }
 
     def getFormForApproval(String userId, Long id, ListType type) {
@@ -247,7 +257,7 @@ order by form.dateSubmitted asc
     void accept(String userId, AcceptCommand cmd, UUID workitemId) {
         InfoChange form = InfoChange.get(cmd.id)
 
-        if (form.status != State.CHECKED && !(form.status == State.SUBMITTED && form.type[0] == 1)) {
+        if (form.status != State.CHECKED && !(form.status == State.SUBMITTED && (form.type == [1] || form.type == [5]))) {
             return
         }
         domainStateMachineHandler.finish(form, userId, workitemId)
