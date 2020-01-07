@@ -37,6 +37,7 @@ join project.subtype subtype
 join project.origin origin
 join application.department department
 where e.expert = :user
+and application.reviewTask.id = :taskId
 and application.reportType in (:reportTypes)
 and e.dateReviewed is null
 order by application.dateChecked
@@ -47,13 +48,13 @@ order by application.dateChecked
         }
 
         def reportTypes = reportTypes(taskId, reviewType)
-        def list = ExpertReview.executeQuery sql, [user: expert, reportTypes: reportTypes]
+        def list = ExpertReview.executeQuery sql, [user: expert, taskId: taskId, reportTypes: reportTypes]
 
         return [
             list: list,
             counts: [
-                todo: countTodo(reportTypes),
-                done: countDone(reportTypes)
+                todo: countTodo(taskId, reportTypes),
+                done: countDone(taskId, reportTypes)
             ]
         ]
     }
@@ -70,26 +71,28 @@ order by application.dateChecked
         return [0]
     }
 
-    def countTodo(List<Integer> reportTypes) {
+    def countTodo(Long taskId, List<Integer> reportTypes) {
         dataAccessService.getLong('''
 select count(*)
 from ExpertReview e 
 join e.review application
 where e.expert.id = :userId
+and application.reviewTask.id = :taskId
 and application.reportType in (:reportTypes)
 and e.dateReviewed is null
-''', [userId: securityService.userId, reportTypes: reportTypes])
+''', [userId: securityService.userId, taskId: taskId, reportTypes: reportTypes])
     }
 
-    def countDone(List<Integer> reportTypes) {
+    def countDone(Long taskId, List<Integer> reportTypes) {
         dataAccessService.getLong('''
 select count(*)
 from ExpertReview e 
 join e.review application
 where e.expert.id = :userId
+and application.reviewTask.id = :taskId
 and application.reportType in (:reportTypes)
 and e.dateReviewed is not null
-''', [userId: securityService.userId, reportTypes: reportTypes])
+''', [userId: securityService.userId, taskId: taskId, reportTypes: reportTypes])
     }
 
     def getInfoForReview(Long id) {
@@ -106,7 +109,8 @@ and e.dateReviewed is not null
                 departmentConclusion: application.departmentConclusion,
                 conclusion: expertReview.conclusion,
                 editAble: !expertReview.dateReviewed,
-                opinion: expertReview.opinion
+                opinion: expertReview.opinion,
+                score: expertReview.value
         ]
     }
 
