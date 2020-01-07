@@ -109,7 +109,8 @@ and e.dateReviewed is not null
                 departmentConclusion: application.departmentConclusion,
                 conclusion: expertReview.conclusion,
                 editAble: !expertReview.dateReviewed,
-                opinion: expertReview.opinion
+                opinion: expertReview.opinion,
+                score: expertReview.value
         ]
     }
 
