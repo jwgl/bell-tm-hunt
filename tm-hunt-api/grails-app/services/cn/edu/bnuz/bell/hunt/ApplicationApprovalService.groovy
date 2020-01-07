@@ -185,8 +185,7 @@ order by application.dateApproved desc
                     application.project.setStatus(Status.FINISHED)
                     application.project.setDateFinished(LocalDate.now())
             }
-            application.project.save()
-        } else if (application.conclusionOfProvince == Conclusion.DELAY){
+        } else if (application.conclusionOfProvince == Conclusion.DELAY || application.conclusionOfUniversity == Conclusion.DELAY){
             // 如果是中期暂缓，中期和结项时间都延期，如果是结项暂缓，只延期结题
             switch (application.reportType) {
                 case 3:
@@ -198,7 +197,10 @@ order by application.dateApproved desc
                     application.project.setKnotYear(application.project.knotYear + 1)
                     application.project.setDelayTimes(application.project.delayTimes + 1)
             }
+        } else if (application.reportType == 4) {
+            application.project.setStatus(Status.CUTOUT)
         }
+        application.project.save()
         application.save()
     }
 
