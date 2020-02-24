@@ -37,6 +37,7 @@ join project.subtype subtype
 join project.origin origin
 join application.department department
 where e.expert = :user
+and application.reviewTask.id = :taskId
 and application.reportType in (:reportTypes)
 and e.dateReviewed is null
 order by application.dateChecked
@@ -47,7 +48,7 @@ order by application.dateChecked
         }
 
         def reportTypes = reportTypes(taskId, reviewType)
-        def list = ExpertReview.executeQuery sql, [user: expert, reportTypes: reportTypes]
+        def list = ExpertReview.executeQuery sql, [user: expert, taskId: taskId, reportTypes: reportTypes]
 
         return [
             list: list,
