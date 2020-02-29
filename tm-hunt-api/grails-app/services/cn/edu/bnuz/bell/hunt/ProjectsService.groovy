@@ -24,9 +24,11 @@ class ProjectsService {
 select new map(
     project.id as id,
     project.name as name,
-    project.principal.name as principalName,
-    project.level as level,
+    department.name as departmentName,
+    parent.name as parentName,
     subtype.name as subtype,
+    project.principal.name as principalName,
+    project.level as level,    
     origin.name as origin,
     project.code as code,
     project.middleYear as middleYear,
@@ -39,6 +41,8 @@ select new map(
 )
 from Project project
 join project.subtype subtype
+join subtype.parent parent
+join project.department department
 join project.origin origin
 where project.status <> 'CREATED'
 '''
