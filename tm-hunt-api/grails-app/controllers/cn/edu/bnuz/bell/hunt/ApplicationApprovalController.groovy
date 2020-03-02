@@ -27,12 +27,11 @@ class ApplicationApprovalController {
         renderJson applicationApprovalService.list(approverId, taskId, listType, reportType ? reportType : 1)
     }
 
-    def show(String approverId, Long applicationApprovalId, String id, String type) {
-        ListType listType= ListType.valueOf(type)
+    def show(String approverId, Long applicationApprovalId, String id) {
         if (id == 'undefined') {
-            renderJson applicationApprovalService.getFormForReview(approverId, applicationApprovalId, listType)
+            renderJson applicationApprovalService.getFormForReview(approverId, applicationApprovalId)
         } else {
-            renderJson applicationApprovalService.getFormForReview(approverId, applicationApprovalId, listType, UUID.fromString(id))
+            renderJson applicationApprovalService.getFormForReview(approverId, applicationApprovalId, UUID.fromString(id))
         }
     }
 

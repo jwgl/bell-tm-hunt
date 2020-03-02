@@ -57,7 +57,7 @@ select new map(
     project.office as office,
     project.phone as phone,
     (select count(*) from ExpertReview where review = application) as countExpert, 
-    application.status as status
+    application.status as state
 )
 from Review application join application.project project
 join project.subtype subtype
@@ -86,9 +86,9 @@ select new map(
     project.phone as phone,
     department.name as departmentName,
     application.locked as locked,
-    application.conclusionOfUniversity as conclusionOfUniversity,
+    (case when project.level = 'PROVINCE' then application.conclusionOfProvince else application.conclusionOfUniversity end) as conclusion,
     (select count(*) from ExpertReview where review = application) as countExpert, 
-    application.status as status
+    application.status as state
 )
 from Review application join application.project project
 join project.subtype subtype
@@ -118,9 +118,9 @@ select new map(
     project.phone as phone,
     department.name as departmentName,
     application.locked as locked,
-    application.conclusionOfUniversity as conclusionOfUniversity,
+    (case when project.level = 'PROVINCE' then application.conclusionOfProvince else application.conclusionOfUniversity end) as conclusion,
     (select count(*) from ExpertReview where review = application) as countExpert, 
-    application.status as status
+    application.status as state
 )
 from Review application join application.project project
 join project.subtype subtype
@@ -150,8 +150,8 @@ select new map(
     project.phone as phone,
     department.name as departmentName,
     application.locked as locked,
-    application.conclusionOfUniversity as conclusionOfUniversity,
-    application.status as status
+    (case when project.level = 'PROVINCE' then application.conclusionOfProvince else application.conclusionOfUniversity end) as conclusion,
+    application.status as state
 )
 from Review application join application.project project
 join project.subtype subtype
@@ -212,21 +212,22 @@ order by application.dateApproved desc
         application.save()
     }
 
-    def getFormForReview(String userId, Long id, ListType type, UUID workitemId) {
+    def getFormForReview(String userId, Long id, UUID workitemId) {
         def form = applicationService.getFormInfo(id)
-
+        if (!form) {
+            throw new BadRequestException()
+        }
         def activity = Workitem.get(workitemId).activitySuffix
         domainStateMachineHandler.checkReviewer(id, userId, activity)
-
         return [
                 form: form,
                 workitemId: workitemId,
-                prevId: getPrevReviewId(userId, id, type),
-                nextId: getNextReviewId(userId, id, type),
+//                prevId: getPrevReviewId(userId, id, type),
+//                nextId: getNextReviewId(userId, id, type),
         ]
     }
 
-    def getFormForReview(String userId, Long id, ListType type) {
+    def getFormForReview(String userId, Long id) {
         def form = applicationService.getFormInfo(id)
         if (!form) {
             throw new BadRequestException()
@@ -240,8 +241,8 @@ order by application.dateApproved desc
         return [
                 form: form,
                 workitemId: workitem ? workitem.id : null,
-                prevId: getPrevReviewId(userId, id, type),
-                nextId: getNextReviewId(userId, id, type)
+//                prevId: getPrevReviewId(userId, id, type),
+//                nextId: getNextReviewId(userId, id, type)
         ]
     }
 

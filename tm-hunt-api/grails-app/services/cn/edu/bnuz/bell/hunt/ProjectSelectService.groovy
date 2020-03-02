@@ -59,7 +59,7 @@ select new map(
     project.knotYear as knotYear,
     project.dateStart as dateStart,
     department.name as departmentName,
-    application.status as status
+    application.status as state
 )
 from Review application join application.project project
 join project.subtype subtype
@@ -88,7 +88,7 @@ select new map(
     application.opinionOfUniversity as opinionOfUniversity,
     application.opinionOfProvince as opinionOfProvince,
     application.conclusionOfUniversity as conclusionOfUniversity,
-    application.status as status,
+    application.status as state,
     case when project.level = 'PROVINCE' then application.conclusionOfProvince else application.conclusionOfUniversity end as conclusion,
     round (sum (case when expertReview.dateReviewed is not null and expertReview.conclusion != '弃权' then expertReview.value end)/
         cast (sum (case when expertReview.dateReviewed is not null and expertReview.value != 0 and expertReview.conclusion != '弃权' then 1 else 0 end) as big_decimal), 2) as average,
