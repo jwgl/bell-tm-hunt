@@ -20,6 +20,7 @@ class ProjectsService {
     InfoChangeService infoChangeService
 
     def list(ProjectDepartmentOptionCommand cmd) {
+        println 'here: projects'
         def sqlStr = '''
 select new map(
     project.id as id,
@@ -31,6 +32,7 @@ select new map(
     project.title as title,
     project.degree as degree,
     project.office as office,
+    project.phone as phone,
     project.level as level,    
     origin.name as origin,
     project.code as code,

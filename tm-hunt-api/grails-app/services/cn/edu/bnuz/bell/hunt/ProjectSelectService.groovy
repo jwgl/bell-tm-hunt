@@ -71,47 +71,6 @@ order by project.level, subtype.name, project.code
 ''', [reportType: reportType, taskId: taskId]
     }
 
-    def listForAdministration(Long taskId, Integer reportType) {
-        // postgresql 中的numeric类型，在HQL中要用big_decimal
-        Review.executeQuery'''
-select new map(
-    application.id as id,
-    application.reviewTask.id as taskId,
-    project.name as name,
-    project.principal.name as principalName,
-    project.level as level,
-    subtype.name as subtype,
-    project.code as code,
-    principal.name as principalName,
-    department.name as departmentName,
-    application.departmentOpinion as departmentOpinion,
-    application.opinionOfUniversity as opinionOfUniversity,
-    application.opinionOfProvince as opinionOfProvince,
-    application.conclusionOfUniversity as conclusionOfUniversity,
-    application.status as state,
-    case when project.level = 'PROVINCE' then application.conclusionOfProvince else application.conclusionOfUniversity end as conclusion,
-    round (sum (case when expertReview.dateReviewed is not null and expertReview.conclusion != '弃权' then expertReview.value end)/
-        cast (sum (case when expertReview.dateReviewed is not null and expertReview.value != 0 and expertReview.conclusion != '弃权' then 1 else 0 end) as big_decimal), 2) as average,
-    sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '同意' then 1 else 0 end) as countOk,
-    sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '不同意' then 1 else 0 end) as countVeto,
-    sum (case when expertReview.dateReviewed is not null and expertReview.conclusion = '弃权' then 1 else 0 end) as countWaiver,
-    sum (case when expertReview.dateReviewed is null then 1 else 0 end) as countNull,
-    sum (case when expertReview.dateReviewed is not null and expertReview.conclusion != '弃权' then expertReview.value end) as totalScore
-)
-from Review application join application.project project
-join project.subtype subtype
-join project.origin origin
-join application.department department
-join project.principal principal
-left join application.expertReview expertReview
-where application.reportType = :reportType
-and application.status in (:passStates)
-and application.reviewTask.id = :taskId
-group by application.id, application.reviewTask.id, project.name, project.level, subtype.name, project.code, principal.name, department.name, application.status
-order by project.level, subtype.name, project.code
-''', [reportType: reportType, passStates: [State.FINISHED, State.CHECKED], taskId: taskId]
-    }
-
     def getMiddleYears() {
         Project.executeQuery'''
 select distinct new map(middleYear as middleYear)
