@@ -19,7 +19,7 @@ class ApplicationAdministrationController {
 
     def index(Long taskApprovalId, ProjectOptionCommand cmd) {
         renderJson ([
-                list: projectSelectService.listForAdministration(taskApprovalId, cmd.reportType),
+                list: applicationAdministrationService.listForAdministration(taskApprovalId, cmd.reportType),
                 counts: projectSelectService.count(taskApprovalId),
                 isCheckTime: ReviewTask.get(taskApprovalId)?.type == ReviewType.CHECK,
                 existExpertReview: projectSelectService.existExpertReview(taskApprovalId, cmd.reportType)

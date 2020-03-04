@@ -31,6 +31,7 @@ select new map(
     project.title as title,
     project.degree as degree,
     project.office as office,
+    project.phone as phone,
     project.level as level,    
     origin.name as origin,
     project.code as code,
