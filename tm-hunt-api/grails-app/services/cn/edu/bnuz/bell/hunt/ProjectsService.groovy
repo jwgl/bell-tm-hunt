@@ -20,7 +20,6 @@ class ProjectsService {
     InfoChangeService infoChangeService
 
     def list(ProjectDepartmentOptionCommand cmd) {
-        println 'here: projects'
         def sqlStr = '''
 select new map(
     project.id as id,
