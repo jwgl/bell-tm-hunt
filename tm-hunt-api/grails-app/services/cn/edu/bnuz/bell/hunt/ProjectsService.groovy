@@ -59,7 +59,7 @@ where project.status <> 'CREATED'
         return [
                 list: list,
                 fund: fund(cmd),
-                subtypes: typeService.allSubtypes,
+                subtypes: subtypesInProjects,
                 middleYears: middleYears,
                 knotYears: knotYears,
                 departments: departmentService.allDepartments,
@@ -198,5 +198,11 @@ where project.status <> 'CREATED'
 
         sqlStr += " group by f.type order by f.type desc"
         Fund.executeQuery sqlStr, cmd.args
+    }
+
+    def getSubtypesInProjects() {
+        Project.executeQuery'''
+select distinct new map(s.id as id, s.name as name) from Project p join p.subtype s where p.dateStart is not null
+'''
     }
 }
