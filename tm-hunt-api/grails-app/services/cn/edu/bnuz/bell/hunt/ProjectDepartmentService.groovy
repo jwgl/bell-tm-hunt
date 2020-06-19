@@ -41,7 +41,7 @@ where project.status <> 'CREATED'
         def list = Project.executeQuery sqlStr, cmd.args
         return [
                 list: list,
-                subtypes: typeService.getAllSubtypes(),
+                subtypes: subtypesInProjects,
                 middleYears: middleYears,
                 knotYears: knotYears
         ]
@@ -74,5 +74,11 @@ order by knotYear
             throw new ForbiddenException()
         }
         return form
+    }
+
+    def getSubtypesInProjects() {
+        Project.executeQuery'''
+select distinct new map(s.id as id, s.name as name) from Project p join p.subtype s where p.dateStart is not null
+'''
     }
 }
