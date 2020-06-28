@@ -37,6 +37,7 @@ class UrlMappings {
                     "/upload"(controller: 'infoChange', action: 'upload', method: 'POST')
                 }
             }
+            "/projects"(resources: 'projectTeacher')
         }
 
         "/checkers"(resources: 'checker', includes: []) {
