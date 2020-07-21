@@ -123,6 +123,7 @@ select new map(
     origin.name as origin,
     project.members as members,
     project.memo as memo,
+    project.dateFinished as dateFinished,
     application.reportType as reportType
 )
 from Review application
