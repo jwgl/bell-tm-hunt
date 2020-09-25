@@ -1,6 +1,7 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
+import cn.edu.bnuz.bell.hunt.cmd.FundCommand
 import grails.gorm.transactions.Transactional
 import org.apache.poi.ss.usermodel.CellType
 import org.springframework.web.multipart.MultipartFile
@@ -10,6 +11,8 @@ import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
 
 import javax.servlet.http.HttpServletRequest
+import java.text.DateFormat
+import java.time.LocalDate
 
 @Transactional
 class FundService {
@@ -125,5 +128,78 @@ f.amount as amount
 join f.project p
 where p.id = :id
 ''', [id: id]
+    }
+
+    /**
+     * 粘贴板式的导入
+     */
+    def create(FundCommand cmd) {
+        // 报错列表
+        def error = new ArrayList<String>()
+        def success = 0
+        cmd.table?.eachWithIndex { row, index ->
+            Project project = Project.findByCode(row.data[1])
+            if (!project) {
+                error.add("第${index + 1}行，项目编号“${row.data[1]}”不存在")
+            } else if (row.data.size() < 11) {
+                error.add("第${index + 1}行，存在空值，请填充为‘0’")
+            }else {
+                def rowSuccess = false
+                (2..fields.size() - 1).each { i ->
+                    if (row.data[i] != '0' && !row.data[i].isEmpty()) {
+                        if (Fund.findByProjectAndLevelAndReportTypeAndType(project, colsName[i].level, colsName[i].reportType, cmd.fundType)) {
+                            error.add("第${index + 1}行，第${i + 1}列重复导入！")
+                        } else {
+                            Fund fund = new Fund(
+                                    project: project,
+                                    dateCreated: new Date(),
+                                    level: colsName[i].level,
+                                    reportType: colsName[i].reportType,
+                                    type: cmd.fundType,
+                                    amount: row.data[i] as BigDecimal
+                            )
+                            if (!fund.save()) {
+                                fund.errors.each {
+                                    println it
+                                }
+                            } else {
+                                rowSuccess = true
+                            }
+                        }
+                    }
+                }
+                if (rowSuccess) {
+                    success ++
+                }
+            }
+        }
+        return [error: error, success: success]
+    }
+
+    def monthesCreated() {
+        Fund.executeQuery'''select distinct to_char(f.dateCreated, 'YYYY-MM') from Fund f'''
+    }
+
+    def list(String month, String fundType) {
+        def dateStart = LocalDate.parse("${month}-01")
+        def dateEnd = dateStart.plusMonths(1)
+        Fund.executeQuery'''
+select distinct new map(
+f.project.code as code,
+max(case when f.level = 'PROVINCE' and f.reportType = 1 then f.amount end) as col1,
+max(case when f.level = 'PROVINCE' and f.reportType = 3 then f.amount end) as col2,
+max(case when f.level = 'PROVINCE' and f.reportType = 4 then f.amount end) as col3,
+max(case when f.level = 'UNIVERSITY' and f.reportType = 1 then f.amount end) as col4,
+max(case when f.level = 'UNIVERSITY' and f.reportType = 3 then f.amount end) as col5,
+max(case when f.level = 'UNIVERSITY' and f.reportType = 4 then f.amount end) as col6,
+max(case when f.level = 'COLLEGE' and f.reportType = 1 then f.amount end) as col7,
+max(case when f.level = 'COLLEGE' and f.reportType = 3 then f.amount end) as col8,
+max(case when f.level = 'COLLEGE' and f.reportType = 4 then f.amount end) as col9
+)
+from Fund f
+where f.dateCreated between to_date(:dateStart, 'YYYY-MM-DD') and to_date(:dateEnd, 'YYYY-MM-DD') 
+and f.type = :fundType
+group by f.project.code
+''', [fundType: fundType, dateStart: dateStart.toString(), dateEnd: dateEnd.toString()]
     }
 }
