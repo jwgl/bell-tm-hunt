@@ -353,7 +353,11 @@ order by form.dateSubmitted asc
         if (form.status != State.CHECKED && !(form.status == State.SUBMITTED && form.type[0] == 1)) {
             return
         }
-        domainStateMachineHandler.reject(form, userId, cmd.comment, workitemId, form.checker.id)
+        if (form.status == State.SUBMITTED && form.type[0] == 1) {
+            domainStateMachineHandler.reject(form, userId, null, cmd.comment, workitemId)
+        } else {
+            domainStateMachineHandler.reject(form, userId, cmd.comment, workitemId, form.checker.id)
+        }
         form.approver = Teacher.load(userId)
         form.dateApproved = new Date()
         form.checker = null

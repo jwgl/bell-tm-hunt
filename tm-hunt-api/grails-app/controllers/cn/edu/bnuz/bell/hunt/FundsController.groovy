@@ -3,7 +3,9 @@ package cn.edu.bnuz.bell.hunt
 import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.http.ServiceExceptionHandler
+import cn.edu.bnuz.bell.hunt.cmd.FundCommand
 import cn.edu.bnuz.bell.security.SecurityService
+import org.springframework.security.access.method.P
 import org.springframework.security.access.prepost.PreAuthorize
 
 class FundsController implements ServiceExceptionHandler {
@@ -11,7 +13,13 @@ class FundsController implements ServiceExceptionHandler {
     CheckerService checkerService
     SecurityService securityService
 
-    def index() { }
+    def index(String month, String fundType) {
+        if (month != null && month != 'null') {
+            renderJson([monthes: fundService.monthesCreated(), funds: fundService.list(month, fundType)])
+        } else {
+            renderJson([monthes: fundService.monthesCreated()])
+        }
+    }
 
     /**
      * 上传文件
@@ -35,5 +43,18 @@ class FundsController implements ServiceExceptionHandler {
             throw new ForbiddenException()
         }
         renderJson([projectName: project.name, funds: fundService.getProjectFunds(project.id)])
+    }
+
+    /**
+     * 保存数据
+     */
+    def save() {
+        def cmd = new FundCommand()
+        bindData(cmd, request.JSON)
+        if (!cmd.table) {
+            renderOk()
+        } else {
+            renderJson(fundService.create(cmd))
+        }
     }
 }
