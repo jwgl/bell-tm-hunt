@@ -71,7 +71,7 @@ class ApplicationApprovalController {
                 throw new BadRequestException()
         }
 
-        show(approverId, applicationApprovalId, id, 'todo')
+        show(approverId, applicationApprovalId, id)
     }
 
     def update(String approverId, Long id) {

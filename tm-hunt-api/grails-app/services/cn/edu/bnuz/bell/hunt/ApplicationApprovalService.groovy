@@ -183,7 +183,9 @@ order by application.dateApproved desc
                     break
                 case 4:
                     application.project.setStatus(Status.FINISHED)
-                    application.project.setDateFinished(LocalDate.now())
+                    if (!application.project.dateFinished) {
+                        application.project.setDateFinished(LocalDate.now())
+                    }
             }
         } else if (application.conclusionOfProvince == Conclusion.DELAY || application.conclusionOfUniversity == Conclusion.DELAY){
             // 如果是中期暂缓，中期和结项时间都延期，如果是结项暂缓，只延期结题
