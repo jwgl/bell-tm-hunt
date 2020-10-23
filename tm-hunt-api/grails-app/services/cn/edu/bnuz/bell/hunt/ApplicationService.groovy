@@ -111,6 +111,7 @@ select new map(
     project.phone as phone,
     project.name as name,
     project.level as level,
+    project.dateFinished as dateFinished,
     application.status as status,
     project.urls as urls,
     project.status as projectStatus,

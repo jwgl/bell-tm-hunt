@@ -64,6 +64,10 @@ class ApplicationAdministrationService {
         form.setConclusionOfProvince(cmd.conclusionOfProvince ? (cmd.conclusionOfProvince as Conclusion) : null)
         form.setOpinionOfUniversity(cmd.opinionOfUniversity)
         form.setOpinionOfProvince(cmd.opinionOfProvince)
+        // 如果结项日期不空，则设置结项日期
+        if (cmd.dateFinished) {
+            form.project.setDateFinished(cmd.toDate(cmd.dateFinished))
+        }
         // 只有立项申报的时候需要设置一下内容
         if (form.reportType == 1) {
             if ((form.project.level == Level.PROVINCE && form.conclusionOfProvince == Conclusion.OK) ||

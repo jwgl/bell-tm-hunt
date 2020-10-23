@@ -13,6 +13,7 @@ class ApprovalOperationCommand {
     String dateStarted
     Integer middleYear
     Integer knotYear
+    String dateFinished
 
     static LocalDate toDate(String dateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
