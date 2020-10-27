@@ -1,12 +1,13 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
-import cn.edu.bnuz.bell.http.NotFoundException
-import cn.edu.bnuz.bell.hunt.utils.ZipTools
-import cn.edu.bnuz.bell.workflow.Activities
+import cn.edu.bnuz.bell.security.User
 import cn.edu.bnuz.bell.workflow.Event
 import cn.edu.bnuz.bell.workflow.ListCommand
 import cn.edu.bnuz.bell.workflow.ListType
+import cn.edu.bnuz.bell.workflow.State
+import cn.edu.bnuz.bell.workflow.WorkflowInstance
+import cn.edu.bnuz.bell.workflow.Workitem
 import cn.edu.bnuz.bell.workflow.commands.AcceptCommand
 import cn.edu.bnuz.bell.workflow.commands.RejectCommand
 import org.springframework.beans.factory.annotation.Value
@@ -42,6 +43,14 @@ class InfoChangeApprovalController {
                 bindData(cmd, request.JSON)
                 cmd.id = infoChangeApprovalId
                 infoChangeApprovalService.accept(approverId, cmd, UUID.fromString(id))
+                InfoChange form = InfoChange.get(cmd.id)
+                def workitem = Workitem.findByInstanceAndStateAndFrom(
+                        WorkflowInstance.load(form.workflowInstanceId),
+                        State.FINISHED,
+                        User.load(approverId),
+                )
+                workitem?.setNote(cmd.comment)
+                workitem?.save()
                 break
             case Event.REJECT:
                 def cmd = new RejectCommand()

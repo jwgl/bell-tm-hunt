@@ -1,13 +1,9 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.http.BadRequestException
-import cn.edu.bnuz.bell.http.ForbiddenException
-import cn.edu.bnuz.bell.http.NotFoundException
 import cn.edu.bnuz.bell.hunt.cmd.ApprovalOperationCommand
 import cn.edu.bnuz.bell.hunt.cmd.BatCommand
 import cn.edu.bnuz.bell.hunt.cmd.FinishCommand
-import cn.edu.bnuz.bell.hunt.utils.ZipTools
-import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.workflow.Event
 import cn.edu.bnuz.bell.workflow.ListType
 import cn.edu.bnuz.bell.workflow.commands.RejectCommand
