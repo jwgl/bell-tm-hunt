@@ -5,7 +5,6 @@ import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.http.ServiceExceptionHandler
 import cn.edu.bnuz.bell.hunt.cmd.FundCommand
 import cn.edu.bnuz.bell.security.SecurityService
-import org.springframework.security.access.method.P
 import org.springframework.security.access.prepost.PreAuthorize
 
 class FundsController implements ServiceExceptionHandler {
