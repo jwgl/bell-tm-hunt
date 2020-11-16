@@ -89,8 +89,7 @@ where r.id in (:ids)
 select r
 from Review r
 join r.expertReview er
-join er.expert e
-where r.id in (:ids) and e.id = :expert
+where r.id in (:ids) and er.expertId = :expert
 ''', [ids: cmd.ids, expert: securityService.userId]
         }
         response.setHeader("Content-disposition",

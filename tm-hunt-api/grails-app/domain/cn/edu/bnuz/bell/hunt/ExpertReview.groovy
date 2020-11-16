@@ -14,7 +14,7 @@ class ExpertReview {
     /**
      * 专家
      */
-    Teacher expert
+    String expertId
 
     /**
      * 专家意见
@@ -43,7 +43,7 @@ class ExpertReview {
         table                   schema: 'tm_hunt'
 
         id                      generator: 'identity', comment: '无意义ID'
-        expert                  comment: '专家'
+        expertId                length: 5, comment: '专家'
         opinion                 type: 'text', comment: '专家意见'
         conclusion              type: 'text', comment: '专家评审结论'
         review                  comment: '所属项目审核'

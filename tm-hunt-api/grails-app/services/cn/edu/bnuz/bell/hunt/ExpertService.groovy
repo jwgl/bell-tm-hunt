@@ -1,8 +1,6 @@
 package cn.edu.bnuz.bell.hunt
 
 import cn.edu.bnuz.bell.hunt.cmd.ExpertCommand
-import cn.edu.bnuz.bell.organization.Teacher
-import cn.edu.bnuz.bell.security.SecurityService
 import grails.gorm.transactions.Transactional
 
 @Transactional
@@ -15,19 +13,17 @@ class ExpertService {
         Expert.executeQuery'''
 select new map(
     e.id as id,
-    t.id as teacherId,
-    t.name as teacherName,
-    t.sex as sex,
-    t.academicTitle as academicTitle,
-    t.academicDegree as academicDegree,
+    e.teacherId as teacherId,
+    u.name as teacherName,
+    (select sex from Teacher where id = e.teacherId) as sex,
+    (select academicTitle from Teacher where id = e.teacherId) as academicTitle,
+    (select academicDegree from Teacher where id = e.teacherId) as academicDegree,
     u.email as email,
     u.longPhone as phone,
-    d.name as departmentName
+    (select d.name from Teacher t join t.department d where t.id = e.teacherId) as departmentName
 )
-from Expert e
-join e.teacher t
-join t.department d, User u
-where t.id = u.id and e.team is null
+from Expert e, User u
+where e.teacherId = u.id and e.team is null
 '''
     }
 
@@ -36,7 +32,7 @@ where t.id = u.id and e.team is null
      */
     def create(ExpertCommand cmd) {
         Expert expert = new Expert(
-                teacher: Teacher.load(cmd.teacherId),
+                teacherId: cmd.teacherId,
                 enabled: true
         )
         expert.save()
@@ -51,12 +47,11 @@ where t.id = u.id and e.team is null
 select new map(
     e.id as id,
     e.enabled as enabled,
-    t.id as teacherId,
-    t.name as teacherName
+    e.teacherId as teacherId,
+    u.name as teacherName
 )
-from Expert e 
-join e.teacher t
-where e.id = :id
+from Expert e, User u 
+where e.teacherId = u.id and e.id = :id
 ''', [id: id]
     }
 
@@ -94,12 +89,11 @@ where e.id = :id
     def loadTeam() {
         Expert.executeQuery'''
 select new map(
-    t.name as teacherName,
+    u.name as teacherName,
     e.team as team
 )
-from Expert e
-join e.teacher t
-where e.team is not null
+from Expert e, User u
+where e.teacherId = u.id and e.team is not null
 '''
     }
 

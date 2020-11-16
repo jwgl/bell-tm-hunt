@@ -1,12 +1,9 @@
 package cn.edu.bnuz.bell.hunt
 
-import cn.edu.bnuz.bell.http.BadRequestException
 import cn.edu.bnuz.bell.http.ForbiddenException
 import cn.edu.bnuz.bell.hunt.cmd.ExpertReviewCommand
-import cn.edu.bnuz.bell.organization.Teacher
 import cn.edu.bnuz.bell.security.SecurityService
 import cn.edu.bnuz.bell.service.DataAccessService
-import cn.edu.bnuz.bell.workflow.State
 import grails.gorm.transactions.Transactional
 
 @Transactional
@@ -36,19 +33,18 @@ join application.project project
 join project.subtype subtype
 join project.origin origin
 join application.department department
-where e.expert = :user
+where e.expertId = :user
 and application.reviewTask.id = :taskId
 and application.reportType in (:reportTypes)
 and e.dateReviewed is null
 order by application.dateChecked
 '''
-        def expert = Teacher.load(securityService.userId)
         if (type == 'done') {
             sql = sql.replace('e.dateReviewed is null', 'e.dateReviewed is not null')
         }
 
         def reportTypes = reportTypes(taskId, reviewType)
-        def list = ExpertReview.executeQuery sql, [user: expert, taskId: taskId, reportTypes: reportTypes]
+        def list = ExpertReview.executeQuery sql, [user: securityService.userId, taskId: taskId, reportTypes: reportTypes]
 
         return [
             list: list,
@@ -76,7 +72,7 @@ order by application.dateChecked
 select count(*)
 from ExpertReview e 
 join e.review application
-where e.expert.id = :userId
+where e.expertId = :userId
 and application.reviewTask.id = :taskId
 and application.reportType in (:reportTypes)
 and e.dateReviewed is null
@@ -88,7 +84,7 @@ and e.dateReviewed is null
 select count(*)
 from ExpertReview e 
 join e.review application
-where e.expert.id = :userId
+where e.expertId = :userId
 and application.reviewTask.id = :taskId
 and application.reportType in (:reportTypes)
 and e.dateReviewed is not null
@@ -97,7 +93,7 @@ and e.dateReviewed is not null
 
     def getInfoForReview(Long id) {
         def application = Review.load(id)
-        def expertReview = ExpertReview.findByExpertAndReview(Teacher.load(securityService.userId), application)
+        def expertReview = ExpertReview.findByExpertIdAndReview(securityService.userId, application)
         if (!expertReview) {
             throw new ForbiddenException()
         }
@@ -116,7 +112,7 @@ and e.dateReviewed is not null
 
     def update(Long id, ExpertReviewCommand cmd) {
         def application = Review.load(id)
-        def expertReview = ExpertReview.findByExpertAndReview(Teacher.load(securityService.userId), application)
+        def expertReview = ExpertReview.findByExpertIdAndReview(securityService.userId, application)
         if (!expertReview) {
             throw new ForbiddenException()
         }
@@ -131,7 +127,7 @@ and e.dateReviewed is not null
 
     def submit(Long id) {
         def application = Review.load(id)
-        def expertReview = ExpertReview.findByExpertAndReview(Teacher.load(securityService.userId), application)
+        def expertReview = ExpertReview.findByExpertIdAndReview(securityService.userId, application)
         if (!expertReview) {
             throw new ForbiddenException()
         }

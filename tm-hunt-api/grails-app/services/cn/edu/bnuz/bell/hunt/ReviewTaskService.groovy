@@ -225,7 +225,7 @@ select new map(
 from Review r
 join r.reviewTask rt
 join r.expertReview er
-where er.expert.id = :userId
+where er.expertId = :userId
 group by rt.id, rt.title, rt.endDate, rt.type
 ''', [userId: securityService.userId]
     }
@@ -239,7 +239,7 @@ select new map(
 from Review r
 join r.reviewTask rt
 join r.expertReview er
-where rt.id = :taskId and er.expert.id = :userId
+where rt.id = :taskId and er.expertId = :userId
 ''', [taskId: taskId, userId: securityService.userId]
         return result ? result[0] : [:]
     }
