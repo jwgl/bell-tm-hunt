@@ -312,16 +312,16 @@ where r.id = :id and d.id = rd.id
     private static getExpertReview(Long reviewId) {
         ExpertReview.executeQuery'''
 select new map(
-    t.id as teacherId,
-    t.name as teacherName,
+    e.expertId as teacherId,
+    u.name as teacherName,
     e.opinion as opinion,
     e.conclusion as conclusion,
     e.dateReviewed as dateReviewed
 )
 from ExpertReview e
 join e.review r
-join e.expert t
-where r.id = :id
+, User u
+where r.id = :id and u.id = e.expertId
 ''', [id: reviewId]
     }
 

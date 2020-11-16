@@ -1,7 +1,5 @@
 package cn.edu.bnuz.bell.hunt
 
-import cn.edu.bnuz.bell.organization.Teacher
-
 /**
  * 评审专家
  */
@@ -9,7 +7,7 @@ class Expert {
     /**
      * 教师
      */
-    Teacher teacher
+    String teacherId
 
     /**
      * 是否在聘期
@@ -25,7 +23,7 @@ class Expert {
         comment         '评审专家'
         table           schema: 'tm_hunt'
         id              generator: 'identity', comment: '无意义ID'
-        teacher         comment: '教师'
+        teacherId       length: 5, comment: '教师'
         enabled         comment: '是否在聘期'
         team            comment: '分组'
     }

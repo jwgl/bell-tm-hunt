@@ -32,7 +32,7 @@ class ApplicationAdministrationService {
                         def expertReview = new ExpertReview(
                                 review: form,
                                 value: 0,
-                                expert: expert.teacher
+                                expertId: expert.teacherId
                         )
                         if (!expertReview.save()) {
                             expertReview.errors.each {
